@@ -1,0 +1,197 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 1 - Equally Likely Outcomes/Syllabus Day}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Syllabus Notes}
+
+\subsection{Exams}
+There will be two tests and a final exam. Exams are worth 20\% each, and the final exam is worth 30\%. Final will replace the lowest grade.
+
+\subsection{Homework}
+Homeworks are due Thursdays at 11:59 pm. Homework is worth 30\%. Professor says yes to most homework extensions. If all homeworks are done on time, 0.5\% will be added to the homework average. Problem sets are on Sakai, and there will be no homework on test weeks.
+
+\subsection{Help Rooms}
+Help rooms are Tues/Wed/Thurs 7pm - 10pm in Physice 259.
+
+\section{Interpretations of Probability}
+There are two ways of discussing probability: \textbf{frequency} and \textbf{degree of belief}.
+
+\begin{definition}
+    The frequency interpretation for coin tosses says that as the number of flips foes to $\infty$, $\frac{1}{2} $ will be heads. We can also call this the \textbf{long-run average}.
+\end{definition}
+
+\begin{definition}
+    The \textbf{degree of belief} interpretation discusses how confident a person is. This interpretation is best for one-time events, or events are not repeatable.
+\end{definition}
+
+\begin{ex}
+    Which interpretation of probability is best for elections, weather predictions, and medical studies? \\[.1in]
+    The \textbf{degree of belief interpretation}, since the election is an experiment that can only be run once.
+\end{ex}
+
+\pagebreak
+\section{Course Overview}
+We will directly compute probability. Then, we will describe the \textit{distribution} of values. Finally, we update our probabilities based on new information. The final step is \textit{conditional probability}.
+
+\subsection{Discrete Probability}
+Dice, cards, and coins are \textbf{discrete} since they have a fixed set of possible values. Calculating probabilities for discrete values will typically involve sums.
+
+\subsection{Continuous Probability}
+Time, height, and length are \textbf{continuous} since their possible values are infinite. Probability calculations will involve
+
+\section{Definitions}
+\begin{definition}
+    An \textbf{experiment} is a well-defined procedure that returns a result.
+    \begin{itemize}
+        \item Flip a coin
+        \item Measure someone's height
+    \end{itemize}
+\end{definition}
+
+\begin{definition}
+    The \textbf{outcome space} or \textbf{sample space} is a set of all possible outcomes. The notation for this set is $\Omega$. We also call this the \textbf{universal set}.
+\end{definition}
+
+\begin{ex}
+    Define $\Omega$ for dice rolls.
+    \[
+    \Omega = \{1,2,3,4,5,6\}
+    \]
+\end{ex}
+
+\begin{ex}
+    Define $\Omega$ for height.
+    \[
+    \Omega = (0\text{ft.}, 8\text{ft.})
+    \]
+\end{ex}
+
+\begin{definition}
+    An \textbf{event} is a \textbf{subset} of possible outcomes. We notate this with $A$.
+\end{definition}
+
+For even-number dice rolls, $A = \{2,4,6\}$ 
+
+\begin{definition}
+    The \textbf{probability} of an event $A$ is denoted $\mathbb{P}(A)$
+\end{definition}
+ 
+\begin{note}
+    If all outcomes in $\Omega$ are equally likely:
+    \[
+    \mathbb{P} = \frac{\#A}{\#\Omega} 
+    \]
+\end{note}
+
+
+\begin{ex}
+    What is the likelihood if you flip a fair coin twice, that the coin will land on heads at least once?
+    \[
+    \mathbb{P}(B) = 1 - \mathbb{P}(\text{no heads}) = 1 - \frac{1}{4}
+    \]
+    \[
+    \mathbb{P}(B) = \frac{3}{4} 
+    \]
+\end{ex}
+
+\begin{definition}
+    An impossible event is an \textbf{empty set} and is denoted with $\phi $.
+\end{definition}
+
+\begin{definition}
+    The \textbf{complement} of a set is the opposite set of solutions. If $A$ is rolling an even number, then $A^C$ is rolling odd.
+\end{definition}
+
+\subsection{Set Language}
+For an inclusive OR (meaning both sets and their overlap), we use a \textbf{union}, which is annotated as $A \cup B$.
+
+To get only where $A$ and $B$ overlap, we use an \textbf{intersection}, annotated as $A \cap B$.
+
+\begin{definition}
+    Two sets are \textbf{disjoint} if there is no overlap, or:
+    \[
+    A \cap B = \phi 
+    \]
+\end{definition}
+
+\pagebreak
+\section{Formulas and Rules for Calculations}
+\begin{equation}
+    \mathbb{P}(\Omega) = 1
+\end{equation}
+
+\begin{equation}
+    0 \le \mathbb{P}(B) \le 1
+\end{equation}
+
+If two sets $A$ and $B$ are \textit{disjoint}, then:
+\begin{equation}
+    \mathbb{P}(A \text{ or } B) = \mathbb{P}(A) + \mathbb{P}(B)
+\end{equation}
+
+\begin{equation}
+    \mathbb{P}(A \cup B) = \mathbb{P}(A) + \mathbb{P}(B) - \mathbb{P}(A \cap B)
+\end{equation}
+
+\end{document}

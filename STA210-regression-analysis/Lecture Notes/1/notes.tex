@@ -1,0 +1,113 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!4!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 1 - Intro and Syllabus Day}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Notes}
+
+\subsection{Considerations for model construction}
+\begin{itemize}
+    \item Prediction vs. Explanation
+    \item Association vs. Causation
+    \item Data-driven vs. Theory-driven
+    \item Prospective vs. Retrospective
+\end{itemize}
+
+\subsection{Why linear models?}
+\begin{itemize}
+    \item they are foundational for more "sophisticated" models
+    \item they are transparent for the modeler and the audience
+    \item they are translational (like Optical Character Recognition [OCR])
+    \item they are useful
+\end{itemize}
+
+\begin{note}
+The primary question of a linear model is "How does $X$ change $Y$?". Variability is natural for these relationships due to randomness. This is a \textbf{bivariate} relationship.
+\end{note}
+
+\subsection{Means and variances}
+\textbf{Expectations} are averages:
+\[
+E(Y) = \sum_y \times p_Y(y)
+\]
+\textbf{Variances} are expected squared deviations around the mean.
+\[
+Var(Y) = E\big[(Y-E(Y))^2\big]
+\]
+\textbf{Conditional} means and variances ($Y$ given that $X = x$):
+\[
+E(Y|X = x) = \text{... some function}
+\]
+\[
+Var(Y|X = x) = \text{... some other function}
+\]
+\begin{ex}
+    One possible sample of conditional variance and expectations:
+    \[
+    E(Y|X = x) = \beta_0 + \beta_1x
+    \]
+    \[
+    Var(Y|X = x) = \sigma^2
+    \]
+\end{ex}
+\end{document}
