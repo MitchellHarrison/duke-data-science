@@ -8,3 +8,5 @@
 *.synctex.gz
 
 .Rproj.user
+
+/Homework/*
