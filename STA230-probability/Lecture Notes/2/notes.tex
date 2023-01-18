@@ -1,0 +1,188 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 2 - Foundations}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review from Previous Lecture}
+
+\begin{ex}
+    Two fair dice are rolled. $A$ is the event that both are 3's and $B$ is the event that one roll is a 5 and the other is a 6. \textbf{Which is more likely}, $A$ or $B$?
+   \begin{align*}
+       A &= \{(3,3)\} \\
+       B &= \{(5,6), (6,5)\}
+   \end{align*}
+    Since $B$ has more elements, it is more likely than $A$, therefore:
+    \[
+    \boxed{\mathbb{P}(B) > \mathbb{P}(A)} 
+    \]
+\end{ex}
+
+\subsection{Useful Formulas/Rules for Calculations}
+\begin{itemize}
+    \item $P(\Omega) = 1$ for an outcome space $\Omega$ 
+    \item $0 \le \mathbb{P}(B) \le 1$ for any event $B$ 
+    \item If $B_1 \cap B_2 = \phi $, then $\mathbb{P}(B_1 \cup  B_2) = \mathbb{P}(B_1) + \mathbb{P}(B_2)$ 
+    \item $\mathbb{P}(A^\complement) = 1 - \mathbb{P}(A)$ and vice versa.
+    \item $\mathbb{P}(A \cup B) = \mathbb{P}(A) + \mathbb{P}(B) - \mathbb{P}(A \cap B)$ 
+\end{itemize}
+
+\begin{ex}
+    You roll three fair dice. \textbf{What is the probability that at least one roll is even?} 
+   \begin{align*}
+       \mathbb{P}(\text{At least 1 even}) &= 1 - \mathbb{P}(\text{No even rolls)} \\
+        &= 1 - \frac{1}{8} 
+        \Aboxed{\mathbb{P}(\text{At least 1 even}) = \frac{7}{8}}
+   \end{align*}
+
+\end{ex}
+\pagebreak
+
+\section{Permutations and Combinations}
+\subsection{Permutations}
+\begin{definition}
+    \textbf{Permutations} are the number of possible ways to order $n$ different things, as is $n!$ For example, there are $3! = 6$ possible ways to order 3 elements.
+\end{definition}
+
+\subsection{Combinations}
+\begin{definition}
+    \textbf{Combinations} are the number of ways to choose $k$ items out of a collections of $n$ possible items. The notation for this is as follows:
+    \[
+        \binom{n}{k}
+    \]
+\end{definition}
+To calculate the \textbf{binomial coefficient} $\binom{n}{k}$, the following formula is used:
+\[
+    \frac{n!}{(n-k)! k!}
+\]
+\begin{ex}
+    \textbf{How many ways can we arrange 5 red and 3 blue chairs?} 
+    \[
+      \binom{8}{3} \quad \text{or} \quad \binom{8}{5} = \binom{8!}{5!3!} = \boxed{56} 
+    \]
+\end{ex}
+\pagebreak
+\section{Distributions}
+\begin{ex}
+    Teams play a dice rolling game:
+    \begin{itemize}
+        \item Each team has 36 tokens they can distribute in bins labelled 2 through 12
+        \item Once all tokens are distributed, the host rolls a pair of dice and announces the sum.
+        \item Teams may remove one token from the bin labelled with that sum.
+        \item The host continues reporting the sums until a team runs out of tokens, and that team is the winner.
+
+        \textit{(a)} \textbf{What is the most likely sum?} 
+        \[
+        \boxed{7} 
+        \]
+        \textit{(b)} \textbf{What is the best way to distribute the tokens?} 
+        \[
+        \boxed{\text{A bell curve centered on 7}}
+        \]
+    \end{itemize}
+\end{ex}
+
+The distribution of possible sums on a 2-column table with one column being a possible sum of two dice and the second being the probability of that sum. This is a \textbf{Probability Mass Function} 
+
+\textbf{Heuristic Idea}: 
+The probability \textbf{distribution} describes the probability of all outcomes in the outcome space.
+
+\begin{definition}
+    A probability \textbf{distribution} is a function, whose input is an event and the output is the liklihood of that event.
+    \[
+    F(outcome)
+    \]
+\end{definition}
+
+The previous 2-column \textbf{probability mass function} is best used for small numbers of possible outcomes.
+
+A \textbf{histogram} (discrete) or \textbf{normal/bell curve} (continuous) of probabilities of possible sums is best for larger number of possible outcome spaces.
+
+A \textbf{function} is best used  when the number of experiments is potentially infinite. For example, flipping a coin until it lands on heads.
+
+\subsection{Mathematical Definition of Distribution}
+\begin{definition}
+    A \textbf{partition} is a way of dividing up outcomes. The partition of some set $B$, written as $(B_1,\dots,B_n)$, is a list of subsets of an outcome space $\Omega$ such that:
+    \[
+    B_i \cap B_j = \phi \quad \text{and}
+    \]
+    \[
+    \bigcup_{i=1}^{n}B_i = B
+    \]
+   In other words, together the $B_i$'s make up all of $B$, but no two $B_i$'s overlap with each other.
+\end{definition}
+
+\begin{ex}
+    For a partition of $B$, $(B_1, \dots, B_n$, what is $\mathbb{P}(B_1 \cup \dots \cup B_n$?
+\[
+    \boxed{\sum_{i=1}^{n}B_i} 
+\]
+\end{ex}
+
+The \textbf{probability distribution} is a function. The input into the function is any event (subset) of the outcome space. The output of the function is the probability of that ecent. Any function, $P$, can be a distribution ocer $\Omega$ as long as it satisfies three properties:
+\begin{itemize}
+    \item $P(B) \ge 0$ for any event $B$ 
+    \item For any event $B$ and any partition $(B_1, \dots, B_n)$ of $B$, $P(B) = \sum_{i=1}^{n}P(B_i)$ 
+    \item $P(\Omega) = 1$ 
+\end{itemize}
+\end{document}
