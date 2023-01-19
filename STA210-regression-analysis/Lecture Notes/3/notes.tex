@@ -1,0 +1,99 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 3 - Visualizing Data}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Exploratory Data Analysis (EDA)}
+
+\begin{definition}
+    \textbf{Exploratory data analysis (EDA)} is an approach to analyzing data to summarise their main characteristics.
+\end{definition}
+
+EDA is often visual. Today, we will focus on visualizing data in R using \textit{ggplot2}. Familiarizing oneself with a data set comes before this step. Knowing which variables (and types of variables) are in the data set is the first step in appropriately visualizing it.
+\pagebreak
+
+\section{Visualizing Data}
+\subsection{Grammar of Graphics}
+The \textbf{Grammar of Graphics} concisely describes the elements of data visualization. The following list is the order that these elements appear. The \textit{ggplot2} package (part of the \textit{tidyverse}) implements the grammar of graphics in R.
+\begin{enumerate}
+    \item Data
+    \item Aesthetics
+    \item Geometries
+    \item Facets
+    \item Statistics
+    \item Coordinates
+    \item Theme
+\end{enumerate}
+\pagebreak
+\section{Manipulating Data}
+\subsection{Tidy Data}
+\begin{definition}
+    \textbf{Tidy data} is a dataset in which each row in an observation and each column is a variable.
+\end{definition}
+Data may not be tidy for any number of reasons, but the vast majority of the time, we will tidy our data prior to visualizing it.
+
+\subsection{Why do we visualize data?}
+Visualizing data makes it much easier to intuitively see patterns in data. These patterns are sometimes not even apparent by calculating summary statistics. The \textit{datasauRus\_dozen} datasets shows several plots with a similar \textit{correlation coefficient} that are visibly completely different.
+
+\end{document}
