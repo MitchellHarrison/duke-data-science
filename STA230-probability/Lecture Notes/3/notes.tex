@@ -1,0 +1,215 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 3 - Conditional Probability and Independence}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review from previous lecture}
+
+\begin{ex}
+    Five people (Ana, Boe, Chloe, Dylan, Eli) arrange themselves in a line. \textbf{How many ways can they arrange themselves} so that Ana is in front of Boe and Boe is in front of Chloe?
+
+To cover the specific arrangement of Ana, Boe, and Chloe, we will use:
+\[
+    \binom{5}{3}
+\]
+And the final two members have $2!$ possible combinations, regardless of order. Combining these, we find the final total of possible orderings:
+\[
+    \boxed{\binom{5}{3}2!}
+\]
+\end{ex}
+\pagebreak
+\section{Conditional Probability}
+\subsection{Notation}
+We describe the probability of event $A$ as $\mathbb{P}(A)$. For conditional probability (i.e. "Probability of A given B"), we use:
+
+\[
+    \mathbb{P}\left(A \;\middle|\; B\right) 
+\]
+\begin{ex}
+    There are 2800 people in the world that are taller than 7 feet. There are 529 players in the NBA and 36 of those are greater than or equal to 7 feet. The global population is about 7.4 billion. \\
+    \textit{(a)} \textbf{If you select a person at random from the global population, what is the likelihood that the chosen person is greater than or equal to 7 feet tall?} This is event $A$.
+    \[
+    \boxed{\mathbb{P}(A) = \frac{2800}{7.4b} \approx .00000038}
+    \]
+    \textit{(b)} \textbf{Suppose you select a person from the global population. You are told that the person happens to be in the NBA. Now, what is the probability that the person is greater than or equal to 7 feet tall?} Let being in the NBA be event $B$.
+    \[
+        \mathbb{P}\left(A \;\middle|\; B\right) = \frac{36}{529} \approx 7\%
+    \]
+\end{ex}
+
+\subsection{Generalizing}
+\begin{definition}
+    A \textbf{conditional probability} of an event is the probability of the event given the occurence of another event (or given additional information).
+\end{definition}
+Conditional probabilities shrink the outcome space to be our given condition. \\
+The formula for conditional probability given \textit{equally likely outcomes} is below:
+\[
+    \mathbb{P}\left(A \;\middle|\; B\right) = \frac{\#(A \cap B)}{\#B}
+\]
+Generalizing to events that are \textit{not necessarily equally likely} , we have a general formula:
+\[
+    \mathbb{P}\left(A \;\middle|\; B\right) = \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(B)} 
+\]
+\begin{ex}
+    A hat contains three cards. One is red on both sides, one is red on both sides, one is red on one side and white on the other. A single card is drawn and placed on a table. The visible side is red. \textbf{What is the chance that the other side is white?} \\
+    The outcome space for possible faces being visible on the table is:
+    \[
+        \Omega = \{R_1, R_2, R_3, W_1, W_2, W_3\}
+    \]
+    Event $A$ is drawing a red face, and $B$ is the underside of the drawn card being white.
+   \begin{align*}
+       A &= \{R_1, R_2, R_3\} \\
+       B &= \{W_1, W_2, R_3\}
+   \end{align*}
+    
+   Finally, we arrive at a solution from our conditional probability formula:
+  \begin{align*}
+      \mathbb{P}\left(A \;\middle|\; B\right) &= \frac{\#(A \cap B)}{\#(A)} \\
+                                              &= \frac{1}{3} \\
+      \Aboxed{\mathbb{P}\left(A \;\middle|\; B\right) &= \frac{1}{3}}
+  \end{align*}
+\end{ex}
+
+\subsection{Multiplication Rule}
+\begin{definition}
+    The \textbf{multiplication rule} is a way to calculate $\mathbb{P}(A \cap B)$.
+\end{definition}
+There are two multiplication rule formula. The first is for $A$ given $B$, and the second is for $B$ given $A$.
+\begin{align*}
+    \mathbb{P}(A \cap B) &= \mathbb{P}(B) \mathbb{P}\left(A \;\middle|\; B\right) \\
+    \mathbb{P}(A \cap B) &= \mathbb{P}(A) \mathbb{P}\left(B \;\middle|\; A\right) 
+\end{align*}
+
+
+The most general form of the multiplication rule (for \textit{any number of events}) is given below:
+\[
+\boxed{\mathbb{P}(A_1 \cap \cdots \cap A_n) = \mathbb{P}(A) \mathbb{P}\left(A_2 \;\middle|\; A_2\right) \mathbb{P}\left(A_3 \;\middle|\; A_1 \cap A_2\right) \cdots \mathbb{P}\left(A_n \;\middle|\; A_1 \cap \cdots \cap A_{n-1}\right)}
+\]
+\pagebreak
+\subsection{Tree Diagrams}
+\begin{definition}
+    \textbf{Tree diagrams} represent possible outcomes are represented by branches. Probabilities/conditional probabilities are indicated along each branch.
+\end{definition}
+
+\begin{ex}
+    If a basketball player makes a three, he has a 75\% chance of making his next attempt. If he misses, he has a 50\% chance of making his next attempt. He takes three shots. \\
+    \textit{(a)} If he has a 60\% chance of making his first shot, \textbf{how likely is it that he makes all three?}  \\
+    The probiblity for each successive shot given that he makes the first are as follows:
+    \[
+    \mathbb{P}(H_1) = .6 \quad \mathbb{P}\left(H_2 \;\middle|\; H_1\right) = .75 \quad \mathbb{P}\left(H_3 \;\middle|\; (H_1 \cap H_2) = .75\right) 
+    \]
+    To find the final probability, we multiply those probabilities/conditional probabilities together to arrive at a final answer:
+    \[
+    \boxed{\mathbb{P}(H_1 \cap H_2 \cap H_3)} 
+    \]
+    \textit{(b)} Given that he makes the first shot, what are the odds that he makes at least two shots? \\
+    The only way he doesn't make two given that he makes the first is if he misses both remaining shots. We can subtract the odds of two misses from 1 to arrive at an answer.
+    \[
+        \mathbb{P}\left(\text{Miss 2} \;\middle|\; H_1\right)  = .25 \cdot .5
+    \]
+    \[
+        \boxed{\mathbb{P}(\text{Hits at least 2}) = 1 - (.25 \cdot .5) = .875} 
+    \]
+\end{ex}
+\pagebreak
+\subsection{Rule of average conditional probabilities}
+The \textbf{Rule of Average Conditional Probabilities} divides a conditions into cases and uses a weighted average to find an overall probability of an outcome.
+\begin{ex}
+    About 36\% of people in the US owns a cat. A person with a cat has about a 70\% chance of getting toxoplasmosis. A person without a cat has about a 30\% chance of getting toxoplasmosis. \textbf{What is the overall likelihood that a person contracts toxoplasmosis?}
+\begin{align*}
+    \mathbb{P}(\text{Tox}) &= \mathbb{P}\left(\text{Tox} \;\middle|\; \text{Cat}\right)\mathbb{P}(\text{Cat}) + \mathbb{P}\left(\text{Tox} \;\middle|\; \text{No cat}\right)\mathbb{P}(\text{No cat})
+    \mathbb{P}(\text{Tox}) \\
+                           &= .7(.36) + .3(.64) \\
+                           &= \boxed{.444}
+\end{align*}
+\end{ex}
+\pagebreak
+\section{Independence}
+\begin{definition}
+    The \textbf{heuristic definition} of independence is if the occurrence of one event does not effect the probability of the other event. \\[.1in]
+    The \textbf{mathematical definition} of independence is if events $A$ and $B$ are independent, then:
+    \[
+        \mathbb{P}\left(A \;\middle|\; B\right) = \mathbb{P}\left(A \;\middle|\; B^\complement\right)     
+    \]
+    Equivalently, events $A$ and $B$ are independent if:
+    \[
+    \mathbb{P}\left(A \;\middle|\; B\right) = \mathbb{P}(A)
+    \]
+\end{definition}
+
+\begin{ex}
+    Let $\Omega$ be the outcome space for rolling a pair of six-sided dice. Let $A$ be the event that the first roll is a 6, and let $B$ be the event that the sum of the rolls is 7. \textbf{Are $A$ and $B$ independent?} \\[.1in]
+    Heuristically, we can say that no matter what you roll on your first roll, there is only one number you can roll on the second to arrive at a 7, therefore these events are \textbf{independent}. \\[.1in]
+    Mathematically, we can show that:
+   \begin{align*}
+       \mathbb{P}\left(B \;\middle|\; A\right) &= \frac{1}{6} \\[.1in]
+       \mathbb{P}\left(B \;\middle|\; A^\complement \right) &= \frac{1}{6} \\[.1in]
+       \therefore \mathbb{P}\left(B \;\middle|\; A\right) &= \mathbb{P}\left(B \;\middle|\; A^\complement \right) 
+   \end{align*}
+   Therefore, the two events are \textbf{independent}. 
+    
+\end{ex}
+
+
+\end{document}
