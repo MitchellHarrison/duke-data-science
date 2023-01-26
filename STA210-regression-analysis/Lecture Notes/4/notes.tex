@@ -1,0 +1,119 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 4 - Ordinary Least Squares}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{What is a linear model?}
+Let's consider a situation with a single continuous predictor:
+\[
+    y_i = \beta_0 + \beta_1x_i + \epsilon_i 
+\]
+In this case:
+\begin{align*}
+    y_i &= \text{the outcome (dependent variable) for observation } i \\
+    \beta_0 &= \text{the intercept parameter} \\
+    \beta_1 &= \text{the slope parameter} \\
+    x_i &= \text{the predictor variable} \\
+    \epsilon_i &= \text{the error}
+\end{align*}
+
+A function for an estimated $y_i$ given an $x$ value $x_i$ is:
+\[
+    E\left(y_i \;\middle|\; x_i\right) = \beta_0 + \beta_1x_i
+\]
+
+We want to find the best estimates $\hat{\beta}_0$ and $\hat{\beta}_1$.
+
+\begin{definition}
+    The \textbf{residual} $\epsilon_i$ is the difference between the \textit{observed} $y_i$ and the \textit{predicted} value $\hat{y}_i$:
+   \begin{align*}
+       \hat{\epsilon}_i &= y_i - \left(\hat{\beta}_0 + \hat{\beta}_1x_i\right) \\
+       \Aboxed{\hat{\epsilon}_i &= y_i - \hat{y}_i}
+   \end{align*}
+\end{definition}
+\pagebreak
+
+\section{Loss functions}
+\begin{definition}
+    A \textbf{loss function} is a way of quantifying the accuracy of a model that sums the total residuals of all points in some way. Least squares is one, but any function could be used in theory.
+\end{definition}
+
+The \textbf{formula for ordinary least squares} is as follows:
+\[
+    f(y_1, \cdots ,y_n, \hat{y}_1, \cdots , \hat{y}_n) = \frac{1}{n} \sum_{i=1}^{n}\left(y_i - \hat{y}_i\right)^2 = \boxed{\frac{1}{n} \sum_{i=1}^{n}\left(y_i - \left(\hat{\beta}_0 + \hat{\beta}_1x_i\right)\right)^2}
+\]
+
+The R code for fitting a least-squares linear model is as follows. The \texttt{lm()} function returns a model:  
+\begin{verbatim}
+    m1 <- lm(y ~ x, data = myData)
+\end{verbatim}
+
+And using \texttt{tidymodels} package, we have the following syntax:
+\begin{verbatim}
+    model <- linear_reg() |>
+        set_engine("lm") |>
+        fit(y ~ x, data = myData)
+\end{verbatim}
+
+\end{document}
