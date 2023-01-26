@@ -1,0 +1,157 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 5 - Hypothesis Testing}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Statistical Inference}
+
+\subsection{Intro to sampling}
+
+\begin{definition}
+    The \textbf{population} is the group we'd like to learn something about. If we had population-level data, we could just calculate a statistic and be done. But that is rarely, if ever, the case.
+
+    Instead, we settle with a \textbf{sample} from the population, which is ideally \textbf{representative}. 
+\end{definition}
+
+With a \textit{representative sample}, we are able to use probability and statistical inference to make conclusions that are generalizable to the broader population of interest. We make these inferences regarding population \textit{parameters}, and do so with \textit{sample statistics}.
+
+\subsection{Hypothesis testing framework}
+\begin{enumerate}
+    \item We begin a hypothesis testing with two hypothesis about the population: the \textbf{null hypothesis} and the \textbf{alternative hypothesis}.
+    \item Choose a sample, collect data, analyze the data. 
+    \item Figure out how likely it is to see data like what we got/observed, \textit{if} the null hypothesis were true.
+    \item If our data would have been extremely unlikely if the null claim were true, then we reject it and deem the alternative claim worthy of further study. Otherwise we \textbf{reject the null hypothesis}.
+\end{enumerate}
+
+\begin{definition}
+    A \textbf{p-value} is the probability that the observed sample data would appear, given that the null hypothesis is true.
+\end{definition}
+
+
+\begin{ex}
+    We are interested in the \textbf{resting heart rate of Duke students}, and are able to do the following:
+    \begin{enumerate}
+        \item Take a random sample of size $n$ from the population. Calculate the mean heart rate $\bar{x}_1$.
+        \item Put the sample back, take a second random sample of size $n$. Calculate the mean $\bar{x}_2$ 
+        \item Put the sample back, take a third sample, etc...
+    \end{enumerate}
+   
+    After repeating this $M$ times, we have a dataset that has the sample averages from the population: $\{\bar{x}_1, \bar{x}_2, \cdots , \bar{x}_M\}$.
+\end{ex}
+
+\subsection{The central limit theorem}
+\begin{definition}
+    The \textbf{central limit theorem} states that for a population with a well-defined mean and standard deviation:
+    \begin{enumerate}
+        \item The mean of the sampling distribution is identical to the population mean.
+        \item The standard deviation of the distribution of these sample averages, the \textbf{standard error} (SE) of the mean, is related to the population mean (and gets smaller as the sample size $n$ gets larger $\frac{\sigma}{n}$).
+        \item As the sample size $n$ gets larger and larger, the shape of the sampling distribution becomes closer and closer to the normal (\textit{Gaussian}) distribution.
+    \end{enumerate}
+\end{definition}
+    The central limit theorem tells us that \textbf{sample averages} are normally distributed if we have enough data. This is true even if our original variables are not normally distributed.
+
+    The formula for the normal distribution is as follows (not tested on):
+    \[
+        f(x) = \frac{1}{\sigma\sqrt{2\pi }}e^{-\frac{1}{2} \left(\frac{x-\mu}{\sigma}\right)^2}
+    \]
+    
+\subsection{The t-distribution}
+The \textbf{t distribution} is shaped similarly to a normal distribution, and is centered on the same mean, but the "tails" are much thicker due to not knowng the population standard deviation.
+
+\pagebreak
+\section{Evaluating hypotheses}
+If the null hypotheis is a lack of relationship between two variables, we arrive at the following formal hypotheses:
+\begin{align*}
+    H_0 &: \beta_1 = 0 \\
+    H_1 &: \beta_1 \ne 0
+\end{align*}
+
+To \textbf{evaluate whether this hypothesis is true} , we use the following equation:
+\[
+    t_{n-2} = \frac{\hat{\beta}_1 - \beta_{1, H_0}}{SE(\hat{\beta}_1} 
+\]
+\subsection{Making a conclusion}
+We reject the null hypothesis if the conditional probability of obtaining our test statistic, or more extreme, given it is true, is very small.
+
+To determine what is "very small", we consider a \textbf{significant level} (or $\alpha$ level) defined \textit{prior to conducting the analysis}. 
+
+For many analyses, we use $\alpha = 0.05$, which means that "if $H_0$ were true, we would expect to make the wrong decision only 5\% of the time."
+
+If the \textbf{p-value} is less than $\alpha$, we say that the results are statistically significant and we reject the null hypothesis. On the other hand, if the p-value is $\alpha$ or greater, we say that the results are not statistically significant and \textbf{fail to reject} $H_0$.
+
+\begin{note}
+    We never "accept" a null hypothesis. We assumed that $H_0$ was true to begin with and assessed the probability of obtaining our test statistic (or more extreme) under this assumption. We only ever "fail to reject" the null hypothesis. In that case, we only state that there is \textit{insufficient evidence} to assert that it is false.
+\end{note}
+
+\subsection{P-values}
+\textbf{P-values} do \textit{not} provide information on the probability that the null hypothesis is true given our observed data. The p-value we obtain related to the test itself, so use of the same data can result in different p-values or confidence intervals depending on which test is used.
+
+\pagebreak
+\subsection{Types or errors}
+A \textbf{Type I error} occurs when rejecting $H_0$ when $H_0$ is actually true. This is \textit{falsely rejecting the null hypothesis}.
+
+A \textbf{Type II error} occurs when \textit{not} rejecting $H_0$ when it is false. This is \textit{falsely failing to reject the null hypothesis}.
+
+While we want to know if any one study is showing us something real or a Type I or Type II error, hypothesis testing does \textit{not} give us the tools to determine this.
+\end{document}
