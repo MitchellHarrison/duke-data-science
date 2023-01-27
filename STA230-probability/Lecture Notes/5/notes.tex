@@ -1,0 +1,241 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 5 - Binomial Distributions}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+\begin{ex}
+    An experimenter flips two fair coins. They report that at least one of the coins landed on heads. \textbf{What is the probability that both of the coins landed on heads?}\\[.1in]
+    Given that one coin landed on heads, there are only three possible results: $HT$, $HH$, or $TH$. Of those three, only one of those is two heads. Thus:
+    \[
+    \boxed{\mathbb{P}(HH) = \frac{1}{3}}
+    \]
+\end{ex}
+
+\subsection{Chapter 1 concept map}
+\textit{Chapter 1} was an introduction to probability in general. We began with the \textit{frequency} and \textit{degree of belief} interpretations of probability. 
+
+The \textit{degree of belief} interpretation works well with \textit{conditional probability.} 
+
+In \textbf{conditional probability}, we update our beliefs with new information, and introduced the following formula:
+\[
+\mathbb{P}\left(A \;\middle|\; B\right) = \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(B)} 
+\]
+We also introduced the \textit{average of conditionals} (aka the \textbf{Law of Total Probability}) as follows:
+\[
+\mathbb{P}(A) = \mathbb{P}\left(A \;\middle|\; B_1\right) \mathbb{P}(B_1) + \cdots + \mathbb{P}\left(A \;\middle|\; B_n\right)\mathbb{P}(B_n)
+\]
+We then covered both \textit{independence} and \textit{Bayes' Rule}. And as we went, we introduced the following \textbf{tools for calculations}:
+\begin{itemize}
+    \item Notation ( $\Omega$, events, distribution, $\mathbb{P}$, $\cap$, $\cup $, $\phi $, etc.
+    \item \textbf{Formulas}: addition rule, complement rule, multiplication rule
+    \item Trees
+\end{itemize}
+
+\pagebreak
+
+\section{Binomial Distribution and Normal Approximation}
+\textbf{General experimental structure for binomial distribution:} An experiment is repeated for $n$ trials. Each trial has probability $p$ of success, and separate trials are all independent. What is the likelihood of $k$ successes out of $n$ trials?
+
+To be a binomal distribution experiment:
+\begin{enumerate}
+    \item Trials must be independent
+    \item  $\mathbb{P}(\text{success})$ for each trial $= p$ 
+    \item Possible outcomes must be binary: success or failure.
+\end{enumerate}
+
+\subsection{Notation}
+For binomial experiments, we introduce the following notation:
+\[
+    X = \text{number of successes out of }n \text{ trials with independent trials and }p = \mathbb{P}(\text{success})
+\]
+\[
+    \mathbb{P}(k \text{ successes}) = \text{function in terms of }k,n,p
+\]
+\begin{ex}
+    You flip a biased coin 4 times (20\% chance heads, 80\% chance tails). What is the probability that you get exactly 2 heads out of the 4 flips?
+
+    Let:
+   \begin{align*}
+       X = \text{number of heads out of 4 flips} \\
+       \mathbb{P}(X=2) = \mathbb{P}(2 \text{ heads out of 4 flips})
+   \end{align*}
+   
+   We represent the possible places for the two heads as $\binom{4}{2}$. Since we need two heads and two tails, we raise both $\mathbb{P}(\text{head})$ and $\mathbb{P}(\text{tail})$ to the 2nd power. We are left with the solution:
+   \[
+   \boxed{\mathbb{P}(X=2) = \binom{4}{2}(.2)^2(.8)^2}
+   \]
+\end{ex}
+
+\textbf{Generalizing} from the previous example, given that we want $k$ heads from 4 flips:
+\[
+    \boxed{\mathbb{P}(X=2) = \binom{4}{k}(.2)^k(.8)^{4-k}}
+\]
+
+
+\begin{definition}
+    The \textbf{binomial (n,p) distribution} is the distribution of the number of successes out of $n$ independent trials, each with probability $p$ of success. You may also see it written as $\text{Bin}(n,p)$, $\text{Binom}(n,p)$, or $\text{bin}(n,p)$ 
+\end{definition}
+
+The binomial distribution for $n$ trials with probability of success $p$ is a function. The inpue into the function is a number of successes. The output is the probability of that number of successes out of $n$ trials.
+
+We say that \textbf{"$X$ has a binomial ($n$, $p$) distribution."} This means:   
+\[
+    \boxed{P(k) = \mathbb{P}(k \text{ successes out of } n \text{ trials}) = \binom{n}{k}p^k(1-p)^{n-k} = \frac{n!}{(n-k)!k!}p^k(1-p)^{n-k}}
+\]
+
+\begin{ex}
+    You roll a fair six-sided die 10 times. What is the probability that you roll at least 4 multiples of 3?
+
+    \[
+        \boxed{\sum_{k=4}^{10}\binom{10}{k}\left(\frac{1}{3}\right)^k\left(\frac{2}{3}\right)^{10-k}} 
+    \]
+\end{ex}
+
+\begin{ex}
+    Five families each have 3 kids. Each kid has a $\frac{1}{4}$ chance of having blue eyes. What is the probability that at least 2 of the 5 families have at least 2 kids with blue eyes?\\[.1in]
+    For one family, the odds are:
+    \[
+        \sum_{i=2}^{3}\binom{3}{1}\left(\frac{1}{4}\right)^i\left(\frac{3}{4}\right)^{3-i} = \frac{5}{32} 
+    \]
+    
+    Extrapolating to all other families, we arrive at a solution:
+    \[
+    \boxed{\sum_{n=2}^{5}\binom{5}{n}\left(\frac{5}{32}\right)^n\left(\frac{13}{16}\right)^{5-n}}
+    \]
+\end{ex}
+\pagebreak
+
+\subsection{Key concept of binomial distributions}
+The most likely number of successes (aka the \textit{mode}) is the greatest integer no bigger than $np+p$. When $np+p$ is an integer, there are two most likely numbers: $np+p$ and $np+p-1$.
+
+The average (aka \textit{mean} or \textit{expected value}) is not the same as the most likely number. To get the average, we could run repeated trials of repeated trials, count the number of successes, then divide by the number of trials. We will do this calculation later in the course.
+
+\begin{note}
+    In this case, the \textbf{mean} is $np$.
+\end{note}
+
+\begin{ex}
+    With 5 trials, each of which has a $\frac{3}{4}$ chance of success, \textbf{what is the most likely number of successes?} \\[.1in]
+    Here, $n=5$ and $p=\frac{3}{4}$, therefore:
+    \[
+    \boxed{\text{most likely success count} = np+p \text{ rounded up}= 4}
+    \]
+\end{ex}
+
+\subsection{Features of a binomial histogram}
+\begin{enumerate}
+    \item Areas correspond to probabilities (total area is 1) 
+    \item The y-axis represents the probability per length on the x-axis $\left(\frac{\mathbb{P}}{\text{length of interval}}\right)$.
+    \item The mode is the tallest box.
+    \item The mean and mode may not be the same. The \textit{mean} is the long-run average
+\end{enumerate}
+
+\begin{ex}
+    You flip a fair coin 100 times. \textbf{What is the likelihood of getting between 40 and 60 heads?} 
+\end{ex}
+
+\pagebreak
+\section{Normal Distribution}
+\textbf{Big idea}: counting is hard, so let's not. The \textit{binomial distribution} is what we use to "count" exactly. But we can use a continuous function to approximate the binomial distribution. This approximation can be computationally faster.
+
+\subsection{Normal density function (bell curves)}
+Binomial distributions look a little like bell curves. The \textit{normal distribution} can give us a pretty good approximation and mitigate the amount of counting that we have to do.
+
+The \textbf{"density" function} for a normal distribution is as follows:
+\[
+\frac{1}{\sigma\sqrt{2\pi }}e^{\frac{-(x-\mu)^2}{2\sigma^2}} \quad \text{or} \quad \frac{1}{\sqrt{2\pi }} e^{\frac{-x^2}{2}}
+\]
+
+\textbf{Key features of a normal density function}:
+\begin{enumerate}
+    \item Areas correspond to probabilities (total area is 1)
+    \item Curve is symmertric about the mean $\mu$ 
+    \item Mean is the greatest value
+    \item Standard deviation $\sigma$ is a measure of how far values fall from the mean (\textit{square root of average squared distance} 
+\end{enumerate}
+
+\subsection{Integral of the standard normal bell curve}
+\[
+    \Phi(z) = \int_{-\infty}^{z}\frac{1}{\sqrt{2\pi}} e^{\frac{-x^2}{2}} dx
+\]
+
+We can use $\Phi$ for a non-standard normal distribution as well:
+\[
+\frac{1}{\sigma\sqrt{2\pi }}e^{\frac{-(x-\mu)^2}{2\sigma^2}} = \Phi\left(\frac{b-\mu}{\sigma}\right) - \Phi\left(\frac{a-\mu}{\sigma}\right) 
+\]
+\subsection{How to estimate using a normal bell curve}
+The whole point is that you can estimate a binomial distribution using a normal distribution. What is the correspondence? And how can you use a \textit{continuous} normal distribution to estimate a \textit{discrete} binomial distribution? For this we use the \textit{continuity correction}. 
+
+\begin{definition}
+    To understand the \textbf{continuity correction}, picture using an definite integral to find the area under the function estimating a distribution of discrete outcomes. Setting the limits of the integral to a whole number will increase the total area. Instead, we set our limits to the inner border of the relevent boxes. This gives us an accurate limit for integration.
+\end{definition}
+
+\begin{ex}
+    Suppose a local election is coming up for a city of 500,000 people. In this city, 60\% of the population prefers candidate $X$ over candidate $Y$. If pollsters sample 1000 people (with replacement), \textbf{approximate the probability that between 55\% and 65\% (inclusive) of those sampled will prefer candidate $X$.} 
+
+    \textbf{NOT COMPLETED IN CLASS} 
+\end{ex}
+
+\end{document}

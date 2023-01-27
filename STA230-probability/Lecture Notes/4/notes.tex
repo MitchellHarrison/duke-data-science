@@ -1,0 +1,222 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 4 - Bayes' Rule, Binomial Distribution, Approximation}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+\begin{ex}
+    Let $\Omega$ be the outcome space for rolling a pair of 6-sided dice. Let $A$ be the event that the first roll is 6. Let $B$ be the event that the sum of the rolls is 7. \textbf{Are $A$ and $B$ independent?} 
+   \begin{align*}
+       \mathbb{P}(A) = \frac{1}{6} \\
+       \mathbb{P}\left(A \;\middle|\; B\right) = \frac{1}{6} 
+   \end{align*}
+Therefore, $\boxed{A \text{ and } B \text{ are independent.}}$    
+\end{ex}
+\pagebreak
+
+\section{Independence}
+\subsection{Independence of two events}
+ $A$ and $B$ are \textbf{independent} if any of the following equations are satisfied:
+\begin{align*}
+    \mathbb{P}\left(A \;\middle|\; B\right) &= \mathbb{P}(A) \\
+    \mathbb{P}\left(A \;\middle|\; B^\complement \right) &= \mathbb{P}(A) \\
+    \mathbb{P}\left(A \;\middle|\; B\right) &= \mathbb{P}\left(A \;\middle|\; B^\complement \right) \\
+    \mathbb{P}(A \cap B) &= \mathbb{P}(A)\mathbb{P}(B) 
+\end{align*}
+
+\subsection{Independence of more than two events}
+For $A$, $B$, and $C$ to be independent, check the following:
+
+\textit{(1)} $A$ and $B$ are independent. Use any of the above equations for this.
+
+\textit{(2)} $C$ does not depend on the occurence of $A$ or $B$ or both.
+\[
+\mathbb{P}\left(C \;\middle|\; A \cap B\right) = \mathbb{P}\left(C \;\middle|\; A^\complement \cap B\right) = \mathbb{P}\left(C \;\middle|\; A \cap B^\complement \right) = \mathbb{P}\left(C \;\middle|\; A^\complement \cap B^\complement \right) = \mathbb{P}(C)
+\]
+
+Also, three events are independent if \textbf{both} of the following hold:
+
+\textit{(1)} All possible pairs of events are independent.
+
+\textit{(2)} $\mathbb{P}(A \cap B \cap C) = \mathbb{P}(A)\mathbb{P}(B)\mathbb{P}(C)$ 
+
+\begin{definition}
+    The \textbf{Multiplication Rule for Three Independent Events} shows that if events $A$, $B$, and $C$ are mutually independent, then:
+    \[
+    \mathbb{P}(A \cap B \cap C) = \mathbb{P}(A)\mathbb{P}(B)\mathbb{P}(C)
+    \]
+\end{definition}
+
+\begin{ex}
+    Let $\Omega $ be an outcome space associated to rolling one die twice. Let $A$ be the event that the first roll is even. Let $B$ be the event that the second roll is even. Let $C$ be the event that the sum of the rolls is 7.
+
+    \textbf{Are these three events independent? Are they \textit{pairwise} independent?} 
+   \begin{align*}
+       \mathbb{P}(A) &= \frac{1}{2} \\
+       \mathbb{P}(B) &= \frac{1}{2} \\
+       \mathbb{P}(C) &= \frac{6}{36} = \frac{1}{6} 
+   \end{align*}
+   Events $A$ and $B$ are independent because:
+    \begin{align*}
+      \mathbb{P}\left(A \;\middle|\; B\right) = \mathbb{P}(A) \\
+      \mathbb{P}\left(B \;\middle|\; A\right) = \mathbb{P}(B)
+    \end{align*}
+    We also find that $C$ is independent of both $A$ and $B$:
+    \[
+    \mathbb{P}\left(C \;\middle|\; A\right) = \mathbb{P}\left(C \;\middle|\; B\right) = \mathbb{P}(C)
+    \]
+    
+    However, if both $A$ and $B$ occur, then $C$ cannot, thus:
+    \[
+        \mathbb{P}(A \cap B \cap C) = 0 \ne \mathbb{P}(A)\mathbb{P}(B)\mathbb{P}(C)
+    \]
+    Thus, $\boxed{\text{They are pairwise independent but not independent.}}$. 
+\end{ex}
+\pagebreak
+\section{Bayes' Rule}
+\textbf{Main Idea}: We can use the multiplication rule to translate a difficult-to-calculate conditional probability into an easy-to-calculate conditional probability.
+
+\begin{ex}
+    Suppose there are three similar boxes. Box $i$ contains $i$ white balls and one black ball for $i = 1,2,3$. I pick a box at random and don't tell you which one. From that box, I remove a ball and show it to you. I offer you a prize if you can guess correctly which box the ball came from. 
+
+    \textbf{Which box would you guess if the ball is white? What is your chance of guessing correctly?} \\[.1in]
+    Intuitively, we would guess Box 3, since it had the highest number of white balls.
+    \[
+    \mathbb{P}\left(\text{Box}_i \;\middle|\; \text{White}\right) = \frac{\mathbb{P}(\text{Box}_i \cap \text{White})}{\mathbb{P}(\text{White})}
+    \]
+    Fortunately, we know that $\mathbb{P}(B_3) = \frac{1}{3}$ and $\mathbb{P}(\text{White}| B_3) = \frac{3}{4}$. Thus:
+    \[
+    \mathbb{P}(B_3 \cap \text{white}) = \frac{1}{3}\left(\frac{3}{4}\right) 
+    \]
+    To find $\mathbb{P}(\text{white}$, we use the following:
+   \begin{align*}
+       \mathbb{P}(\text{white}) &= \mathbb{P}(B_1)( \mathbb{P}\left(\text{white} \;\middle|\; B_1\right) + \mathbb{P}(B_2)( \mathbb{P}\left(\text{white} \;\middle|\; B_2\right) + \mathbb{P}(B_3)( \mathbb{P}\left(\text{white} \;\middle|\; B_3\right) \\
+                                &= \frac{1}{3} \left(\frac{1}{2}\right) + \frac{1}{3} \left(\frac{2}{3} \right) + \frac{1}{3} \left(\frac{3}{4} \right) \\
+       \mathbb{P}(\text{white}) &= \frac{23}{36}
+   \end{align*}
+    We know that $\mathbb{P}(B_3 \cap \text{white}) = \frac{1}{3} \cdot \frac{3}{4} = \frac{1}{4}$, so our final probability of correctness given that we selected Box 3 is as follows:
+   \begin{align*}
+       \mathbb{P}(B_3) &= \frac{\frac{1}{4} }{\frac{23}{36}} \\
+       \Aboxed{\mathbb{P}(B_3) = \frac{9}{23}} 
+   \end{align*}
+\end{ex}
+
+\pagebreak
+\textbf{Big Idea:} We can translate between the following using Bayes' Rule:
+\[
+    \mathbb{P}\left(A \;\middle|\; B\right) \quad \mathbb{P}\left(B \;\middle|\; A\right) 
+\]
+To do so, we acknolwedge the following equalities:
+\[
+\boxed{\mathbb{P}\left(B \;\middle|\; A\right) = \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(A)} = \frac{ \mathbb{P}\left(A \;\middle|\; B\right) \mathbb{P}(B)}{\mathbb{P}(A)}}
+\]
+
+\begin{definition}
+    More generally than above, \textbf{Bayes' Rule} states that for a partition $B_1, \cdots , B_n$ or an outcome space $\Omega $:
+    \[
+    \mathbb{P}\left(B_i \;\middle|\; A\right) = \frac{ \mathbb{P}\left(A \;\middle|\; B_i\right) \mathbb{P}(B_i)}{\mathbb{P}(A)} = \frac{ \mathbb{P}\left(A \;\middle|\; B_i\right) \mathbb{P}(B_i)}{ \mathbb{P}\left(A \;\middle|\; B_1\right) \mathbb{P}(B_1) + \cdots + \mathbb{P}\left(A \;\middle|\; B_n\right) \mathbb{P}(B_n)} 
+    \]
+    We used this method to find the denominator using probabilities of various boxes in the previous example.
+\end{definition}
+
+\subsection{False Positives}
+\begin{ex}
+    A blood test for a certain disease returns a value of either positive or negative. 95\% of people with the disease test positive. 2\% of people without the disease test positive (false positive). Only 1\% of the population has the disease.
+
+    If a person is chosen at random from the population, tested, and the result comes back positive, \textbf{what is the likelihood that the person has the disease?} \\[.1in]
+    Let:
+   \begin{align*}
+       T &= \text{test positive}\\
+       A &= \text{has disease}\\
+   \end{align*}
+
+   We are asked to find $ \mathbb{P}\left(A \;\middle|\; T\right) $. Using Baye's rule, we arrive at the following:
+  \begin{align*}
+      \mathbb{P}\left(A \;\middle|\; T\right) &= \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(A)} \\
+                                              &= \frac{ \mathbb{P}\left(T \;\middle|\; A\right) \mathbb{P}(A)}{\mathbb{P}(A)} \\
+                                              &= \frac{.01 \cdot .95}{(.01 \cdot .95)+(.99 \cdot .02)} \\
+  \Aboxed{\mathbb{P}\left(A \;\middle|\; T\right) &\approx 32\%}
+  \end{align*}
+  
+\end{ex}
+\pagebreak
+
+\section{The Birthday Problem}
+Given that there are 48 people in a room, \textbf{what are the odds that two of them share a birthday}? 
+
+Let $A$ be the event that two people share a birthday and $A^\complement $ be the event that all 48 birthdays are unique. Note:
+\[
+    \mathbb{P}(A) = 1 - \mathbb{P}(A^\complement )
+\]
+Iterating over all people, the first is guaranteed to be unique, the second has a $\frac{364}{365}$ chance of being unique, and so on. For 48 people we are left with the following chances of being entirely unique:
+\[
+    \mathbb{P}(A^\complement ) = \frac{365!}{(365-48)!} \cdot \frac{1}{365^{48}} 
+\]
+
+And using the complement rule, we arrive at the following solution:
+\begin{align*}
+    \mathbb{P}(A) &= 1 - \mathbb{P}(A^\complement ) \\
+    \Aboxed{\mathbb{P}(A) &\approx 95\%} 
+\end{align*}
+\pagebreak
+\end{document}
