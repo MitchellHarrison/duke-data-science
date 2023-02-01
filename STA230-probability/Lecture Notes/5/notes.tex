@@ -225,17 +225,4 @@ We can use $\Phi$ for a non-standard normal distribution as well:
 \[
 \frac{1}{\sigma\sqrt{2\pi }}e^{\frac{-(x-\mu)^2}{2\sigma^2}} = \Phi\left(\frac{b-\mu}{\sigma}\right) - \Phi\left(\frac{a-\mu}{\sigma}\right) 
 \]
-\subsection{How to estimate using a normal bell curve}
-The whole point is that you can estimate a binomial distribution using a normal distribution. What is the correspondence? And how can you use a \textit{continuous} normal distribution to estimate a \textit{discrete} binomial distribution? For this we use the \textit{continuity correction}. 
-
-\begin{definition}
-    To understand the \textbf{continuity correction}, picture using an definite integral to find the area under the function estimating a distribution of discrete outcomes. Setting the limits of the integral to a whole number will increase the total area. Instead, we set our limits to the inner border of the relevent boxes. This gives us an accurate limit for integration.
-\end{definition}
-
-\begin{ex}
-    Suppose a local election is coming up for a city of 500,000 people. In this city, 60\% of the population prefers candidate $X$ over candidate $Y$. If pollsters sample 1000 people (with replacement), \textbf{approximate the probability that between 55\% and 65\% (inclusive) of those sampled will prefer candidate $X$.} 
-
-    \textbf{NOT COMPLETED IN CLASS} 
-\end{ex}
-
 \end{document}

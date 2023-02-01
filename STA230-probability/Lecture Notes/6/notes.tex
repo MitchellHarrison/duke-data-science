@@ -1,0 +1,254 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 6 - Binomial and Normal}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+\begin{ex}
+    Let $X$ have a binomial (100, $p$) distribution. (Think of $X$ as the number of successes out of 100 independent trials, each with probability of succes $p$.)
+
+    \textbf{Is there a balue $p$} such that the most likely number of successes (mode) is greater than the average (mean) number of successes by more than 0l5?\\[.1in]
+   Here, $X$ is the number of successes and 100 is the number of trials. 
+   
+   We know:
+  \begin{align*}
+      &\text{mode} \le np+p \\
+      &\text{mean} = np
+  \end{align*}
+  Using $p = .941$ (given in class), we arrive at:
+    \begin{align*}
+     100(.941) + .941 &= 95.041 \\
+     \therefore \text{mode} &= 95 > np + .5
+    \end{align*}
+    
+    Thus, $\boxed{p = 0.941}$ is one possible $p$.
+\end{ex}
+
+\pagebreak
+\section{Normal Distribution}
+\textbf{Big Idea:} Counting is hard, so let's not.
+To estimate, we calculate:
+\[
+\mathbb{P}(a \le \text{number of successes} \le 6) \approx \int_{a-\frac{1}{2} }^{b + \frac{1}{2} } \text{bell curve}
+\]
+\textbf{Factors that effect the shape of the bell curve} 
+\begin{itemize}
+    \item Curve is centered on the mean $\mu$ 
+    \item Standard deviation ($\sigma$) measures how spread out the histogram will be.
+\end{itemize}
+
+\begin{note}
+    Formula for calculating standard deviation:
+    \[
+        \sigma = \sqrt{np(1-p)}
+    \]
+\end{note}
+
+\subsection{Normal Density Function (bell curves)}
+Binomial distributions look a little like bell curves. The normal distribution can give us a pretty good approximation and mitigate the amount of counting that we have to do.
+ \begin{definition}
+     A \textbf{normal standard density function} has mean $\mu = 0$ and standard deviation $\sigma = 1$.
+ \end{definition}
+ 
+
+The "density" function for any normal distribution is either of the following:
+\[
+    \frac{1}{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/2\sigma^2}
+\]
+
+For a \textbf{standard normal density function} where the curve is centered on 0 and has $\sigma = 1$, we use the following:
+\[
+    \boxed{\frac{1}{\sqrt{2\pi}}e^{-x^2/2}}
+\]
+
+\begin{note}
+A \textbf{density function} is like a histogram: the area under the curve represents probability. How do \textit{mean} and \textit{standard deviation} change the shape of the curve?
+\end{note}
+
+\textbf{Key features of a normal density function:} 
+\begin{itemize}
+    \item Areas correspond to probabilities (so all the area is 1)
+    \item Symmetric about the mean ($\mu$). This is only for \textit{normal} curves.
+    \item Mean is also the greatest value. This is only for \textit{normal} curves.
+    \item Standard deviation ($\sigma$) is a measure of how far values fall from the mean. (square root of average distance squared)
+\end{itemize}
+
+\subsection{Integral of the standard normal bell curve}
+\[
+    \Phi(z) = \int_{-\infty}^{z} \frac{1}{\sqrt{2\pi}}e^{-x^2/2}
+\]
+We can use $\Phi$ for non-standard normal distributions. This is where the non-standard form and the standard form converge. Essentially, we use $\Phi(z)$ (the standard normal density function) to find the non-standard form:
+\[
+    \int_{a}^{b} \frac{1}{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/2\sigma^2} = \Phi \left(\frac{b - \mu}{\sigma}\right) - \Phi \left(\frac{a-\mu}{\sigma}\right)
+\]
+This effectively becomes:
+\[
+    \int_{\frac{a-\mu}{\sigma} }^{\frac{b-\mu}{\sigma}} = \frac{1}{\sqrt{2\pi}}e^{-\frac{x^2}{2}} 
+\]
+\textbf{Important values to memorize that come up frequently:} 
+
+\begin{enumerate}
+    \item $\Phi(1) - \Phi(-1) \approx .68$ 
+    \item $\Phi(2) - \Phi(-2) \approx 0.95$ 
+    \item $\Phi(3) - \Phi(-3) \approx 0.997$ 
+\end{enumerate}
+
+\textbf{Empirical Rule:} 
+
+\begin{ex}
+    Compute/estimate - without using a calculator:
+    \[
+        \int_{-\infty}^{\mu+\sigma}\frac{1}{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/2\sigma^2}dx 
+    \]
+    \[
+    \boxed{.84} 
+    \]
+\end{ex}
+
+\begin{ex}
+    Let $\Phi$ be the CDF of the standard normal distribution (mean 0 and st. dev 1). Let z > 0. Using symmetry, how are $\Phi(z)$ and $\Phi(-z)$ related?
+    \[
+    \boxed{\Phi(z) = 1 - \Phi(-z)}
+    \]
+\end{ex}
+
+\textbf{Formula to memorize:} 
+\[
+    \boxed{\Phi(z) - \Phi(-z) = 2\Phi(z) - 1}
+\]
+
+\begin{ex}
+    Seepage salamanders have an average length (tail to tip) of 2 inches with a standard deviation of 0.2 inches. Assume salamander lengths are roughly normally distributed. \textbf{What is the probability that a randomly selected salamander will be between 1.85 and 2.15 inches long?} \\[.1in]
+    We are given:
+    \[
+    \mu = 2 \quad \sigma = 0.2
+    \]
+    Therefore, we are able to set up a $\Phi$ function:
+   \begin{align*}
+       \mathbb{P}(\text{length between given limits}) &= \Phi\left(\frac{2.15-2}{0.2} \right) - \Phi\left(\frac{1.85-2}{0.2} \right) \\
+                                                      &= \Phi(.75) - \Phi(.75) \\
+                                                      &= 2\Phi(.75) - 1 \\
+                                                      &= 2(.7734)-1 \\
+       \Aboxed{\mathbb{P}(\text{length between given limits}) &\approx .548} 
+   \end{align*}
+\end{ex}
+
+\subsection{How to estimate using a normal bell curve}
+The whole point is that you can estimate a binomial distribution using a normal distribution. What is the correspondence? And how can you use a \textit{continuous} normal distribution to estimate a \textit{discrete} binomial distribution? For this we use the \textbf{continuity correction}. 
+
+\begin{definition}
+    To understand the \textbf{continuity correction}, picture using an definite integral to find the area under the function estimating a distribution of discrete outcomes. Setting the limits of the integral to a whole number will increase the total area. Instead, we set our limits to the inner border of the relevent boxes. This gives us an accurate limit for integration.
+\end{definition}
+
+\begin{ex}
+    Suppose a local election is coming up for a city of 500,000 people. In this city, 60\% of the population prefers candidate $X$ over candidate $Y$. If pollsters sample 1000 people (with replacement), \textbf{approximate the probability that between 55\% and 65\% (inclusive) of those sampled will prefer candidate $X$.} 
+\end{ex}
+
+\pagebreak
+\section{Confidence Intervals}
+\textbf{Big Idea:} If the "true" probability of success is $p$, what are you likely to observe as the proportion of successes $\hat p$? What is the likely range of the values for $\hat p$? If you observe $\hat p$ as your proportion of successes, what are likely values for the actual probability $p$?
+
+To approximate various discrete possibilities using $\Phi$, we have the following:
+\begin{align*}
+    \mathbb{P}(a \le \text{number successes} \le b) &\approx \Phi\left(\frac{b + \frac{1}{2} - np}{\sqrt{np(1-p)}}\right) - \Phi\left(\frac{a - \frac{1}{2} - np}{\sqrt{np(1-p)}}\right) \\
+            \mathbb{P}(a \le \text{number successes}) &\approx 1 - \Phi\left(\frac{a - \frac{1}{2} - np}{\sqrt{np(1-p)}}\right)
+\end{align*}
+
+
+\begin{ex}
+    A random number generator produces a real number according to a normal distribution with mean 0 and standard deviation 1. You as for one random number. \textbf{Which of the following intervals} will include the random number that is produces by the generator approximately 95\% of the time?
+   \begin{align*}
+       &\text{(A) (-1,1)} &\text{(B) (-2,2)} &\text{(C) (-3,3)} &\text{(D) (-10, 10)}
+   \end{align*}
+   
+   You ask for 100 random numbers and take their average. \textbf{Which of the following intervals}  will include the average approximately 95\% of the time?
+  \begin{align*}
+      &\text{(A) (-0.2,0.2)} &\text{(B) (-0.5,0.5)} &\text{(C) (-1,1)} &\text{(D) (-2,2)}
+  \end{align*}
+\end{ex}
+
+\begin{ex}
+    A biased coin comes up heads 60\% of the time. You flip the coin 100 times and observe some frequency of heads $\hat p$. What interval should contain $\hat p$ approximately 99.7\% of the time? That is, \textbf{what is the 99.7\% confidence interval} approximately?
+\end{ex}
+
+\begin{ex}
+    You flip a coin, but you don't know whether it is biased or not. How many times should you flip the coin in order to be 90\% confident that your observed value $\hat p$ is within 0.1 of the actual probability that the coin lands on heads?
+\end{ex}
+
+\subsection{Binomial Distribution Confidence Intervals}
+An experimenter runs $n$ independent trials and observes that the proportion of successes is $\hat p$. the $x$\% confidence interval is an interval ($a$,$b$) such that there is an $x$\% chance that the true value of $p$ is within the interval. We can approximate the $x$\% confidence interval as $(\hat p - c, \hat p + c)$.
+
+To determine the value of $c$, we need to determine how many standard deviations from the mean correspond to $x$\% of the probability. Solve:
+\[
+    \Phi(k) - \Phi(-k) = 2\Phi(k) - 1 = \frac{x}{100} \Longrightarrow k = \Phi^{-1} \left(\frac{x/100+1}{2} \right)
+\]
+This $k$ is the number of standard deviations from the mean. To get $c$, multiply by standard deviation:
+\[
+    c = k \cdot \frac{\sqrt{p(1-p)}}{\sqrt n} 
+\]
+However, we often don't know the true value of $p$, so we don't know the actual standard deviation. We can either estimate using $p \approx \hat p$ or we can give a "largest interval/worst case scenario interval" using $p = \frac{1}{2}$. The largest/worst cse interval is:
+\[
+\hat p - \frac{k}{2\sqrt n} \le p \le \hat p + \frac{k}{2\sqrt n} 
+\]
+\end{document}
