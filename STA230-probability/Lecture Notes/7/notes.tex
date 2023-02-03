@@ -1,0 +1,253 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 7 - Confidence, Sampling}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+\begin{ex}
+    A random number generator produces a real number according to a normal distribution with mean 0 and standard deviation 1. You ask for one random number. \textbf{Which of the following intervals} will include the random number that is produced by the generator approximately 95\% of the time?
+\begin{align*}
+    & \text{(A) (-1,1)} & \text{(B) (-2,2)} & \text{(C) (-3,3)} & \text{(D) (-10,10)}
+\end{align*}
+The \textit{empirical rule} states that:
+\[
+\Phi(2) - \Phi(-2) \approx .95
+\]
+Thus, the correct answer is $\boxed{B}$
+\end{ex}
+
+\pagebreak
+
+\section{Confidence Intervals}
+
+\textbf{Big Idea:} If the "true" probability of success is $p$, what are you likely to observe as the proportion of successes $\hat p$? What is the likely range of the values for $\hat p$? If you observe $\hat p$ as your proportion of successes, what are likely values for the actual probability $p$?
+
+In a coin example, $\hat p$ (where heads is a success), is $\frac{ \text{\# heads}}{ \text{\# trials}} $
+
+\textbf{TODO: FILL FORMULA USING LECTURE NOTES ONLINE} 
+For these intervals:
+\begin{itemize}
+    \item mean = $p$
+    \item standard deviation = $\frac{\sqrt{}}{Denominator}$
+\end{itemize}
+
+\begin{ex}
+    A biased coin comes up heads 60\% of the time. You flip the coin 100 times and observe some frequency of heads $\hat p$. What interval should contain $\hat p$ approximately 99.7\% of the time? That is, \textbf{what is the 99.7\% confidence interval} approximately?
+    \[
+       p = .6 \quad n = 100 \quad \hat p = \frac{ \text{observed heads}}{100} 
+    \]
+   \textit{Empirical rule} states that $\Phi(3) - \Phi(-3) = .997$. We know that:
+   \[
+       \sigma = \frac{\sqrt{p(1-p)}}{n} = \frac{\sqrt{.6(.4)}}{\sqrt{100}} \approx 0.05
+   \]
+    The interval must therefore be ($p-3\sigma$, $p+3\sigma$), or:
+   \begin{align*}
+       \text{interval} &= (.6 - .15, .6 + .15) \\
+       \Aboxed{&= (.45,.75)} 
+   \end{align*}
+\end{ex}
+\begin{ex}
+   \textbf{Same problem more generally:} 
+    \begin{align*}
+        \mathbb{P}(p-c \le \hat p \le p+c) &\approx .997 \\
+                                           &\approx \Phi\left(\frac{p+c-p}{\sigma} \right) - \Phi\left(\frac{p-c-p}{\sigma} \right) \\
+                                           &= 2\Phi\left(\frac{c\sqrt n}{\sqrt{p(1-p)}}\right) -1 \approx .997 \\
+        \Phi\left(\frac{c\sqrt{100}}{\sqrt{.6(.4)}} \right) &\approx .9985 \\
+    \end{align*}
+    Using the table to look up $c$, we arrive at:
+    \[
+        c = \text{(\# standard deviations)} \cdot \sigma \approx .15 
+    \]
+    Thus the final interval is:
+   \begin{align*}
+       \text{interval} &= (.6 - .15, .6 + .15) \\
+       \Aboxed{&= (.45,.75)} 
+   \end{align*}
+   \textbf{NOTE: CHECK THIS WITH RECORDED LECTURE}  
+\end{ex}
+
+\begin{ex}
+    You flip a coin, but you don't know whether it is biased or not. How many times should you flip the coin in order to be 90\% confident that your observed value $\hat p$ is within 0.1 of the actual probability that the coin lands on heads?
+
+   \begin{align*}
+       p &= \mathbb{P}( \text{coin lands on heads}) \hat p = \frac{ \text{\# observed heads}}{n} 
+   \end{align*}
+   To solve, we need to calculate:
+   \[
+   \mathbb{P}(p-c \le p \le p+c) \ge 0.9
+   \]
+   However, in this example we are given $x = 0.1$, thus using $\Phi$ functions after standardizing, we solve for $n$:
+  \begin{align*}
+      \mathbb{P}(p-c \le p \le p+c) &\approx \Phi\left(\frac{p+0.1-p}{\frac{\sqrt{p(1-p)}}{\sqrt n}}\right) - \Phi\left(\frac{p-0.1-p}{\frac{\sqrt{p(1-p)}}{\sqrt n}}\right) \ge 0.9 \\
+                                    &= 2\Phi\left(\frac{0.1\sqrt n}{\sqrt{p(1-p)}} \right) - 1 \ge 0.9 \\
+                                    &= \Phi\left(\frac{0.1\sqrt n}{\sqrt{p(1-p)}}\right) \ge .95 \\
+                                    &= \Phi^{-1}\left(\Phi\left(\frac{0.1\sqrt n}{\sqrt{p(1-p)}}\right)\right) \ge \Phi^{-1}(.95)
+  \end{align*}
+  We get $\Phi^{-1}(.95) = 1.645$ from the table in the book, thus:
+ \begin{align*}
+     \frac{0.1\sqrt n}{\sqrt{p(1-p)}} &\ge 1.645 \\
+     n &\ge \left(\frac{1.645\sqrt{p(1-p)}}{0.1}\right)^2 \\
+ \end{align*}
+ To solve for $n$, we will choose the worst case scenario $p$, which is $\frac{1}{2} $. Thus:
+ \[
+     \boxed{n \approx 67.65} 
+ \]
+\end{ex}
+
+\subsection{Binomial Distribution Confidence Intervals}
+An experimenter runs $n$ independent trials and observes that the proportion of successes is $\hat p$. the $x$\% confidence interval is an interval ($a$,$b$) such that there is an $x$\% chance that the true value of $p$ is within the interval. We can approximate the $x$\% confidence interval as $(\hat p - c, \hat p + c)$.
+
+To determine the value of $c$, we need to determine how many standard deviations from the mean correspond to $x$\% of the probability. Solve:
+\[
+    \Phi(k) - \Phi(-k) = 2\Phi(k) - 1 = \frac{x}{100} \Longrightarrow k = \Phi^{-1} \left(\frac{x/100+1}{2} \right)
+\]
+This $k$ is the number of standard deviations from the mean. To get $c$, multiply by standard deviation:
+\[
+    c = k \cdot \frac{\sqrt{p(1-p)}}{\sqrt n} 
+\]
+However, we often don't know the true value of $p$, so we don't know the actual standard deviation. We can either estimate using $p \approx \hat p$ or we can give a "largest interval/worst case scenario interval" using $p = \frac{1}{2}$. The largest/worst cse interval is:
+\[
+\hat p - \frac{k}{2\sqrt n} \le p \le \hat p + \frac{k}{2\sqrt n} 
+\]
+\pagebreak
+\section{Sampling with and without replacement}
+\begin{ex}
+    In a population of 100,000 people, 50,000 prefer candidate $X$, 30,000 prefer candidate $Y$, and 20,000 prefer candidate $Z$. A pollster samples 1000 people. \textbf{What is the probaility}  that 600 prefer candidate $X$ if...
+
+    \textit{(a)} The sample is taken with replacement.
+    
+    This is a binomial distribution, where :
+   \begin{align*}
+       \text{Binomial}\left(1000, \frac{50,000}{100,000} \right) &= \mathbb{P}(500 \text{ prefer } X
+       \Aboxed{&= \binom{1000}{500}\left(\frac{1}{2}\right)^{500}\left(\frac{1}{3} \right)^{1000-500}} 
+   \end{align*}
+
+    \textit{(b)} The sample is taken without replacement.
+
+    This is not binomial. It's hypergeometric, so:
+    \[
+        \boxed{\mathbb{P}(500 \text{ prefer } X) = \frac{\binom{50,000}{500}\binom{100,000 - 50,000}{1000 - 500}}{\binom{100,000}{1000}} }
+    \]
+\end{ex}
+
+\subsection{Sampling with replacement (binomial distribution)} Out of a pool of $N$ items, $G$ are classified as "good" and $B$ are classified as "bad" ($N = G + B$). Suppose $n$ items are sampled from the pool with replacement. What is the probability that exactly $k$ of the samples are good?
+\[
+    \mathbb{P}( \text{selecting }k \text{ "good" items out of } n \text{ samples}) = \binom{n}{k}\frac{G^kB^{n-k}}{N^n} = \binom{n}{k}\left(\frac{G}{N}\right)^k\left(\frac{B}{N}\right)^{n-k}
+\]
+
+\subsection{Sampling without replacement (hypergeometric distributions)}
+Out of a pool of $N$ items, $G$ are classified as "good" and $B$ are classified as "bad" ($N = G + B$). Suppose $n$ items are sampled from the pool without replacement. What is the probability that exactly $k$ of the samples are good?
+
+\textbf{Note:} the boxed formula should be memorized, not the final formula:
+\[
+    \mathbb{P}( \text{selecting }k \text{ "good" items out of } n \text{ samples}) = \boxed{\frac{\binom{G}{k}\binom{B}{n-k}}{\binom{N}{n}}} = \binom{n}{k}\frac{G_kB_{n-k}}{N_n}  
+\]
+\begin{ex}
+    Ten cards are drawn without replacement from a standard deck. \textbf{What is the probability}  that at least two aces were drawn?
+\end{ex}
+
+\pagebreak
+\section{Random Variables}
+\textbf{Examples} 
+\begin{enumerate}
+    \item Experiment: Flip a coin 10 times.\\[.1in]
+        $X$ = the number of heads out of the 10 flips\\
+        $Y$ = the number of heads minus the number of tails
+    \item Experiment: Rolling a pair of dice \\[.1in]
+        $X$ = the sum of the two dice
+        $Y$ = the minimum of the two dice
+\end{enumerate}
+
+We think of $X$ and $Y$ as \textbf{functions.} 
+
+\begin{definition}
+    A \textbf{random variable} is a function defined on an outcome space $\Omega $ that assigns each outcome a real number. That is, if $X$ is the name of the random variable and $s$ is a possible outcome, then $X(s)$ is a real number.
+\end{definition}
+
+\begin{ex}
+    Which of the following is \textit{not} a random variable?
+    \begin{enumerate}
+        \item $X$ = the number rolled on a fair 6-sided die
+        \item $Y$ = the number of spades in a set of 5 cards
+        \item $Z$ = 1
+        \item $W$ = rolling 2 fair 6-sided dice
+    \end{enumerate}
+\end{ex}
+
+\textbf{When are two random variables equal?} 
+
+
+\begin{definition}
+    Let $X$ be a random variable with finitely namy range values. The \textbf{probability mass function} of $X$ is the function that gives the probability of each possible value of $X$. The mass function is:
+    \[
+    p(x) = \mathbb{P}(X=x)
+    \]
+   To represent the mass function, you can plot it, list it as a table, or write it as a function. For random variables with finitely many range values, the mass function determines the distribution of $X$. 
+\end{definition}
+
+\begin{ex}
+    You flip a coin 3 times. Let $X$ be the random variable that gives the number of heads. \textbf{Write down the mass function} of $X$.
+\end{ex}
+\end{document}
