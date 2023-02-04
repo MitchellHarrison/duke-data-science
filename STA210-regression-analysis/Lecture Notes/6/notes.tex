@@ -1,0 +1,121 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 6 - Multiple Predictors}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review - Statistical Inference}
+
+The \textbf{population} is the group we'd like to learn about. We can't usually use an entire population, so we settle for a \textbf{sample.} 
+
+\textbf{Hypothesis Testing Framework} 
+\begin{enumerate}
+    \item Start with two theses about the population, \textit{null hypothesis} and \textit{alternative hypothesis} 
+    \item Choose a sample, collect data, analyze data
+    \item Figure out how likely it is to see data like what we observed, \textbf{if} the null hypothesis was true
+    \item If our data would have been extremely unlikely if the null claim were true, then we reject the null hypothesis and deem the alternative claim worthy of further study. Otherwise, we \textit{fail to reject} the null hypothesis.
+\end{enumerate}
+
+\begin{definition}
+    The \textbf{degrees of freedom} of a t-statistic is $n-m$ where $m$ is the number of variables we are working with. For a single explanatory variable, this would be $n-2$, one for $\beta_0$ and one for $\beta_1$
+\end{definition}
+
+\pagebreak
+\section{Confidence Intervals}
+\begin{note}
+    We will assume that we know the true population standard deviation $\sigma$ for the following notes.
+\end{note}
+
+Given a random variable $X$ with mean $\mu$ and std. deviation $\sigma$, the Central Limit Theorem (CLT) tells us that the random variable $Z$, defined as:
+\[
+Z = \frac{\bar X - \mu}{SE} 
+\]
+has a standard normal distribution if $X$ is normal (and is approximately normal if $X$ is not normal, but $n$ is large enough.
+
+\begin{ex}
+    For a standard normal random variable, 95\% of the observations lie between -1.96 and 1.96 for $Z \sim N(0,1)$, so:
+   \begin{align*}
+       0.95 &= P(-1.96 \le Z \le 1.96) \\
+            &= P(-1.96 \le \frac{\bar X - \mu}{SE} \le 1.96)
+   \end{align*}
+   
+   So, a 96\% confidence interval is given by:
+   \[
+   \boxed{\left(\bar X - 1.96\frac{\sigma}{\sqrt n}, \bar X + 1.96\frac{\sigma}{\sqrt n}\right)}
+   \]
+\end{ex}
+
+\pagebreak
+\section{Multiple Predictors}
+The \textbf{multiple linear regression} formula is as follows:
+\[
+    y_i =\beta_0 +\beta_1x_{i1} + \cdots +\beta_px_{ip} +\epsilon_i
+\]
+Where $p$ is the number of explanatory variables.\\[.1in]
+To deal with confounding variables, we adjust one variable, \textbf{holding the others constant}. For example, if taller students score better, that could be because taller student are older. To correct for this in a model, we hold one variable constant and adjust the other. So we can then say "For every $x$-year-old, the taller student do/do not score better in math, \textbf{holding all other predictors constant}."
+
+R code for generating multiple regression models (note, code for doing so in \texttt{tidymodels} is similar to other \texttt{tidymodels} models):
+\begin{verbatim}
+m2 <- lm(maxHeight ~ price, data = jeans)
+\end{verbatim}
+\end{document}

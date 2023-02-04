@@ -1,0 +1,113 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 7 - Categorical Predictors}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Categorical Predictors}
+\begin{definition}
+    In regression settings, we can account for categorical variables by creating \textbf{dummy variables}, which are indicator variables for certain things happening. \\[.1in]
+    When considering categorical variables, one variable is taken to be the \textbf{baseline} (aka \textbf{reference} value. All other categories will be compared to it.
+\end{definition}
+
+A dummy variable takes on a value of 0 or 1, but if a categorical variable has $k$ levels, we add $k-1$ dummy variables, with the $k^{th}$ value being the baseline.
+\begin{ex}
+    A model of coffee bean processing may contain three possible processes: wet, dry, and other. If we select dry processing as our baseline, our model would appear as follows:
+    \[
+    \boxed{Score_i = \beta_0 + \beta_1(I(other)_i) + \beta_2(I(wet)_i)+\epsilon_i} 
+    \]
+Where:
+\begin{align*}
+    \beta_0 = &\text{ expected score for dry processes coffee}\\
+    \beta_1 = &\text{ expected \textbf{difference} in score for coffee with an "other" roasting process} \\
+            &\textit{ compared to the baseline} \\
+    B_2 = &\text{ expected difference in score for wet process coffee compared to dry}
+\end{align*}
+\end{ex}
+
+The R code for generating a linear model with categorical variables is the same as any other linear model. Here, \texttt{process} is a categorical variable:
+\begin{verbatim}
+model <- lm(score ~ flavor + process, data = coffee)
+\end{verbatim}
+
+\pagebreak
+\section{Explained Variation}
+The strength of the fit of a linear model can be evaluated in many ways. One common statistic is $R^2$, the percentage of the variability in the response variable that is explained by the model. The remainder of the variability is considered \textit{unexplained} by the modeland associated with the residuals (errors)
+
+$R^2$ is sometimes called the \textbf{coefficient of determination} (especially in older sources.
+
+$R^2$ is calculated in the following way:
+\[
+    R^2 = 1 - \left(\frac{SS_{error}}{SS_{total}}\right) 
+\]
+\subsection{Adjusted R-squared}
+Because of how it is constructed, $R^2$ will never decrease when adding new variables, so \textbf{adjusted $R^2$} can be used. It is calculated thusly:
+\[
+    R^2_{adj} = 1 - \left(\frac{SS_{error}}{SS_{total}} \times \frac{n-1}{n-k-1} \right)
+\]
+Where $n$ is the number of observations and $k$ is the number of predictors in the model. This penalizes the use of extra variables that don't have a large impact on the model.
+
+\begin{note}
+    Choosing explanatory variables purely based on their impact on adjusted $R^2$ is better than randomly choosing variables, but is usually not a good way to select explanatory variables.
+\end{note}
+\end{document}
