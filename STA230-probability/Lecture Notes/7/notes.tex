@@ -86,11 +86,10 @@ Thus, the correct answer is $\boxed{B}$
 
 In a coin example, $\hat p$ (where heads is a success), is $\frac{ \text{\# heads}}{ \text{\# trials}} $
 
-\textbf{TODO: FILL FORMULA USING LECTURE NOTES ONLINE} 
 For these intervals:
 \begin{itemize}
     \item mean = $p$
-    \item standard deviation = $\frac{\sqrt{}}{Denominator}$
+    \item standard deviation = $\frac{\sqrt{p(1-p)}}{\sqrt{n}}$
 \end{itemize}
 
 \begin{ex}
@@ -117,15 +116,20 @@ For these intervals:
         \Phi\left(\frac{c\sqrt{100}}{\sqrt{.6(.4)}} \right) &\approx .9985 \\
     \end{align*}
     Using the table to look up $c$, we arrive at:
-    \[
-        c = \text{(\# standard deviations)} \cdot \sigma \approx .15 
-    \]
+   \begin{align*}
+       \Phi(z) &= .9985 \\
+       z &\approx 2.965
+   \end{align*}
+
+   Now that we have $\Phi^{-1}(.9985) \approx 2.965$, we solve for $c$ and arrive at:
+   \[
+   c \approx 0.15
+   \]
     Thus the final interval is:
    \begin{align*}
        \text{interval} &= (.6 - .15, .6 + .15) \\
        \Aboxed{&= (.45,.75)} 
    \end{align*}
-   \textbf{NOTE: CHECK THIS WITH RECORDED LECTURE}  
 \end{ex}
 
 \begin{ex}
