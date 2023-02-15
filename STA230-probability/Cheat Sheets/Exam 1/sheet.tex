@@ -1,0 +1,107 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{multicol}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 0.5in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\begin{multicols}{2}
+\textbf{Bayes' Rule}
+\[
+    \mathbb{P}\left(A \;\middle|\; B\right) = \frac{ 
+    \mathbb{P}\left(B \;\middle|\; A\right) \mathbb{P}(A)}{
+\mathbb{P}\left(B \;\middle|\; A\right) \mathbb{P}(A) +
+\mathbb{P}\left(B \;\middle|\; A^\complement \right) \mathbb{P}(A^\complement )}
+\]
+
+\textbf{Binomial Distribution Formula}
+\begin{align*}
+    \mathbb{P}(k) &= \mathbb{P}( k\text{ success out of } n \text{ trials}) \\
+                  &= \binom{n}{k}p^k(1-p)^{n-k}
+\end{align*}
+
+\textbf{Standard Deviation}
+\begin{enumerate}
+    \item For \textit{number of successes} $X$:
+        \[
+            \sqrt{np(1-p)}
+        \]
+    \item For \textit{fraction of successes} $\frac{X}{n}$:
+        \[
+        \frac{\sqrt{p(1-p)}}{\sqrt{n}}
+        \]
+\end{enumerate}
+\columnbreak
+
+\textbf{Empirical Rule}
+\begin{align*}
+    \Phi(1) - \Phi(-1) &\approx 68\% \\
+    \Phi(2) - \Phi(-2) &\approx 95\% \\
+    \Phi(3) - \Phi(-3) &\approx 99.7\% \\
+\end{align*}
+\textbf{Phi Function Notes}
+\begin{itemize}
+    \item $\Phi(-z) = 1 - \Phi(z)$
+\end{itemize}
+
+\begin{note}
+    If $p$ isn't given, use $p = \frac{1}{2}$
+\end{note}
+
+\end{multicols}
+\end{document}
