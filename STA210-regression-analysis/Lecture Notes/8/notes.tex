@@ -1,0 +1,148 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 8 - Interaction Terms}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review: Multiple Regression}
+
+The \textbf{multiple linear regression} formula is as follows:
+\[
+    y_i =\beta_0 +\beta_1x_{i1} + \cdots +\beta_px_{ip} +\epsilon_i
+\]
+Where:
+\begin{itemize}
+    \item $p$ is the number of predictor/explanatory variables
+    \item $y_i$ is the outcome (dependent variable) of interest
+    \item $\beta_0$ is the intercept parameter
+    \item $\beta_1, \cdots , \beta_p$ are the slope parameters
+    \item $x_{i1}, \cdots , x_{ip}$ are predictor variables
+    \item $\epsilon_i$ is the error (like the $\beta$'s, it is not observed.
+\end{itemize}
+
+\subsection{Vocabulary}
+\begin{itemize}
+    \item The \textbf{response variable} is the variable whose behavior or
+        variation we are trying to understand
+    \item \textbf{Explanatory variables} are other variables that we use to 
+        explain the variation in the response
+    \item The output of the \textbf{model function} is the \textbf{predicted
+        value}.
+    \item \textbf{Residuals} show how far each case is from its predicted value.
+        \[
+        \text{Residual} = \text{Observed value} - \text{Predicted value}
+        \]
+\end{itemize}
+
+\pagebreak
+\section{Interaction Effects}
+\begin{definition}
+    An \textbf{interaction effect} between a continuous predictor and a
+    categorical predictor in a model allows for different slops for different
+    levels of a categorical predictor.\\[.1in]
+    To accomplish this, we add an \textbf{interaction variable} that is the 
+    product of two explanatory variables.
+\end{definition}
+
+In words, we would say that "The relationship between the response variable and
+a continuous variable depends on the value of a categorical variable."
+
+To \textbf{build an interaction model}, we use the following code:
+\begin{verbatim}
+model <- linear_reg() |>
+    set_engine("lm") |>
+    fit(price ~ age + age * make, data = car_prices)
+\end{verbatim}
+
+\begin{ex}
+    The fomula for a model comparing the price decrease per year between Porsche
+    and Jaguar:
+    \[
+        \text{price}_i = \beta_0 + \beta_1( \text{age}_i) +
+        \beta_2(I( \text{Porche})_i) + \beta_3( \text{age}_i \times I( \text{
+        Porsche})_i) + \epsilon_i
+    \]
+    How do you \textbf{interpret the coefficients} in this model?\\[.1in]
+    $\beta_0$ is the expected value of a new Jaguar. $\beta_1$ gives
+    the expected rate of price decay per year of age for Jaguars.
+    $\beta_2$ gives the change in expected value for a new car given that
+    the car is a Porsche. $\beta_3$ gives the expected change in rate of
+    decay in price per year of age in Porsche compared to Jaguar.
+\end{ex}
+
+\begin{note}
+    If there are interaction terms in your model, it's often quite a bit trickier
+    to interpret main effects. First, ask yourself whether the main effects are
+    what you even care about!
+\end{note}
+
+An example \textbf{hypothesis test} using an interactive model might be something
+like "The relationship between age and price does not depend on the make of a 
+car." The effect of this on the model in the previous example would be that
+$\beta_3 = 0$.
+
+To check whether or not that hypothesis test is true, we check the p-value of the
+interaction coefficient in our models summary. If it's less than our significance
+level, we fail to reject the null hypothesis that the relationship between age
+and make does not impact the predicted price.
+\end{document}

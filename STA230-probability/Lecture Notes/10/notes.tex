@@ -1,0 +1,328 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 10 - Expectation}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+\textbf{Empirical Rule:}
+
+\begin{enumerate}
+    \item Given $p$: $\mathbb{P}(p-c \le \hat p \le p+c) = x$, $x$ is the 
+        desired confidence interval (i.e. 0.95), and helps us get the number of
+        standard deviations. $c$ is the number of standard deviations and:
+        \[
+            c = ( \text{\# std. dev's})\frac{\sqrt{p(1-p)}}{\sqrt{n}}
+        \]
+    \item If we don't know $p$, we use $\hat p$ to get an estimate of $p$. The
+        confidence interval will end up being $(\hat p-c, \hat p+c)$, where:
+        \[
+        c = ( \text{\# std. dev's}) \times ( \text{size of std. dev})
+        \]
+        And the size of the standard deviations is $\frac{\sqrt{p(1-
+        p)}}{\sqrt{n}}$. Sinc we don't know $p$, we operate under the worst-
+        case scenario of $p=\frac{1}{2}$. Thus, the biggest possible standard
+        deviation is $\frac{1}{2\sqrt{n}}$.
+\end{enumerate}
+
+\textbf{Question:} When do we define the standard deviation as $\frac{\sqrt{p(1-p)}}{\sqrt{n}}$ vs. $\sqrt{np(1-p)}$?
+
+When we are looking at the total number of successes (i.e. $X =$ \# of heads
+and we are looking for $\mathbb{P}(X\ge 7)$), we use $\sqrt{np(1-p)}$. But if we
+are looking for the fraction of successes $X$ out of $n$ trials, we get the 
+fraction (or proportion) of successes $\frac{X}{n}$, and we use the standard
+deviation form $\frac{\sqrt{p(1-p)}}{\sqrt{n}}$. Typically, the former case
+involves using the continuity correction.
+
+\begin{ex}
+    Three cards are drawn without replacement from a standard deck. What is the
+    probability that the minimum of three cards is less than or equal to 10?
+    \\[.1in]
+    Here,
+   \begin{align*}
+       N &= 52 \\
+       G &= 12 \text{(the number of face cards)}\\
+       n &= 3 \\
+       k &= 3
+   \end{align*}
+   Thus,
+    \[
+        \boxed{1 - \frac{\binom{40}{0}\binom{12}{3}}{\binom{52}{3}}} 
+    \]
+\end{ex}
+
+\pagebreak
+\section{Consequences of Independence}
+\begin{enumerate}
+    \item Any subgroup of independent variables are also independent.
+    \item Functions of independent random variables are also independent. For
+        example, if $X_1$ and $X_2$ are independent, then $2X_1$ and $X_2 + 3$ 
+        are also independent.
+    \item Functions of disjoint collections of independent random variables are
+        also independent. For example, if $X_1, X_2, X_3, X_4$ are independent,
+        then $min(X_1, X_2)$ and $max(X_3, X_4)$ are also independent.
+\end{enumerate}
+
+\pagebreak
+\section{Introduction to expected value}
+Suppose a class ahs the following twenty quiz grades:
+\begin{center}
+\begin{tabular}{c|c}
+    Grade out of 6 & Number of quizzes \\
+    \hline
+    2&1 \\
+    3&3 \\
+    4&6 \\
+    5&6 \\
+    6&4
+\end{tabular}
+\end{center}
+
+How can we compute the average?
+\begin{align*}
+    \text{total} &= \sum_{ \text{all grades }}( \text{grade})
+    \frac{ \text{\# quizzes of that grade}}{ \text{total \# of quizzes}}
+\end{align*}
+This is effectively a simple \textbf{weighted average}.
+
+\begin{definition}
+    The \textbf{expected value} of a random variable $X$ is the "weighted 
+    average." If $X$ has probability mass function $p(x)$, then:
+    \[
+    \mathbb{E}(X) = \sum_{ \text{all possible }x} \cdot p(x) = 
+    \sum_{x}x \mathbb{P}(X=x)
+    \]
+\end{definition}
+
+\begin{ex}
+    $X$ has the following mass function. What is the expected value of $X$?
+    \begin{center}
+    \begin{tabular}{c|c c c}
+        $x$&-2&3&5\\
+        \hline
+        $\mathbb{P}(X=x)$&1/2&1/3&1/6
+    \end{tabular}
+    \end{center}
+
+    We use the expected value function to arrive at a solution:
+   \begin{align*}
+       \mathbb{E}(X) &= -2\left(\frac{1}{2}\right) + 3\left(\frac{1}{3}\right) +
+       5\left(\frac{1}{6}\right) \\
+       \Aboxed{ \mathbb{E}(X) &= \frac{5}{6}} 
+   \end{align*}
+\end{ex}
+
+\pagebreak
+\subsection{Properties of Expected Value}
+Let $X$ be a (discrete) random variable.
+\begin{enumerate}
+    \item For any constant $k$:
+        \[
+        \mathbb{E}(k) = k
+        \]
+    \item If $ \mathbb{E}(X)$ is finite, then for any constant $k$:
+        \[
+        \mathbb{E}(kX) = k \mathbb{E}(X)
+        \]
+    \item The $k$th \textbf{moment} of $X$ is:
+        \[
+        \mathbb{E}(X^k) = \sum_{ \text{all }x}x^k \mathbb{P}(X=x)
+        \]
+    \item For a function $f$ defined on the range of $X$:
+        \[
+        \mathbb{E}(f(X)) = \sum_{ \text{all }x}f(x)\mathbb{P}(X=x)
+        \]
+    \item If $X$ and $Y$ are independent random variables:
+        \[
+        \mathbb{E}(XY) = \sum_{ \text{all }x,y}(xy)\mathbb{P}(X=x, Y=y)
+        \]
+    \item \textbf{Addition rule}
+        \[
+        \mathbb{E}(X+Y) = \mathbb{E}(X) + \mathbb{E}(Y)
+        = \sum_{ \text{all }x,y}(x+y)\mathbb{P}(X=x, Y=y)
+        \]
+        \begin{note}
+            The \textit{addition rule} holds whether $X$ and $Y$ are 
+            \textit{dependent} or \textit{independent}.
+        \end{note}
+        
+    \item \textbf{Tail sum formula}: For $X$ with possible range values
+        $\{0,1,2,3, \cdots ,n\}$:
+        \[
+        \mathbb{E}(X) = \sum_{k=1}^{n}\mathbb{P}(X \ge k)
+        \]
+        \begin{note}
+            The \textit{tail sum formula} holds for any set of non-negative
+            integers. It's called a "tail sum" because it starts at $k$ and adds
+            up the distribution from $k$ to the tip of the tail of the
+            distribution graph $n$.
+        \end{note}
+\end{enumerate}
+
+\pagebreak
+\section{Indicator Functions}
+
+\begin{ex}
+    We deal five cards from a deck of 52 without replacement. Let $X$ denote the
+    number of aces among the chosen cards. Find the expected value of $X$.
+    \\[.1in]
+    Here, we are looking for $ \mathbb{E}(X)$ where $X$ is the number of aces.
+   \begin{align*}
+       \mathbb{E}(X) &= \sum_{x=0}^{4}x \mathbb{P}(X=x) \\
+                     &= 0\mathbb{P}(X=0)+1\left(\frac{\binom{4}{1}
+                         \binom{48}{4}}{\binom{52}{4}}\right) +
+                         2\mathbb{P}(X=2) + 3\mathbb{P}(X=3) + 
+                         4\mathbb{P}(X=4)\\
+       \Aboxed{ \mathbb{E}(X) &= \frac{5}{13}} 
+   \end{align*}
+\end{ex}
+
+\begin{definition}
+    The \textbf{indicator function} of an event $A$ is the random variable which
+    has the range $\{0,1\}$ such that:
+    \[
+        1_A(s) =
+    \begin{cases}
+        1 & \text{if } s \in A \\
+        0 & \text{if }s \notin A
+    \end{cases}
+    \]
+    Basically:
+    \[
+        1_A =
+    \begin{cases}
+        1 & \text{if A happened} \\
+        0 & \text{if not}
+    \end{cases}
+    \]
+\end{definition}
+
+\begin{ex}
+    Let $A$ be an event inside of the outcome space $\Omega $. What is
+    $ \mathbb{E}(1_A)$?
+   \begin{align*}
+       \mathbb{E}(1_A) &= 1\mathbb{P}(A) + 0\mathbb{P}(A^\complement)\\
+        \Aboxed{ \mathbb{E}(1_A) = \mathbb{P}(A)} 
+   \end{align*}
+\end{ex}
+
+\begin{ex}
+    We're going to redo the problem using the method of indicators. \textbf{Which 
+    indicator functions} will be useful in this case?
+    \begin{enumerate}
+        \item $1_n = $ the indicator on the event that the $n$th card is an ace
+        \item $1_n =$ the indicator on the event that $n$ aces are among the
+            five chosen cards
+        \item $1_n =$ the indicator on the event that greater than or equal to
+            $n$ aces are among the five chosen cards
+    \end{enumerate}
+    \vspace{10px}
+    $\boxed{ \text{Answer 1}}$ is correct. If $X$ is the number of aces, then
+    summing the indicator functions in Answer 1 will give $X$. By the
+    \textit{addition rule}:
+   \begin{align*}
+       \mathbb{E}(X) = \mathbb{E}(1_1) + \mathbb{E}(1_2) + \cdots + 
+       \mathbb{E}(1_5)
+   \end{align*}
+\end{ex}
+
+\pagebreak
+\subsection{Indicator Example}
+There are 15 workers in the office. Management allows a birthday party on the 
+last day of a month if at least one person had a birthday during that month. How
+many parties are there on average during a year? Assume for simplicity that the 
+birth months of the individuals are independent and each month is equally likely.
+
+\begin{ex}
+    For this question, we're going to use the method of indicators. Which 
+    indicator functions seem useful for this problem?
+    \begin{enumerate}
+        \item $1_n =$ the indicator on the event that at least 1 birthday is in 
+            the $n$th month.
+        \item $1_n = $ the number of people with a birthday in the $n$th month.
+        \item $1_n = $ the indicator on the event that $n$ months have parties
+            out of the 12 possible months.
+        \item $1_n = $ the indicator on the event that person $n$ does not share
+            a birthday month with any other person in the office.
+    \end{enumerate}
+\end{ex}
+
+\subsection{Expected value of binomial distribution}
+\textbf{FILL HERE}
+
+\subsection{Tail Sum Formula}
+For $X$ with possible values $\{0,1,2, \cdots ,n\}$:
+\[
+    \mathbb{E}(X) = \sum_{j=1}^{n}\mathbb{P}(X \ge j)
+\]
+
+This is equivalent to $\sum_{x=0}^{n}x \mathbb{P}(X=x)$, just written in a 
+different way.
+
+\begin{ex}
+    Suppose 3 fair six-sided dice are rolled. Let $Y$ be the minimum of three 
+    rolls. \textbf{Compute} $ \mathbb{E}(Y)$.\\[.1in]
+    Let's start with the sub-goal of finding an expression for $ \mathbb{P}(Y
+    \ge k)$. \textbf{Compute} $ \mathbb{P}(Y \ge 3)$.
+\end{ex}
+
+\end{document}

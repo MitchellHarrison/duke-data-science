@@ -1,0 +1,291 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 9 - Expectations}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+\textbf{Guest lecturer} is Po-Ying Chen, first year graduate student in 
+mathematics.
+
+\begin{ex}
+    Let $X$ and $Y$ be two random variables. Below is their joint distribution
+    table. If we know $ \mathbb{P}\left(Y=7 \;\middle|\; X=1\right) =
+    \frac{1}{4}$, determine the values of $x$ and $y$.
+    \begin{center}
+    \begin{tabular}{c|c c c c}
+        &$X=1$&2&3&4\\
+        \hline
+        $Y=-2$ &1/5&1/5&1/5&1/5 \\
+        7& $x$& 1/15&1/15& $y$
+    \end{tabular}
+    \end{center}
+
+    The \textit{sum of the whole table must = 1}, thus the buttom row must sum to
+    $\frac{1}{5}$. Since we know $ \mathbb{P}\left(Y=7 \;\middle|\; X=1
+    \right) = \frac{1}{4}$:
+   \begin{align*}
+       \mathbb{P}(Y=7, X=11) &= \frac{ \mathbb{P}\left(Y=7 \;\middle| 
+       X=1\right) }{\mathbb{P}(X=1)}
+   \end{align*}
+\end{ex}
+
+\pagebreak
+\section{Multinomial Distribution}
+A \textit{multinomial distribution} is basically a special case of joint
+distributions.
+\begin{definition}
+    \textbf{Multinomial distribution:}
+    Let $N_i$ be the number of results of type $i$ out of the $n$ trials. Suppose
+    the $i$th outcome type occurs with probability $p_i$. The types must all be 
+    disjoint and $\sum p_i = 1$. (If $\sum p_i < 1$, add an "other" category).
+    Then, $(N_1, \cdots ,N_k$ have the multinomial distribution:
+    \[
+    \mathbb{P}(N_1=n_1, \cdots , N_k = n_k) = \frac{n!}{n_1!n_2! \cdots n_k!} 
+    p_1^{n_1}p_2^{n_2} \cdots p_k^{n_k}
+    \]
+    For example, $n_1$ would be 1 if we are looking for 1 ace, $n_2$ would be
+    2 if we were then looking for two face cards, etc.
+\end{definition}
+
+\begin{ex}
+    You draw five cards from a deck with replacement. What is the probability 
+    that you get 2 aces and 2 face cards. \\[.1in]
+    Let:
+   \begin{align*}
+       N_1 &= \text{number of aces} \\
+       N_2 &= \text{number of other cards}
+   \end{align*}
+   First, we choose two positions out of the five dealt cards, giving 
+   $\binom{5}{2}$. We also know the odds that an ace is drawn is $\frac{1}{13}$.
+   Since we have two slots for those aces, we raise that fraction to the power of
+   2. We choose 3 other slots for the remaining non-ace cards. This gives rise to
+   the following:
+   \[
+   \]
+   Since $\binom{n}{n} = 1$, the final formula is \textbf{for two aces}, 
+   ragardless of face cards is:
+   \[
+   \binom{5}{2}\left(\frac{1}{13} \right)^2 \left(\frac{12}{13}\right)^3
+   \]
+   Extending this to include face cards (which have $\frac{3}{13}$ odds of being
+   drawn and take $\binom{3}{2}$ possible combinations of the \textit{remaining
+   3} slots, we arrive at a solution (before calculating):
+   \[
+       \boxed{\mathbb{P}( \text{2 ace, 2 face}) = \binom{5}{2}\left(\frac{1}{13}
+           \right)^2  \binom{5}{2}\left(\frac{3}{13} \right)^2 \binom{1}{1}
+           \left(\frac{9}{13} \right)^1} 
+   \]
+\end{ex}
+
+\begin{ex}
+    Roll a die 10 times. $N_i$ is the number of rolls of value $i$ (where $i$ 
+    goes from 1 to 6). \textbf{Compute} $\mathbb{P}(N_1=3,N_2=4,N_3=1)$ \\[.1in]
+    Using the multinomial distribution formula and accounting for the fact that
+    the odds of none of the desired rolls is $\frac{1}{2}$:
+    \[
+    \boxed{\mathbb{P} = \frac{10!}{3!4!2!} \left(\frac{1}{6}\right)^8
+    \left(\frac{1}{2} \right)^2}
+    \]
+\end{ex}
+
+\pagebreak
+\section{Marginal Distributions and Independence}
+\subsection{Marginals}
+From a joint distribution, we can get \textbf{marginal distributions}.
+
+\begin{definition}
+    The \textbf{marginal distribution} of $X$ is the same as the distribution of
+    $X$, it's just determined using the joint distribution. To get the marginal
+    distribution of $X$, add up each column of the joint distribution (or each 
+    row depending on how you orient your table). We're making a partition here
+    and adding up separate cases.
+    \[
+    \mathbb{P}(X=x)= \sum_{ \text{all }y}\mathbb{P}(X=x, Y=y)
+    \]
+
+\end{definition}
+
+\begin{ex}
+    \textbf{What is the marginal distribution} of $X$ given the following joint
+    distribution chart:
+
+    \vspace{10px}
+    \begin{center}
+    \begin{tabular}{c|c c c}
+    & $X=0$&1&2\\
+    \hline
+        $Y=0$&1/8&1/8&0\\
+        1&1/8&1/4&1/8\\
+        2&0&1/8&1/8
+    \end{tabular}
+    \end{center}
+    \vspace{10px}
+
+    To get the probability of each $X$, we add columns:
+    \vspace{10px}
+    \begin{center}
+    \begin{tabular}{c|c c c}
+        $x$ &0&1&2 \\
+        \hline
+        $\mathbb{P}(X=x)$&1/4&1/2&1/4
+    \end{tabular}
+    \end{center}
+    \vspace{10px}
+    
+    We can get the probability for each $Y$ by adding columns.
+
+    \textbf{Are $X$ and $Y$ independent?} 
+    \vspace{10px}
+    \begin{center}
+    \begin{tabular}{c|c c}
+    & $x=0$ &1\\
+    \hline
+        $y=0$&1/6&1/6\\
+        1&1/3&1/3
+    \end{tabular}
+    \end{center}
+    \vspace{10px}
+
+    Restricting our view of the above table using conditional probabilities, we
+    arrive at the following probabilities:
+   \begin{align*}
+       \mathbb{P}(X=0) &= \frac{1}{2} \\
+       \mathbb{P}\left(X=0 \;\middle|\; Y=0\right) &= \frac{\frac{1}{6}
+       }{\frac{2}{6}} = \frac{1}{2} \\
+       \mathbb{P}\left(X=0 \;\middle|\; Y=1\right) &= \frac{\frac{1}{3}
+       }{\frac{2}{3}} = \frac{1}{2} 
+   \end{align*}
+
+   Because these ratios are all = $\frac{1}{2}$, $\boxed{X \text{ and } Y \text{ 
+   are independent}}$
+\end{ex}
+
+\begin{note}
+    For bigger tables, you can note independence by verifying that every row and
+    column is a scalar multiple of each other row/column. Much like checking the
+    scalar multiplicity of an $n \times n$ matrix.
+\end{note}
+
+\pagebreak
+\section{Independence of random variables}
+\subsection{Two random variables}
+Two random variables are independent if, for all $x$ and $y$:
+\[
+\mathbb{P}(X=x, Y=y) = \mathbb{P}(X=x)\mathbb{P}(Y=y)
+\]
+or equivalently,
+\[
+\mathbb{P}\left(X = x \;\middle|\; Y = y\right) = \mathbb{P}(X=x)
+\]
+or equivalently, columns in their joint distribution are scalar multiples of
+each other.
+
+\subsection{Several random variables}
+Several random variables are (mutually or collectively) independent if, for all 
+possible collections of $(x_1,x_2, \cdots ,x_n)$:
+\[
+\mathbb{P}(X_1 = x_1, \cdots , X_n = x_n) = \prod_{i=1}^{n}\mathbb{P}(X_i=x_i)
+\]
+This is a lot of multiplication in practice, so we will usually assume 
+independence for the purposes of this course.
+\begin{ex}
+    In an experiment, a fair 6-sided die is rolled once. Define the random 
+    variables $X$ and $Y$ as follows:
+   \begin{align*}
+       X &= 
+        \begin{cases}
+            0 & \text{a 1, 2, or 3 was rolled} \\
+            1 & \text{a 4, 5, or 6 was rolled}
+        \end{cases} \\
+       Y &=
+        \begin{cases}
+            1 & \text{a 1 or 4 was rolled} \\
+            2 & \text{a 2, 3, 5, or 6 was rolled}
+        \end{cases}
+   \end{align*}
+   
+    \textbf{Compute} $\mathbb{P}(X=0, Y=2)$\\[.1in]
+    Given six possible numbers to be rolled, the overlap between $X=0$ and $Y=2$
+    is rolling 2 or 3, thus:
+    \[
+    \boxed{\mathbb{P}(X=0, Y=2) = \frac{1}{3}} 
+    \]
+    \textbf{Are $X$ and $Y$ independent?} \\
+    First, we arrive at the following multiple distribution table:
+    \vspace{10px}
+    \begin{center}
+    \begin{tabular}{c|c c}
+        & $X=0$ & $1$\\
+        \hline
+        $Y=1$ & 1/3 & 1/3 \\
+        $2$ & 1/2 & 1/3
+    \end{tabular}
+    \end{center}
+    \vspace{10px}
+    
+    We see that the rows and columns of the table are all scalar multiples of
+    each other. Thus, they are $\boxed{ \text{independent}}$.
+\end{ex}
+
+\end{document}

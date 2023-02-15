@@ -1,0 +1,238 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 9 - Linear Model Assumptions}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Error Terms}
+
+We have quietly made a large assumption about $\epsilon_i$ in our models. So far,
+our models are deterministic and we account for errors with the error term
+$\epsilon_i$.
+
+We introduce the following syntax, where $i.i.d.$ stands for \textbf{
+"independent, identically distributed"} and $N$ represents a normal distribution:
+\[
+    \boxed{\epsilon_i\overset{\mathrm{iid}}{\sim}N(0,\sigma^2)}
+\]
+The effect of this assumption is that we expect our variance to be normally
+distributed and centered around zero with some variance $\sigma^2$.
+
+\begin{note}
+    The variance $\sigma^2$ is the same for every observation, which is why it is
+    not annotated with $\sigma^2_i$, but with $\sigma_2$.
+\end{note}
+
+This relationship means that, given an $x_1, \cdots , x_n$, the expected $y_i$ 
+values are normally distributed. Considering \textbf{means} and \textbf{
+variances}, we arrive at the following:
+\begin{align*}
+    E(y_i \;|\; x_{i1}, \cdots , x_{ip}) &= \beta_0 + \beta_1x_{i1} + \cdots +
+    \beta_p x_{ip} \\
+    Var(y_i \;|\; x_{i1}, \cdots , x_{ip} &= \sigma^2
+\end{align*}
+
+In words, we observe that for any given $x$ values $x_1, \cdots , x_p$, the $y$
+values will be normally distributed around the expected value with the same 
+variance $\sigma^2$. 
+
+\textbf{Quick caveat:} 
+
+These are a fairly strict set of assumptions, but if the model formulation above
+is satisfied, then the linear regression model is guaranteed to have certain
+"nice" properties. Those properties are outside the scope of this course, but are
+introduced in STA 211. That course discusses what these properties are, as well
+as specific implications of their being violated, what we can do when they 
+\textit{are} violated, and some other technical details that would be useful to
+keep in mind.
+
+\pagebreak
+\section{Four assumptions for regression}
+For the purposes of this course, the following \textbf{four assumptions} will
+be considered the required assumptions of the linear regression model:
+\begin{enumerate}
+    \item \textbf{Independence}: The errors $\epsilon_i$ are \textit{independent}.
+        Specifically, this implies that the outcomes $y_i$ are independent.
+    \item \textbf{Linearity}: The regression model is \textit{linear in the
+        parameters.} Specifically, this is a linearity assumption on the 
+        the \textit{parameters} (the $\beta$ terms), \textit{not} the
+        predictors themselves (the observed $x$ terms).
+    \item \textbf{Constant variance} (homoscedasticity of errors): The
+        \textit{variance of the errors is constant} $\sigma^2$, regardless of
+        what the predictor values are. Specifically, this also implies that the
+        variance of the errors is independent of the predictors.
+    \item \textbf{Normality:} the errors follow a \textit{normal (Gaussian)
+        distribution.} Specifically, one centered at zero (so the expectation of
+        the errors is also zero).
+\end{enumerate}
+
+\subsection{Diagnostics for the four assumptions}
+\begin{enumerate}
+    \item \textbf{Independence:} In practice, the best way to ensure independence
+        is to consider how the data was gathered and how each observation 
+        actually came about.
+    \item \textbf{Linearity:} To check this, simply ensure that all of the $\beta$
+        terms are linear (i.e. not raised to any power).
+\end{enumerate}
+
+Both the \textbf{constant variance} assumption and the \textbf{normality} 
+assumption deal with \textit{residuals}. We can often look at the behavior 
+of the \textit{predicted values} or \textit{fitted values}, especially as they
+relate to the residuals, to evaluate that assumption. More specifically, we can
+use a \textbf{residual plot}.
+
+The code for a residual plot using \texttt{tidymodels} uses the \texttt{augment} 
+function to generate data meant to plot a residual plot:
+\begin{verbatim}
+model <- linear_reg() |> ...
+model_aug <- augment(model)
+\end{verbatim}
+
+In our residual plot, the $x$-axis holds the predicted value and the $y$-axis
+is the residual for each observation. The result is a scatterplot that shows
+the distance of each point from the predicted values (where $y=0$).
+
+\vspace{30px}
+The following code will \textbf{generate a residual} plot using our augmented
+model:
+\begin{verbatim}
+ggplot(model_aug, aes(x = .fitted, y = .resid)) +
+    geom_point() +
+    geom_hline(yintercept = 0, color = "red") +
+    labs(x = "Fitted (predicted) value, y = "Residual) +
+    theme_bw()
+\end{verbatim}
+
+If the residual plot shows drastically more/less variance in different ranges of
+predicted values, we have \textit{violated linearity}.
+
+To judge \textbf{normality}, we use a \textbf{quantile-quantile plot} (or Q-Q plot
+) to get an accurate picture. The Q-Q plot compares the quantiles of some sample
+to the theoretical quantiles from a pre-specified distribution (normally a
+normal distribution). A Q-Q plot orders the residuals and plots them against a 
+line representing what those residuals would be if pulled from a normal 
+distribution. If we see many large gaps between our scatterplot representing our
+observed residuals and the line representing the normally distributed residuals,
+we have \textbf{violated normality}.
+
+The following code will \textbf{generate a Q-Q plot} using our augmented model:
+\begin{verbatim}
+ggplot(model_aug, aes(sample = .resid)) |>
+    stat_qq() +
+    stat_qq_line() +
+    theme_bw() +
+    labs(x = "Theoretical quantiles", y = "Sample quantiles")
+\end{verbatim}
+
+\pagebreak
+\section{What happens when assumptions are violated?}
+Short answer, it's pretty bad but there are some rays of hope.
+
+\subsection{Independence}
+ Often a threat to the validity of the entire analysis,
+and inferential procedures will generally be completely inappropriate (in the 
+sense of not actually being what you expect). There are some ways around certain
+types of independence violations (clustering, time-dependence, etc.), but
+those are beyond the scope of this course.
+
+\subsection{Linearity}
+Also a pretty bad violation. We are trying to interpret
+\textit{linear} models after all (these are what our slope/intercept
+interpretations are based on), and so if linearity is violated, then the 
+\textit{model itself} is innapropriate.
+
+However, the linearity condition is only in the parameters, \textit{not}
+the predictors themselves. The predictors can have non-linear relationships with
+the response, and that's totally fine. We'll talk about some ways to deal with 
+these situations later this semester.
+
+\subsection{Constant variance}
+Inference will generally be effected (so things like p-values, confidence
+intervals, etc.) if the results based on the sampling distribution of 
+$\hat \beta$ terms are used.
+
+However, we still might be able to use bootstrap methods to come up with valid 
+confidence intervals, or a randomization-based test for valid hypothesis testing.
+Even better news is that the \textit{estimates themselves} (of slopes, 
+intercepts, etc. not of their standard errors) will still be estimated accurately.
+
+Finally, there are some more advanced modeling techniques that "get around" non-
+constant variance, but these are also beyond the scope of STA 210.
+
+\subsection{Normality}
+Probably the "least important" (in some sense) assumption in that once again, if
+the errors have mean zero (but are not normally distributed), our estimates of the
+model parameters will still be accurate.
+
+Similarly to violations of constant variance, inference will be affected, but if
+our sample is large enough, the Central Limit Theorem will still reassure us that
+things will be ok for the $\hat \beta$ terms. Once again, we can use bootstrap
+confidence intervals or randomization-based hypothesis tests to conduct valid
+inference without worrying about whether the sample size is large enough for the
+CLT to kick in.
+
+\begin{note}
+    Small caveat: violation of normality results in invalid \textit{prediction
+    intervals}, but more on these later.
+\end{note}
+\end{document}
