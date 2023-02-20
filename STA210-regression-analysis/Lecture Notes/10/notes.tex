@@ -1,0 +1,123 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 9 - Transformations}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Logarithmic Transformation}
+Below is an example model predicting diamond price given carats:
+\[
+log( \text{price}_i | \text{carat}_i) = \beta_0 + \beta_1( \text{carat}_i)
++\epsilon_i
+\]
+\begin{note}
+    $E(log(Y)) \ne log(E(Y))$
+\end{note}
+
+\subsection{Interpreting logarithmic models}
+The following model uses the natural log, so 
+\begin{align*}
+    \widehat{log( \text{price}_i)} &= 6.15 + 2.07( \text{carat}_i) \\
+    \widehat{ \text{price}} &= exp(6.15 + 2.07( \text{carat}_i)) \\
+                                   &= exp(6.15)exp(2.07 \times \text{carat}_i)
+\end{align*}
+
+With this model, we predict an $e^{2.07}$-times (or 7.92-times) increase in price 
+for each additional carat. When logarithms are involved, we expect a 
+multiplicative change per unit of explanatory variables, not an additive one.
+
+\begin{note}
+    We \textit{do not} use the word \textbf{expect} in this context. We use the
+    term \textbf{predict}.
+\end{note}
+
+\subsection{Logarithmic Predictors}
+Assume the following model:
+\[
+y_i = \beta_0 + \beta_1log_10(x_i) = \epsilon_i
+\]
+To make the logarithmic term more easy to interpret, we will let $log_{10}(x_i)
+= z_i$. Now, for a one-unit increase in $z_i$, there is a ten-fold increase in
+$x_1$.
+
+\pagebreak
+\section{Exponential Transformations}
+Take the following model:
+\[
+    y_i = \beta_0 + \beta_1x_{i} + \beta_2x_{i}^2 + \epsilon_i
+\]
+We include a linear term and a quadratic term for the same variable $x$. This does
+introduce \textit{some} tradeoffs, specifically with the fact that computational
+resources are spent to calculate $\beta_1$ and also the fact that introducing 
+another coefficient reduces our degrees of freedom by 1.
+
+\pagebreak
+\section{Transformations on both sides}
+Take the following model:
+\[
+    log(y_i) = \beta_o + \beta_1(log(x_i)) + \epsilon_1
+\]
+In this model, a one-unit increase in $x_i$ produces a multiplicative difference
+in $y_i$. Since $x_i$ is logarithmic, this is also a multiplicative change.
+
+\end{document}

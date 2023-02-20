@@ -1,0 +1,147 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 11 - Comparing Models}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Comparing Models}
+
+Suppose one has two models to work with. What sorts of ways might you compare the 
+models? How might one model be "better" than another?
+
+First, there is an argument to be made that given similar performance, a model
+that is easier to interpret for humans (fewer parameters, non-transformed 
+parameters, etc.) is the "superior" model. Second, a model having smaller 
+residuals/more accurate predictions is essential. 
+
+\pagebreak
+\section{Metrics for model evaluation}
+\subsection{Mean Squared Error}
+\begin{definition}
+    The formula for \textbf{mean squared error (MSE)} is given by:
+    \[
+        MSE = \frac{1}{n}\sum_{i=1}^{n}(y_i-\hat y_i)^2
+    \]
+\end{definition}
+
+The \texttt{rmse()} function in R can help calculate the MSE or RMSE (root
+mean squared error). Augmented models are passed into that function, not
+models themselves. An example code chunk is as follows:
+\begin{verbatim}
+model_aug <- aug(model)
+rmse(model_aug, truth = y, estimate = .fitted)
+\end{verbatim}
+
+\begin{note}
+    In the above chunk, $y$ is the response variable.
+\end{note}
+
+\subsection{F-test for linear models}
+The null and alternative hypotheses for an \textbf{F-test} is as follows:
+\begin{align*}
+    H_0 &= \beta_1 = \cdots = \beta_p = 0\\
+    H_1 &= \text{at least one }\beta_k \ne 0
+\end{align*}
+
+We use \textit{F-tests} to check for any non-zero slopes in the model. It does not
+tell us which slopes are non-zero, but does tell us whether or not there are any
+predictors which are helping us make predictions.
+
+The \textit{F-test} is named so because it uses an \textbf{F-distribution}.
+
+\begin{note}
+    The \texttt{summary()} function in R will produce the \textit{F-statistic}
+    and the corresponding p-value for that F-statistic. That is how we will 
+    evaluate the above hypotheses. The given p-value is the distribution of the
+    test statistic under $H_0$.
+\end{note}
+
+\pagebreak
+\subsection{Nested Models}
+\begin{definition}
+    Two linear models are \textbf{nested} if one of the models consists solely of
+    terms found "within" another. For instance:
+   \begin{align*}
+       y_i &= \beta_0 + \beta_1x_{i1} + \beta_2x_{i2} + \epsilon_i \\
+       y_i &= \beta_0 + \beta_1x_{i1} + \epsilon_i
+   \end{align*}
+\end{definition}
+
+To compare multiple nested models, we run \textit{F-tests} on them. For three
+nested models \texttt{m0, m1, m2}, we use the \texttt{anova()} function in R.
+
+\begin{verbatim}
+anova(m0, m1, m2)
+\end{verbatim}
+
+The output of the \texttt{anova()} function will displays several numbers, one of
+which is the p-value for the F-test. If that p-value is smaller than our
+significance level, we reject the null hypothesis that the additional predictors
+have no impact on our model.
+
+\begin{note}
+    We can \textbf{only use F-tests with nested models}, never with models that
+    are not nested.
+\end{note}
+
+\end{document}

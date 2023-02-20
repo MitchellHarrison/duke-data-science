@@ -53,7 +53,7 @@
 % -------------------------------------------------- %
 \begin{document}
 \setlength{\parskip}{1\baselineskip}
-\setlength{\parindent}{15pt}
+\setlength{\parindent}{0pt}
 \newpage
 
 
@@ -62,14 +62,15 @@
 % -------------------------------------------------- %
 \begin{multicols}{2}
 \textbf{Bayes' Rule}
-\[
-    \mathbb{P}\left(A \;\middle|\; B\right) = \frac{ 
+\begin{align*}
+    \mathbb{P}\left(A \;\middle|\; B\right) &= \frac{ 
     \mathbb{P}\left(B \;\middle|\; A\right) \mathbb{P}(A)}{
 \mathbb{P}\left(B \;\middle|\; A\right) \mathbb{P}(A) +
-\mathbb{P}\left(B \;\middle|\; A^\complement \right) \mathbb{P}(A^\complement )}
-\]
+\mathbb{P}\left(B \;\middle|\; A^\complement \right) \mathbb{P}(A^\complement )}\\
+&= \frac{ \mathbb{P}\left(B \;\middle|\; A\right) \mathbb{P}(A)}{\mathbb{P}(B)}
+\end{align*}
 
-\textbf{Binomial Distribution Formula}
+\textbf{Binomial Distribution Formula }
 \begin{align*}
     \mathbb{P}(k) &= \mathbb{P}( k\text{ success out of } n \text{ trials}) \\
                   &= \binom{n}{k}p^k(1-p)^{n-k}
@@ -86,6 +87,35 @@
         \frac{\sqrt{p(1-p)}}{\sqrt{n}}
         \]
 \end{enumerate}
+
+\textbf{Multinomial Distribution}
+
+Let $n_i$ be the number of results of type $i$ out of the $n$ trials and $p_i$ be
+the probability of that result:
+\[
+\mathbb{P}(N_1=n_1, \cdots , N_k=n_k) = \frac{n!}{n_1! \cdots n_k!}
+p_1^{n_1} \cdots p_k^{n_k}
+\]
+For example, $n_1 =1$ if we are looking for an ace in a deck, and $n_2=2$ if
+we are looking for two face cards in a hand of five cards:
+\[
+\mathbb{P}(N_1=1, N_2=2) = \frac{5!}{1!2!}\left(\frac{1}{13}\right)^1 
+\left(\frac{4}{13}\right)^2 \left(\frac{8}{13}\right)^2
+\]
+And $\frac{8}{13}$ represents the "other" category, which is the odds of neither
+ace nor face cards.
+
+\textbf{Helpful Probability Calculations}
+\begin{itemize}
+    \item $\mathbb{P}(A^\complement \cap B^\complement) = 
+        \mathbb{P}((A \cup B)^\complement) =
+        1-\mathbb{P}(A \cup B)$
+    \item $\mathbb{P}(A \cup B) = \mathbb{P}(A) + \mathbb{P}(B) -
+        \mathbb{P}(A \cap B)$
+    \item $ \mathbb{P}\left(A \;\middle|\; B\right) = 
+        \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(B)}$
+\end{itemize}
+
 \columnbreak
 
 \textbf{Empirical Rule}
@@ -96,12 +126,130 @@
 \end{align*}
 \textbf{Phi Function Notes}
 \begin{itemize}
-    \item $\Phi(-z) = 1 - \Phi(z)$
+    \item If you need to look up a negative number in the Phi table, use this
+        trick: $\Phi(-z) = 1 - \Phi(z)$
+    \item If $p$ is not given, we use the worst-case scenario $p=\frac{1}{2}$
+    \item $\Phi(z) - \Phi(-z) = 2\Phi(z)-1$
 \end{itemize}
 
+\textbf{Multiplication Rule}
+\begin{align*}
+    \mathbb{P}(A \cap B) &= \mathbb{P}(B) \mathbb{P}\left(A \;\middle|\; B\right) 
+    \\
+    \mathbb{P}(A \cap B) &= \mathbb{P}(A) \mathbb{P}\left(B \;\middle|\; A\right) 
+\end{align*}
 \begin{note}
-    If $p$ isn't given, use $p = \frac{1}{2}$
+    If $A$ and $B$ are \textbf{independent}, then 
+    \[
+    \mathbb{P}\left(A \;\middle|\; B\right) = \mathbb{P}(A)\mathbb{P}(B)
+    \]
 \end{note}
 
+\textbf{Rule of Average Conditional Probabilities}
+
+This divides conditions into cases to find an overall probability.
+\[
+\mathbb{P}(A) = \mathbb{P}\left(A \;\middle|\; B\right) \mathbb{P}(B) +
+\mathbb{P}\left(A \;\middle|\; C\right) \mathbb{P}(C) + \cdots 
+\]
+\textbf{Independence}
+\begin{itemize}
+    \item Two events are \textit{independent} when $ \mathbb{P}\left(A 
+        \;\middle|\; B\right) = \mathbb{P}\left(A \;\middle|\; 
+        B^\complement \right) = \mathbb{P}(A)$. This is the \textit{mathematical
+        definition of independence.}
+    \item Two random variables $X$ and $Y$ are \textit{independent} when
+        $ \mathbb{P}\left(X=x \;\middle|\; Y=y\right) = \mathbb{P}(Y=y)$ or if 
+        their joint distribution table has scalar-multiple rows and columns
+    \item Multiple events are \textit{independent} if 
+
+        $\mathbb{P}(A \cap B \cap C) = \mathbb{P}(A)\mathbb{P}(B)\mathbb{P}(C)$
+\end{itemize}
 \end{multicols}
+\pagebreak
+\begin{multicols}{2}
+    \textbf{Binomial Confidence Intervals}
+    \begin{itemize}
+        \item We use \textit{binomial distribution confidence intervals} when 
+            there are $n$ independent trials that have binary success/failure
+            outcomes. Here, $k$ is the number of std. deviations from the mean:
+            \[
+                \mathbb{P}(p-c \le \frac{k}{n} \le p+c) = 2\Phi(k)-1
+            \]
+            And:
+            \[
+                c = k \cdot \left(\frac{\sqrt{p(1-p)}}{\sqrt{n}}\right)
+            \]
+        \item Given a fraction of successes $\hat p$, the \textit{approximate}
+            probability that $a \le k \le b$ is:
+            \[
+                \Phi\left(\frac{b+\frac{1}{2}-np}{\sqrt{np(1-p)}}\right) -
+                \Phi\left(\frac{a-\frac{1}{2}-np}{\sqrt{np(1-p)}}\right)
+            \]
+            \begin{note}
+            The above can be used to find the probability of a single value. Set
+            $a=b$ and use the same formula. This works because it includes
+            the \textit{continuity correction}.
+            \end{note}
+            
+        \item The \textit{approximate} probability that $a \le k$ is:
+            \[
+                \mathbb{P}(a \le k) = 1-\Phi\left(\frac{a-\frac{1}{2}-
+                np}{\sqrt{np(1-p)}}\right)
+            \]
+        \item The probability that less than $x$\% of events will be successes to
+            a $c$\% confidence is:
+            \[
+            \mathbb{P}(\hat p < x) = \Phi\left(\frac{x-p}{\sigma}\right) \ge c
+            \]
+            
+    \end{itemize}
+
+\textbf{Hypergeometric Distribution (for sampling \textit{without} replacement}
+\[
+    \mathbb{P}(k \text{ good items out of }n \text{ samples}) =
+    \frac{\binom{G}{k}\binom{B}{n-k}}{\binom{N}{n}}
+\]
+Where $G$ is the number of "good" items in the sample, $N$ is the total sample
+size, $B$ is the number of "bad" items, $n$ is the amount taken from the sample
+(five cards out of an $N=52$ card deck for example), and $k$ is the number of
+"good" samples out of $n$.
+
+\columnbreak
+\textbf{Relevant Integrals}
+\begin{itemize}
+    \item \textit{Integral of the standard normal bell curve}
+        \[
+            \Phi(z) = \int_{-\infty}^{z}\frac{1}{\sqrt{2\pi }}e^{-x^2/2}
+        \]
+    \item \textit{Phi functions for non-standard normal distributions}
+       \begin{align*}
+            &\int_{a}^{b}\frac{1}{\sigma\sqrt{2\pi }}e^{-(x-\mu)^2/2\sigma^2}\\
+            &=\Phi\left(\frac{b-\mu}{\sigma}\right) -
+            \Phi\left(\frac{a-\mu}{\sigma}\right) \\
+            &= \int_{\frac{a-\mu}{\sigma}}^{\frac{b-\mu}{\sigma}}
+            \frac{1}{\sqrt{2\pi}}e^{-\frac{x^2}{2}}
+       \end{align*}
+       Here, $\mu$ is the \textit{mean} of the distribution.
+\end{itemize}
+
+\textbf{Misc. Facts}
+\begin{itemize}
+    \item The \textbf{mode of the binomial distribution} is the greatest integer
+        less than or equal to $np+p$. If this is an integer $m$, there are two
+        modes, $m$ and $m-1$
+    \item \textit{Mutually exclusive events} are not necessarily independent. If
+        $A$ is rolling a 3, and $B$ is rolling a two, for example.
+    \item For testing uniqueness over multiple occurences \textit{without
+        replacement}, consider making a tree similar to the birthday problem.
+        Recall in those cases:
+        \[
+            \mathbb{P}( \text{any non-unique}) = 1 - \mathbb{P}( \text{all 
+            unique})
+        \]
+    \item The \textit{continuity correction} should only be used when dealing wit
+        integer values.
+\end{itemize}
+\end{multicols}
+
 \end{document}
