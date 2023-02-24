@@ -1,0 +1,270 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 11 - Expectation, Variance}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+\begin{ex}
+    A hat contains 30 balls in 10 different colors (3 balls of each color). An
+    experimenter draws 6 balls out of the hat, \textit{with replacement}. 
+    \textbf{What is the expected number} of different colors drawn by the 
+    experimenter?
+    \vspace{10px}
+    Let $X$ be the number of different colors:
+    \[
+        X = \mathbbm{1}_1 + \mathbbm{1}_{2} + \mathbbm{1}_{3} + \cdots +
+        \mathbbm{1}_{10}
+    \]
+    Thus, we arrive at the following:
+   \begin{align*}
+       \mathbb{E}(X) &= \mathbb{E}( \mathbbm{1}_{1}) + \cdots + \mathbb{E}(
+   \mathbbm{1}_{10}) \\
+       \mathbb{E}( \mathbbm{1}_{i}) &= \mathbb{P}( \text{see $i$th color at least
+       once}) 
+   \end{align*}
+\end{ex}
+
+\pagebreak
+\subsection{Expected value of binomial distribution}
+The big idea is that $ \mathbb{E}(X) = np = $ mean = average, and $X$ is the 
+number of successes. Using indicators:
+\[
+    X = \mathbbm{1}_{1} + \cdots + \mathbbm{1}_{n}
+\]
+Thus, the \textit{expected value of $X$} is:
+\[
+    \mathbb{E}(X) = \mathbb{E}( \mathbbm{1}_{1}) + \cdots + \mathbb{E}( 
+    \mathbbm{1}_{n})
+\]
+Where $ \mathbb{E}( \mathbbm{1}_{i}) = \mathbb{P}( i\text{th trial is a 
+success})$ 
+
+\subsection{Tail Sum Formula}
+The \textit{tail sum formula} is useful for max's and min's. Here, our random
+variable has to have non-zero integer values.
+
+For $X$ with possible values $\{0,1,2, \cdots ,n\}$:
+\[
+    \mathbb{E}(X) = \sum_{j=1}^{n}\mathbb{P}(X \ge j)
+\]
+\begin{note}
+    $j$ always starts at 1 here, even if not all integers are in the range of $X$.
+    That's because they will have probability 0, and thus not be included in the
+    final sum either way.
+\end{note}
+This is equivalent to $\sum_{x=0}^{n}x \mathbb{P}(X=x)$, just written in a 
+different way.
+
+\begin{ex}
+    Suppose 10 fair six-sided dice are rolled. Let $Y$ be the minimum of three 
+    rolls. \textbf{Compute} $ \mathbb{E}(Y)$.
+
+    \vspace{10px}
+    The tail sum formula tells us that:
+    \[
+    \mathbb{E}(Y) = \sum_{k=1}^{6}\mathbb{P}(Y\ge k)
+    \]
+    Let's start with the sub-goal of finding an expression for $ \mathbb{P}(Y
+    \ge k)$. \textbf{Compute} $ \mathbb{P}(Y \ge 3)$.
+    \vspace{10px}
+    We know that:
+    \[
+        \mathbb{P}( \text{all 10 rolls }\ge 3) = \left(\frac{4}{6}\right)^{10}
+    \]
+    Generalizing,
+   \begin{align*}
+       \mathbb{P}(Y \ge k) &= \left(\frac{6-(k-1)}{6}\right)^{10} \\
+       \mathbb{E}(Y) &= \sum_{k=1}^{6}\left(\frac{6-(k-1)}{6}\right)^{10} \\
+       \Aboxed{ \mathbb{E}(Y) &\approx 1} 
+   \end{align*}
+\end{ex}
+
+\pagebreak
+\section{Variance of a Random Variable}
+Expected value isn't the only important thing to know about a random variable.
+Essentially, variance is related to how spread out your data are.
+
+\begin{definition}
+    The \textbf{variance} of a random variable $X$ is related to the standard
+    deviation. It's telling you something about how spread out the values of $X$
+    are.
+\end{definition}
+
+In binomial distribution standard deviation is $\sqrt{np(1-p)}$, and variance is
+just the standard deviation squared. The \textbf{reason we use variance} is that
+it is easier to calculate than standard deviation. More often than not, we take a
+square root immediately after calculating variance to get standard deviation, 
+which is in the same units that we are measuring.
+
+Let's look at some possible ways to quantify how "spread out" a histogram is.
+
+\subsection{Formula for variance}
+\begin{definition}
+    \textbf{Variance} is the average squared deviation of $X$ from the mean 
+    (expected value). It gives an idea of how spread out your samples are.
+\end{definition}
+
+\textbf{Formula for variance:}
+\[
+Var(X) = \mathbb{E}((X-\mu)^2) = \sum_{ \text{all possible }x}
+(x-\mu)^2 \cdot \mathbb{P}(X=x)
+\]
+That formula simplifies to the following, which is not always easier to use in
+practice:
+\[
+Var(X) = \mathbb{E}(X^2) - ( \mathbb{E}(X))^2
+\]
+Why is this the desired formula? Well, let $\mu$ be the mean of a random
+variable $X$.
+\begin{itemize}
+    \item Does $ \mathbb{E}(X-\mu)$ tell you about how spread out the values
+        of $X$ are?
+
+        No, because the expected value of $X$ is always $\mu$, thus this will
+        always be 0.
+    \item Does $ \mathbb{E}(|X-\mu|)$ tell you about how spread out the values 
+        of $X$ are?
+
+        This will work, and is sometimes used in practice, but it frequently 
+        annoying to calculate. This is called the \textit{average distance from
+        the mean}, but we won't use it in this course.
+    \item Does $ \mathbb{E}((X-\mu)^2)$ tell you about how spread out the values 
+        of $X$ are?
+
+        This formula lets us deal with only positive values like the previous one,
+        but is simpler to calculate. However, it will weigh outliers slightly 
+        more than they normally would be. That's why \textbf{this formula is the
+        definition of variance.} However, because this is squared, we often take
+        the square root, which is standard deviation.
+\end{itemize}
+
+\subsection{Sums and scalar multiples}
+\textbf{Addition Rule for Variance}
+\begin{align*}
+    Var(X+Y) &= \mathbb{E}((X+Y-\mu_x-\mu_y)^2) \\
+             &= \mathbb{E}((X-\mu_x)^2) + \mathbb{E}((Y-\mu_y)^2) +
+             2 \mathbb{E}((X-\mu_x)(Y-\mu_y)) \\
+             &= Var(X) + Var(Y) + 2 \mathbb{E}((X-\mu_x)(Y-\mu_y)) 
+\end{align*}
+
+However, if $X$ and $Y$ are \textbf{\textit{independent}}:
+\begin{align*}
+    Var(X+Y) &= \mathbb{E}((X+Y-\mu_x-\mu_y)^2) \\
+             &= \mathbb{E}((X-\mu_x)^2) + \mathbb{E}((Y-\mu_y)^2) +
+             2 \mathbb{E}((X-\mu_x)(Y-\mu_y)) \\
+             &= Var(X) + Var(Y)
+\end{align*}
+
+\begin{note}
+    A random variable $X$ is always independent with a constant.
+\end{note}
+
+\begin{ex}
+    Suppose that $X$ is a random variable with mean 2 and variance 3. 
+    \textbf{Compute} $Var(2X+1)$
+    \vspace{10px}
+    
+    Because $X$ is independent with a constant 1, we can arrive at a solution:
+    \textbf{TODO: FILL THIS SHIT OUT FROM LECTURE}
+   \begin{align*}
+       Var(2X+1) &= Var(2X) + Var(1) \\
+                 &= Var(2X) + 0 \\
+                 &= Var(2X) \\
+                 &= \mathbb{E}((2X- \mathbb{E}(2X)^2) \\
+                 &= \mathbb{E}((2X - 2(3))^2) \\
+                 &= \mathbb{E}(2(X-3)^2) \\
+       \Aboxed{Var(2X+1)  &= 12} 
+   \end{align*}
+\end{ex}
+
+\begin{definition}
+    \textbf{Standard deviation} is the square root of variance. It's like an
+    average distance from the mean. Let $\mu = \mathbb{E}(X)$:
+\[
+SD(X) = \sqrt{Var(X)} = \sqrt{ \mathbb{E}((X-\mu)^2)}
+= \sqrt{\sum_{x}(x-\mu)^2\cdot \mathbb{P}(X=x)}
+\]
+\end{definition}
+
+\subsection{Scaling, shifting, and standardization}
+How does $Var(Y)$ compare to $Var(aY+b)$?
+
+\begin{ex}
+    \textbf{What is equivalent} to $Var(aY+b)$?
+\end{ex}
+
+\begin{ex}
+    How does $SD(Y)$ compare to $SD(aY+b)$?
+\end{ex}
+
+\textbf{Key Concept:}
+Using \textbf{standardization}, we can rewrite probabilities in terms of a random
+variable with mean 0 and standard deviation 1.
+
+If a random variable $X$ has $ \mathbb{E}(X) = \mu$ and $SD(X) = \sigma$, then
+\[
+    X* = \frac{X-\mu}{\sigma}
+\]
+\end{document}

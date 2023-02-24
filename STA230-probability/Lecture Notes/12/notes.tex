@@ -1,0 +1,336 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 12 - Central Limit Theorem}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review(ish) Scaling, Shifting, Standardization}
+Finding variance:
+\begin{align*}
+    Var(X) &= \mathbb{E}((X-\mu_x)^2) \\
+    Var(X) &= \mathbb{E}(X^2) - ( \mathbb{E}(X))^2
+\end{align*}
+
+\begin{ex}
+    \textbf{How does} $Var(Y)$ compare to $Var(aY+b)$, given that $a$ and $b$ are 
+    constants?
+    \vspace{10px}
+    Since the variance of a constant is zero,
+    \[
+    Var(aY + b) = Var(aY) + Var(b) = Var(aY)
+    \]
+    Extrapolating, 
+   \begin{align*}
+       Var(aY) &= \mathbb{E}((aY-a\mu_y)^2) \\
+               &= \mathbb{E}((a(Y=\mu_y))^2) \\
+               &= a^2 \mathbb{E}((Y-\mu_y)^2) \\
+       \Aboxed{Var(aY) &= a^2 Var(Y)} 
+   \end{align*}
+\end{ex}
+
+\begin{ex}
+    \textbf{How does} $SD(Y)$ compare to $SD(aY+b)$?
+    \vspace{10px}
+   \begin{align*}
+       SD = \sqrt{Var} : SD(aY+b) &= \sqrt{Var(aY+b)} \\
+                                  &= \sqrt{a^2 Var(Y)} \\
+                                  &= |a| \sqrt{Var(Y)} \\
+   \end{align*}
+   Therefore,
+   \[
+   \boxed{SD(aY+b) = |a| SD(Y)} 
+   \]
+\end{ex}
+
+\begin{definition}
+    Using \textbf{standardization}, we can rewrite probabilities in terms of a
+    random variable with mean 0 and std. deviation 1.
+    \vspace{10px}
+    If a random variable $X$ has $ \mathbb{E}(X) = \mu$ and $SD(X) = \sigma$, 
+    then:
+    \[
+        X^* = \frac{X-\mu}{0}
+    \]
+    $X^*$ has mean 0 and standard deviation 1. Effectively, this shifts the 
+    distribution to 0 and divides by the standard deviation to make it 1.
+    \vspace{10px}
+    \textbf{Always}, $ \mathbb{E}(X^*) = 0$ and $SD(X^*) = 1$
+\end{definition}
+
+
+\pagebreak
+\section{Normal, Binomial, Standardization}
+The standard normal density function is
+\[
+    \frac{1}{\sqrt{2\pi }}e^{-x^2/2}
+\]
+It looks like a bell curve. It corresponds to a perfect bell curve centered at 0.
+
+\subsection{Review of normal approximation of binomial}
+Let $X \sim binomial(n,p)$. Use a normal approximation to estimate $\mathbb{P}(
+a \le X \le b)$.
+\vspace{10px}
+For binomial distributions, we use the following formula, including the 
+\textit{continuity correction}, which will not be used today:
+\[
+\Phi\left(\frac{b+\frac{1}{2}-\mu}{\sigma}\right) - 
+\Phi\left(\frac{a-\frac{1}{2}-\mu}{\sigma}\right)
+\]
+
+\subsection{Goal: Extend to non-binomial}
+Let's say Researcher 1 grabs 100 students and get their average number of dogs.
+Researcher 2, 3, etc. does the same thing. They are at the same university, so
+there may be overlap. If we record the average number of dogs from 100 
+researchers, we will end up with 100 data points. Plotting a histogram of these
+data will approximate a bell curve. 
+
+Doing anything similar (i.e. taking many sample's averages and plotting them) will
+always result in a bell curve, regardless of the distribution of the number of
+dogs in the student body.
+
+\pagebreak
+\section{Law of Averages and Central Limit Theorem}
+Distributions that are not normal, start to look normal if you look at the
+\textit{average} or \textit{sum} of repeated trials. We saw this for normal
+distributions, but it's true for \textit{any} distribution.
+
+\begin{definition}
+    The \textbf{Law of Averages}, or \textbf{Law of Large Numbers}. Let $X_1,X_2,
+    \cdots $ be a sequence of independent random variables with the same 
+    distribution as $X$. Let $ \mathbb{E}(X) = \mu$ and define the averages of
+    $n$ random variables:
+    \[
+    \bar X_n = \frac{X_1+X_2+ \cdots + X_n}{n}    
+    \]
+    \begin{note}
+        Two random variables have the \textit{same distribution} if they have the
+        same means and standard deviations.
+    \end{note}
+    Then, for every $\epsilon$, no matter how small:
+    \[
+    \mathbb{P}(| \bar X_n - \mu | < \epsilon) \rightarrow 1 
+    \text{ as } n \rightarrow \infty
+    \]
+    "The average of the average is the average."
+    \begin{note}
+        For this to hold true, $X_1, \cdots , X_n$ must be \textit{independent}.
+    \end{note}
+    Here:
+    \[
+    \mathbb{E}(X_1) = \cdots = \mathbb{E}(X_n) = \mu
+    \]
+    Thus,
+    \begin{align*}
+        \mathbb{E}( \bar X_n) &= \mu \\
+        SD( \bar X_n) &\approx c \cdot \frac{1}{\sqrt{n}}
+    \end{align*}
+    Where $c$ is some constant.
+\end{definition}
+
+\begin{definition}
+    The \textbf{Central Limit Theorem}: Let $X_1, \cdots , X_n$ be $n$ 
+    independent random variables with the same distribution over a finite range.
+    \begin{itemize}
+        \item For large $n$, the \textit{sum} of the $X_i$'s is roughly 
+            normally distributed.
+                Let:
+                \begin{align*}
+                    S &= \text{sum} = X_1 + \cdots + X_n \\
+                    \mathbb{E}(S) &= \mu_s \\
+                    SD(S) &= \sigma_s
+                \end{align*}
+                Then,
+                \begin{align*}
+                    \mathbb{P}(a\le S \le b) &= \mathbb{P}\left(\frac{1-
+                        \mu_s}{\sigma_s}\le
+                        S^* \le \frac{b-\mu_s}{\sigma_s}\right) \\
+                                             &\approx \Phi\left(\frac{b-
+                                             \mu_s}{\sigma_s}\right) -
+                                                \Phi\left(\frac{a-
+                                                \mu_s}{\sigma_s}\right)
+                \end{align*}
+        \item For large $n$, the \textit{average} of the $X_i$'s is roughly
+            normally distributed.
+            Let:
+           \begin{align*}
+               \bar X_n &= \text{sample average} = \frac{X_1 + \cdots 
+               + X_n}{n} \\
+                   \mathbb{E}( \bar X_n) &= \mu_x \\
+                   SD( \bar X_n) = \sigma_{ \bar X}
+           \end{align*}
+            Then,
+           \begin{align*}
+               \mathbb{P}(a \le \bar X_n \le b) &= \mathbb{P}\left(
+                   \frac{a-\mu_{ \bar X_n}}{\sigma_{ \bar X}}\right) \\
+                                                &\approx \Phi\left(
+                                                    \frac{b-\mu_{ \bar
+                                                    X}}{\sigma_{ \bar X}}\right) -
+                                                    \Phi\left(
+                                                    \frac{a-\mu_{ \bar
+                                                    X}}{\sigma_{ \bar X}}\right)
+           \end{align*}
+    \end{itemize}
+    \begin{note}
+        Here, we could say that all $X_i$ are $i.i.d.$ or \textit{independent,
+        identically distributed}
+    \end{note}
+\end{definition}
+
+\pagebreak
+\subsection{Examples.}
+\begin{enumerate}
+    \item Let $X$ be the number on one roll of a die. $X$ is uniformly 
+        distributed. But $S_n = \sum X_n$ will be roughly normally distributed as
+        $n$ gets large.
+    \item Let $X$ be the number on one roll of a die. $X$ is uniformly 
+        distributed. But $ \bar X_n = \frac{X_1+ \cdots +X_n}{n}$ will be
+        roughly normally distributed as $n$ gets large.
+    \item A pollster samples 1000 people and asks if they prefer candidate $X$ or
+        candidate $Y$. Let $Z$ be the number of poeple who prefer candidate $X$
+        out of the 1000 people sampled. The random variable $Z$ has a 
+        hypergeometric distribution. If 30 pollsters all take random samples of
+        1000 people, then $Z_1 + \cdots  + Z_{30}$ will be roughly normally
+        distributed.
+\end{enumerate}
+
+\begin{ex}
+    Give an example of a sum of random variables $X_1 + \cdots + X_n$ that will
+    NOT approach a normal distribution no matter how large $n$ is.
+\end{ex}
+
+\pagebreak
+\section{Mean and standard deviation}
+Suppose $X_1, \cdots , X_n$ are independent, all with the same distribution.
+$ \mathbb{E}(X_i) = \mu$ and $SD(X_i) = \sigma$.
+\begin{enumerate}
+    \item What is $ \mathbb{E}(X_1 + \cdots + X_n)$?
+        \[
+        \boxed{n\mu} 
+        \]
+    \item What is $SD(X_1 + \cdots + X_n)$?
+       \begin{align*}
+           SD^2 &= Var(X_1 + \cdots + X_n) \\
+                &= Var(X_1) + \cdots + Var(X_n) \\
+           SD^2 &= n\sigma^2
+       \end{align*}
+       Thus,
+       \[
+       \boxed{SD = \sqrt{n\sigma^2} = \sigma\sqrt{n}} 
+       \]
+       \begin{note}
+           We can split up variances in a sum if and only if $X_1, \cdots , X_n$
+           are \textit{independent}.
+       \end{note}
+       
+    \item What is $ \mathbb{E}\left(\frac{X_1+ \cdots +X_n}{n}\right)$?
+        \[
+        \boxed{\mu} 
+        \]
+    \item What is $ SD\left(\frac{X_1+ \cdots +X_n}{n}\right)$?
+       \begin{align*}
+           SD &= \frac{1}{n} SD(X_1 + \cdots + X_n) \\
+           &= \frac{1}{n}\sqrt{n}\sigma \\
+           \Aboxed{SD &= \frac{\sigma}{\sqrt{n}}} 
+       \end{align*}
+\end{enumerate}
+
+\begin{ex}
+    Let $D_i$ be the \textbf{first digit} of a randomly chosen Fibonacci number
+    (from amongst the first 100,000 Fibonacci numbers). $ \mathbb{E}(D_i) = 3.44$
+    and $SD(D_i) = 2.4611$.
+    \vspace{10px}
+
+    Define $ \bar D_n$ as the \textit{average} of $n$ randomly selected Fibonacci
+    numbers:
+    \[
+    \bar D_n = \frac{D_1 + \cdots + D_n}{n}
+    \]
+    \begin{enumerate}
+        \item Predict the value of $ \bar D_n$ when $n$ is large.
+            \[
+                \mathbb{E}( \bar D_n) = \mathbb{E}(D_i) = \boxed{3.44}
+            \]
+        \item Find the number $\epsilon$ such that for $n=10,000$ the chance
+            that your prediction is off by more than $\epsilon$ is about 10\%
+           \begin{align*}
+               \mathbb{P}\left(\frac{3.44-\epsilon}{SD( \bar D_n)} \le \bar D_n
+                   \le \frac{3.44+\epsilon}{SD( \bar D_n)}\right) = 0.9 \\
+                   \mathbb{P}(| \bar D_n - 3.44| > \epsilon) \approx 0.1
+           \end{align*}
+
+        \item Find approximately the least value of $n$ such that your prediction
+            of $ \bar D_n$ is correct to within 0.01 with probability at least
+            0.95
+
+            \textbf{Not completed in class}
+            \vspace{10px}
+
+        \item If you had to predict the first digit of $ \bar D_{100}$, what 
+            digit should you choose to maximize your chance of being correct, and
+            what is that chance?
+
+            \textbf{Not completed in class}
+    \end{enumerate}
+\end{ex}
+\end{document}
