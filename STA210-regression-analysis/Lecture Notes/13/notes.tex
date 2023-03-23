@@ -1,0 +1,216 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 13 - Variable Selection}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Variable Selection}
+
+\textbf{Variable selection} is what it sounds like: choosing which set of 
+variables to include in a given model. Note the use of "given model" - 
+variable selection is \textit{not} the same as model selection.
+
+Last time, we talked about \textit{cross-validation}, which was a set of 
+techniques that we used to evaluate prediction strength of proposed models by
+looking at how well our model might perform on "new" data. These are often used
+as \textit{model} selection tools.
+
+\subsection{All subset selection}
+\begin{definition}
+    \textbf{All subset selection} takes all possible combinations of variables
+    (perhaps of a given model size) and sees which combination of variables leads
+    to the "best" result. It is highly computationally expensive, but is usually
+    doable.
+\end{definition}
+
+But... what is \textit{best}?
+
+\subsection{Mallow's $C_p$}
+\[
+    C_p = \frac{1}{n}(SS_{Error} = \frac{2nk}{\hat \sigma^2}
+\]
+Where $\hat \sigma^2$ is an estimate of the variance of the response variable in
+a model that contains \textbf{all} predictors (and $k$ is once again the number of
+predictors in the model).
+
+Mallow's $C_p$ is another statistic that might be used to choose between different
+subsets of predictors to include in a model. Like $R^2_{adj}$, there is a 
+"penalty" of sorts for including more predictors in the model.
+
+\begin{note}
+    We want a \textbf{lower} $C_p$
+\end{note}
+
+\subsection{AIC and BIC (Information Criterion)}
+\begin{align*}
+    AIC &= n \text{log}\left(\frac{SS_{Error}}{n}\right) + 2k \\
+        BIC &= n \text{log}\left(\frac{SS_{Error}}{n}\right) + k \text{log}(n) \\
+\end{align*}
+
+Again, we see different levels of "penalties" applied, based on the number of 
+parameters being estimated. They also have various mathematical properties and
+are "optimal" in certain ways, but this is beyond the scope of this course.
+
+We can use these methods to \textbf{compare non-nested models}, but there is no
+associated formal hypothesis test.
+
+\begin{note}
+    We want a \textbf{lower} AIC/BIC.
+\end{note}
+
+\subsection{Forward selection and backward elimination}
+These are \textbf{stepwise} methods that add or remove variables from a model
+sequentially based on some criterion.
+
+\textbf{Forward selection:}
+\begin{enumerate}
+    \item Start with an intercept-only model
+    \item Consider all models which additionally have one more predictor
+    \item Choose the model that is the "best" according to some criterion.
+    \item If the model improves, then choose that one and cycle back to step 2.
+        Otherwise, if no improvement is seen, stop at the last model chosen.
+\end{enumerate}
+
+\textbf{Backward elimination:}
+\begin{enumerate}
+    \item Start with a "full" model
+    \item Consider all models which have one predictor taken away.
+    \item Choose the model that is the "best" according to some criterion.
+    \item If the model improves, then choose that one and cycle back to step 2.
+        Otherwise, if no improvement is seen, stop at the last model chosen.
+\end{enumerate}
+
+\subsection{Potential issues with stepwise methods}
+There are several issues when conducting stepwise methods:
+\begin{itemize}
+    \item They are greedy algorithms, so there is no guarantee that the "best"
+        model will be found.
+    \item Often doesn't work well with highly correlated variables
+    \item Order often matters and results in different final models chosen
+    \item "Only uses the data" without thought for existing scientific knowledge
+\end{itemize}
+
+\subsection{LASSO}
+\begin{definition}
+    \textbf{LASSO} (or \textit{least absolute shrinkage and selection operator},
+    is a regression technique that also happens to perform variable selection.
+    Instead of minimizing the residual sum of squares like in OLS, LASSO
+    minimizes the following:
+    \[
+        min_{\beta}\left(\sum_{i=1}^{n}(y_i-x_i^T\beta)^2 + \lambda\sum_{k=1}^{p}|
+        \beta_p|\right)
+    \]
+\end{definition}
+
+Because of this additional "penalty," some of the $\beta_k$ terms can be set
+to zero, thus performing variable selection. Often, $\lambda$ is chosen to
+optimize some criterion (e.g., predictive performance, perhaps using cross-
+validation.
+
+\begin{note}
+    If LASSO ends up shrinking any coefficient estimates to zero, they won't show
+    up when examining the model.
+\end{note}
+
+\pagebreak
+\section{Code Examples}
+\subsection{All Subset Selection}
+\begin{verbatim}
+library(leaps)
+m_all <- regsubsets(y ~ x1 + x2, data = data, nbest = 1, nvmax = 2)
+summary(m_all)
+\end{verbatim}
+
+\subsection{Stepwise AIC}
+\begin{verbatim}
+library(MASS)
+m_none <- lm(y ~ 1, data = data) # empty model
+m_all <- lm(y ~ x1 + x2 + x3, data = data) # "full" model
+stepAIC(
+    m_none, 
+    scope = list(lower = m_none, upper = m_all), 
+    data = data,
+    direction = "forward" # can also be "backward" or "both"
+)
+\end{verbatim}
+
+\subsection{LASSO}
+\begin{verbatim}
+y <- data$y
+x <- model.matrix(y ~ x1 + x1 + x3, data = data)
+
+library(glmnet)
+
+m_lasso_cv <- cv.glmnet(x, y, alpha = 1) # alpha = 1 corresponds to LASSO
+
+best_lambda <- m_lasso_cv$lambda.min
+
+model_best <- glmnet(x, y, alpha = 1, lambda = best_lambda)
+\end{verbatim}
+\begin{note}
+    In the above code, we use $k$-fold CV to find the optimal $\lambda$ and use
+    it for final model construction.
+\end{note}
+
+\end{document}

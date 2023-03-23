@@ -227,14 +227,12 @@ However, if $X$ and $Y$ are \textbf{\textit{independent}}:
     \vspace{10px}
     
     Because $X$ is independent with a constant 1, we can arrive at a solution:
-    \textbf{TODO: FILL THIS SHIT OUT FROM LECTURE}
    \begin{align*}
        Var(2X+1) &= Var(2X) + Var(1) \\
                  &= Var(2X) + 0 \\
                  &= Var(2X) \\
-                 &= \mathbb{E}((2X- \mathbb{E}(2X)^2) \\
-                 &= \mathbb{E}((2X - 2(3))^2) \\
-                 &= \mathbb{E}(2(X-3)^2) \\
+                 &= Var(X) + Var(X) + 2 \mathbb{E}((X-\mu_x)^2) \\
+                 &= 3 + 3 + 2 Var(X) \\
        \Aboxed{Var(2X+1)  &= 12} 
    \end{align*}
 \end{ex}

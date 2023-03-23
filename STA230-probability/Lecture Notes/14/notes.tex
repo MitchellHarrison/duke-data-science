@@ -1,0 +1,382 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 14 - Discrete Distributions}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+\begin{enumerate}
+    \item Geometric distributions ("keep going until success")
+       \begin{align*}
+           & X = \text{\# trials until success} \\
+           & Y = \text{\# number of failures before success}
+       \end{align*}
+       Recall that $ \mathbb{E}(X) = \frac{1}{p}$ where $p$ is the probability of
+       success, and $ \mathbb{E}(Y) = \frac{1}{p}-1$. We subtract 1 from the 
+       latter formula because we don't count the trial in which we succeeded.
+
+    \item Negative binomial distribution
+        Let $X$ be the number of trials until $r$ successes and $Y$ be the number
+        of failures before $r$ successes. Let $n$ be the number of trials.
+       \begin{align*}
+           \mathbb{P}(Y=k) &= \binom{k+r-1}{r-1}(1-p)^kp^r \\
+           \mathbb{P}(X=n) &= \binom{n-1}{r-1}(1-p)^{n-r}p^r
+       \end{align*}
+\end{enumerate}
+
+\begin{note}
+    Geometric distributions are a subset of negative binomial distributions 
+    where $r=1$.
+\end{note}
+
+\begin{ex}
+    Two people play rock paper scissors. What is the expected number of rounds
+    until someone wins?
+    \vspace{10px}
+   \begin{align*}
+       & \mathbb{P}( \text{someone wins}) = \frac{2}{3} \\
+       & \mathbb{E}\left(Geom\left(\frac{2}{3}\right)\right) = 
+       \frac{1}{\frac{2}{3}} \\
+       \Aboxed{& \mathbb{E}(X) = \frac{3}{2}} 
+   \end{align*}
+\end{ex}
+
+\pagebreak
+\section{Discrete Distributions}
+\subsection{Negative Binomial}
+\begin{ex}
+    A biased coin lands on heads 1/4 of the time. You flip until
+    you get heads 4 times. Let $X$ be the number of tails you get before the 4th
+    head. What is $ \mathbb{E}(Y)$?
+    \vspace{10px}
+
+    Let $Y$ be the number of trials until and including four heads are flipped.
+   \begin{align*}
+       Y &= Y_1 + Y_2 + Y_3 + Y_4 \\
+       \mathbb{E}(Y) &= \mathbb{E}(Y_1 + \cdots + Y_4) \\
+                     &= 4 \cdot\mathbb{E}(Y_i) \\
+                     &= 4 \cdot \frac{1}{\frac{1}{4}} \\
+       \Aboxed{ \mathbb{E}(Y) &= 16} 
+   \end{align*}
+    Where $Y_i$ is the number of trials after $i-1$st head until $i$th head.
+    
+\end{ex}
+
+\begin{definition}
+    \textbf{Negative Binomial:} There are 4 variations on this distribution. In
+    each case, the experiment involves running independent trials, each with 
+    probability of success $p$.
+    \[
+    Y \sim Negbinom(r,p)
+    \]
+    Here, $r$ is the number of desired successes and $p$ is the probability of
+    success.
+\end{definition}
+
+\subsection{Variants of negative binomials}
+\begin{enumerate}
+    \item $X_1 = $ The number of successes before $r$ failures:
+       \begin{align*}
+           & \mathbb{P}(X_1 = k) = \binom{k+r-1}{k}p^k(1-p)^r \\
+           & \mathbb{E}(X_1) = \frac{pr}{1-p} \\
+           & SD(X_1) = \frac{\sqrt{pr}}{1-p}
+       \end{align*}
+    \item $X_2 = $ The number of failures before $r$ successes:
+       \begin{align*}
+           & \mathbb{P}(X_2 = k) = \binom{k+r-1}{k}p^r(1-p)^k \\
+           & \mathbb{E}(X_2) = \frac{r(1-p)}{p} \\
+           & SD(X_2) = \frac{\sqrt{r(1-p)}}{p}
+       \end{align*}
+    \item $X_3 = $The number of trials before $r$ successes:
+       \begin{align*}
+           & \mathbb{P}(X_3 = n) = \binom{n-1}{r-1}p^r(1-p)^{n-r} \\
+           & \mathbb{E}(X_3) = \frac{r}{p} \\
+           & SD(X_3) = \frac{r(1-p)}{p}
+       \end{align*}
+    \item $X_4 = $ The number of trials before $r$ failures:
+       \begin{align*}
+           & \mathbb{P}(X_4 = n) = \binom{n-1}{r-1}p^{n-r}(1-p)^r \\
+           & \mathbb{E}(X_4) = \frac{r}{1-p} \\
+           & SD(X_4) = \frac{\sqrt{pr}}{1-p}
+       \end{align*}
+\end{enumerate}
+
+\begin{note}
+    While the above formulas are helpful, it is often easier to treat all of these
+    variants as sums of geometric distributions, as in the previous example.
+\end{note}
+
+
+\textbf{Examples of random variables with negative binomial distributions:}
+\begin{itemize}
+    \item $X = $ number of times you flip tails before getting three heads
+    \item $Y = $ number of people who hand up on a telemarketer before 5 people
+        make a purchase
+\end{itemize}
+
+\pagebreak
+\subsection{Poisson Distribution}
+This distribution is effectively taking a limit to infinity of binomials.
+\begin{ex}
+    A radioactive material emits alpha particles at an average rate of $\mu$
+    particles per day. What is the probability that
+    \begin{enumerate}
+        \item Exactly 1 particle is emitted in the next 24 hours?
+            \vspace{10px}
+            
+            Let $X$ be the number of particles emitted in 24 hours, and 
+            $ \mathbb{E}(X) = \mu$. First, we approximate $\mathbb{P}(X=1)$ using
+            binomials. We will call each hour in the 24 hour period a trial and
+            $p = \frac{\mu}{24}$.
+            \[
+               \mathbb{P}(X=1) \approx \binom{24}{1}\left(\frac{\mu}{24}\right)
+               \left(1 - \frac{\mu}{24}\right)^{24-1} \\
+            \]
+            Next, we take a limit as $n \to \infty$,
+           \begin{align*}
+               \lim_{n \to \infty} binom\left(n,\frac{\mu}{n}\right) : 
+               \mathbb{P}(X=1) &= \lim_{n \to \infty} \binom{n}{1}\left(
+               \frac{\mu}{n}\right)\left(1-\frac{\mu}{n}\right)^{n-1} \\
+                               &= \mu\lim_{n \to \infty} \left(1-
+                               \frac{\mu}{n}\right)^{n-1} \\
+                   \Aboxed{\mathbb{P}(X=1) &= \mu \cdot e^{-\mu}}
+           \end{align*}
+        \item Exactly $k$ particles are released in the next week?
+            \vspace{10px}
+            
+            Let $Y$ be the number of particles emitted in 1 week and $ \mathbb{E}
+            (Y) = 7\mu$.
+           \begin{align*}
+               \mathbb{P}(Y=k) &= \lim_{n \to \infty} \binom{n}{k}\left(
+           \frac{7\mu}{n}\right)\left(1-\frac{7\mu}{n}\right)^{n-k} \\
+                   \Aboxed{\mathbb{P}(Y=k) &= e^{7\mu} \left(
+                   \frac{(7\mu)^k}{k!}\right)}
+           \end{align*}
+    \end{enumerate}
+\end{ex}
+In general, Poisson Distributions count the number of "hits" over a span of time
+or space (or sometimes both), where the average ($\mu$) is known. The
+\textbf{formula for solving Poisson Distributions is:}
+
+\[
+    \boxed{\mathbb{P}(Y=k) = \frac{e^{-\mu}\mu^k}{k!}}
+\]
+
+Our goal is to derive a new distribution, but we're going to start by imagining
+the situation as binomial (and then we'll take a limit as the number of trials
+goes to $\infty$).
+
+\begin{definition}
+    A random variable $Y$ with range \{0,1,2,3,...\} has a 
+    \textbf{Poisson distribution} if:
+    \[
+        \mathbb{P}(Y=k)=e^{-\mu}\frac{\mu^k}{k!}
+    \]
+    \begin{itemize}
+        \item We say $Y \sim Poisson(\mu)$
+        \item $ \mathbb{E}(Y) = \mu$
+        \item $SD(Y) = \sqrt{\mu}$
+    \end{itemize}
+\end{definition}
+
+\begin{note}
+    \textbf{Key Property:} Sums of independent Poisson variables are Poisson. If
+    $X_i \sim Poisson(\mu)$, then $X_1 + \cdots  + X_n \sim  Poisson(\mu_1 +
+    \cdots + \mu_n)$
+\end{note}
+
+\textbf{Examples of random variables with Poisson distribution}
+\begin{enumerate}
+    \item If $X ~ Binom(n,p)$ with fixed $\mu = np$, then in the limit as $n$
+        approaches $\infty$ and $p$ approaches zero (but $np = \mu$ is fixed),
+        the random variable $X$ approaches a Poisson distribution.
+    \item $Y = $ the number of raindrops that his a particular area within a 
+        certain time frame
+    \item $Z = $ the number of radioactive particles emitted by a piece of 
+        radioactive matreial during an interval of time
+\end{enumerate}
+
+\begin{definition}
+    \textbf{Poisson Scatter Theorem:}
+    Let there exist a random process in which there is a set of "hits" over a
+    region such that:
+    \begin{enumerate}
+        \item There are only a finite number of hits over the entire region
+        \item There are no multiple hits at a single point
+        \item There is independence among the hits and among disjoint subsets of
+            the region. Basically, splitting the surface we're investigating into
+            pieces, we can sum the Poisson distributions of the pieces to get the
+            overall Poisson distribution of the whole.
+            \vspace{10px}
+            
+        Then, the process is a \textit{Poisson scatter}. And for each subset $B$
+        of the region, the number of hits in $B$ is a Poisson random variable 
+        (with mean proportional to area). The numbers of hits in a disjoint areas
+        are independent.
+    \end{enumerate}
+\end{definition}
+
+\begin{ex}
+    A volume of 1000 drops of water contains 2000 bacteria. A single drop is 
+    smeared over the surface of a dish. After a few days, each bacterium in the
+    smear will produce a separate colony. (So if there were 2 bacteria in the
+    drop, in a few days we'll see 2 colonies)
+    \vspace{10px}
+    
+
+    \begin{enumerate}
+        \item Find the distribution of the number of colonies (over the whole
+            plate)
+            \vspace{10px}
+            
+            Let $X$ be the number of colonies that end up on the plate. 
+            $ \mathbb{E}(X) = \frac{2000}{1000} = 2$. We know that $X$ has a 
+            Poisson distribution because $\mu=2$ is fixed, but we can have 
+            infinitely many trials as the surface area we are looking at gets 
+            infinitely small.
+            \vspace{10px}
+            
+        \item Find the distribution of the number of colonies on half of the
+            plate.
+            \vspace{10px}
+            
+            Let $Y$ be the number of colonies on half of the plate. Here,
+            $Y \sim Poisson(1)$.
+            \vspace{10px}
+            
+        \item What if instead, after a few days each bacterium in the smear will
+            produce a colony with probability $p$. Now, what is the distribution
+            of the number of colonies?
+            \vspace{10px}
+            
+            Let $Z$ be the number of colonies if each bacterium has chance $p$ of
+            survival. Here, $Z \sim Poisson(2p)$.
+    \end{enumerate}
+\end{ex}
+
+\subsection{Practice Problems}
+\begin{ex}
+    Suppose McDonald's launches a new series of Happy Meal toys. There are three
+    different toys, and each time someone buys a Happy Meal, they are equally
+    likely to get any one of the three toys. On average, how many Happy Meals
+    will a collector buy in order to get all three toys?
+    \vspace{10px}
+    
+    We can think of this as the following sum:
+   \begin{align*}
+       \mathbb{E} &= 1 + Geom\left(\frac{2}{3}\right) + Geom\left(\frac{1}{3}
+           \right) \\
+        &= 1 + \frac{1}{\frac{2}{3}} + \frac{1}{\frac{1}{3}} \\
+        \Aboxed{ \mathbb{E} = 5.5} 
+   \end{align*}
+
+   This works because there is a probability of 1 that the first one is unique,
+   a $\frac{2}{3}$ chance of uniqueness for the second toy, and a $\frac{1}{3}$ 
+   chance of uniqueness for the final one.
+\end{ex}
+
+\begin{ex}
+    A biased coin comes up heads 3/5 of the time. Let $X$ be the number of tails
+    before getting 6 heads. Let $Y$ be the number of tails required to get 6 
+    heads. What is the expected value of $X$? of $Y$?
+\end{ex}
+
+\pagebreak
+\section{Continuous Random Variables}
+\subsection{Probability Density Functions}
+Let $X$ be a continuous random variable. The probability density function (PDF)
+of $X$, denoted $p(x)$, is like the function that we would get if we "smoothed"
+the histogram. For example, the "bell curve" of the normal distribution is a PDF.
+
+\begin{definition}
+    \textbf{Probability Density Function (PDF)}
+
+    Let $p(x)$ be a PDF. Then,
+    \begin{itemize}
+        \item 
+            \[
+                \int_{-\infty}^{\infty}p(x)dx = 1
+            \]
+        \item $p(x)$ is non-negative for all $x$
+        \item The value $p(n)$ does \textit{not} tell us the probability that
+            $X=n$. Instead, the PDF can give us the probability that $X$ is 
+            within a range:
+            \[
+            \mathbb{P}(a \le X \le b) = \int_{a}^{b}p(x)dx
+            \]
+    \end{itemize}
+\end{definition}
+
+\subsection{Cumulative distribution functions}
+Let $X$ be a random variable, and let $p(x)$ be the PDF of $X$. The cumulative
+distribution function (CDF) is:
+\[
+\mathbb{P}(X \le t) = F(t) = \int_{-\infty}^{t}p(x)dx
+\]
+The CDF "accumulates probability." $F(a) = \mathbb{P}(X \le a)$.
+
+For example, $\Phi$ is the CDF of a normal distribution.
+
+\end{document}

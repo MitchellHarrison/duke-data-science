@@ -14,6 +14,8 @@
 \usepackage{parskip}
 \usepackage{bbm}
 \usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
 
 
 % -------------------------------------------------- %
@@ -314,23 +316,46 @@ $ \mathbb{E}(X_i) = \mu$ and $SD(X_i) = \sigma$.
         \item Find the number $\epsilon$ such that for $n=10,000$ the chance
             that your prediction is off by more than $\epsilon$ is about 10\%
            \begin{align*}
-               \mathbb{P}\left(\frac{3.44-\epsilon}{SD( \bar D_n)} \le \bar D_n
-                   \le \frac{3.44+\epsilon}{SD( \bar D_n)}\right) = 0.9 \\
-                   \mathbb{P}(| \bar D_n - 3.44| > \epsilon) \approx 0.1
+               \mathbb{P}(3.44-\epsilon \le \bar D_n \le 3.44+\epsilon) &= 0.9 \\
+               \mathbb{P}\left(\frac{3.44-\epsilon-3.44}{\frac{2.4611}{\sqrt{n}}}
+                   \le \bar D_n^* \le
+                   \frac{3.44+\epsilon-3.44}{\frac{2.4611}{\sqrt{n}}}\right) 
+                                                                        &= 0.9\\
+               \mathbb{P}\left(\frac{-\epsilon \cdot 100}{2.4611}\le\bar D_n^* \le
+           \frac{\epsilon \cdot 100}{2.4611}\right) &= 0.9 \\
+           2\Phi\left(\frac{100\epsilon}{2.4611}\right) - 1 &= 0.9 \\
+           \Phi\left(\frac{100\epsilon}{2.4611}\right) &= 0.95 \\
+           \frac{100\epsilon}{2.4611} = \Phi^{-1}(0.95) &= 1.645 \\
+           \Aboxed{\epsilon &= 0.0405} 
            \end{align*}
 
         \item Find approximately the least value of $n$ such that your prediction
             of $ \bar D_n$ is correct to within 0.01 with probability at least
             0.95
+           \begin{align*}
+               \mathbb{P}\left(\frac{-0.01\sqrt{n}}{2.4611} \le \bar D_n^* \le
+                   \frac{0.01\sqrt{n}}{2.4611}\right) &\ge 0.95 \\
+                   s\Phi\left(\frac{0.01\sqrt{n}}{2.4611}\right) -1 \ge 0.95
+           \end{align*}
+           The final solution here was incorrect in class, but can be manually
+           solved using the normal methods.
 
-            \textbf{Not completed in class}
             \vspace{10px}
 
         \item If you had to predict the first digit of $ \bar D_{100}$, what 
             digit should you choose to maximize your chance of being correct, and
             what is that chance?
 
-            \textbf{Not completed in class}
+           \begin{align*}
+               \mathbb{P}(3 \le \bar D_100 \le 4) &= \mathbb{P}\left(
+                   \frac{3-3.44}{\frac{2.4611}{\sqrt{100}}} \le \bar D_100^* \le
+                   \frac{4-3.44}{\frac{2.4611}{\sqrt{100}}}\right) \\
+                                                  & \approx \Phi\left(
+                                                      \frac{-14.4}{2.4611}\right)
+                                                      - \Phi\left(\frac{-4.4}{
+                                                      2.4611}\right) \\
+                   \Aboxed{&\approx 0.96} 
+           \end{align*}
     \end{enumerate}
 \end{ex}
 \end{document}

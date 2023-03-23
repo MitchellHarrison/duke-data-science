@@ -1,0 +1,161 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 12 - Cross-Validation}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Loss Functions}
+
+Remember that we are predicting the outcome of each of our outcome variables $y_i$
+with a \textit{linear} prediction made from some model
+\[
+\hat \beta_0 + \hat \beta_1x_i
+\]
+\begin{note}
+    The $\beta$ terms are \textit{average} changes, not \textit{expected}
+    changes in $y$ given a 1-unit change in $x$. If we had a hat, the $\hat 
+    \beta$ term \textit{is} the \textbf{expected change} in $y$ given a one-unit
+    change in $x$.
+\end{note}
+
+But how do we tell whether we've made a "good" prediction or not? What do we count
+as "good"?
+
+Keep in mind the notation of the residual:
+\[
+\hat \epsilon_i = y_i (\hat \beta_0 + \hat \beta_1 x_i)
+\]
+\pagebreak
+\section{Cross-validation}
+\begin{definition}
+    \textbf{Cross-validation} is a concept that revolves around how well our model
+    perfoms \textit{outside} of the data that it was fit on. It's generally used
+    in \textit{prediction} settings to assess how well our model might work in a
+    set of \textit{previously unseen} data.
+\end{definition}
+
+In cross-validation techniques, a model is first fit on a \textbf{training} set,
+and then is evaluated on an \textit{independent} \textbf{testing} set that was
+never used to fit any models.
+
+The goal of these types of methods is to avoid \textbf{overfitting}, which may
+occur if we are adding too many variables, etc.
+
+\subsection{Exhaustive splits}
+\begin{itemize}
+    \item Leave $p$ out of cross-valiation: find all possible ways to create
+        \textit{testing} sets of size $p$.
+    \item Leave one out cross-validation: same as above, but with a testing set of
+        size $p=1$.
+\end{itemize}
+
+Effectively, we take $p$ rows from our data, train a model on the remainder,
+test performance on those $p$ rows, repeat for all possible combinations of $p$
+rows, and take the average MSE or some other criteria between all of those models.
+This is is computationally intensive and is rarely used because of that.
+
+\subsection{Non-exhaustive splits}
+\begin{itemize}
+    \item Simple holdout cross-validation: only create one testing split
+        
+        This randomly takes $x$\% of the data to create a testing dataset. This
+        isn't done iteratively, but only once. Although, if you're worried about
+        accidentally taking an exceptional sample, it can be repeated any number
+        of times.
+
+    \item Monte Carlo cross-validation: same as above, but done multiple times
+        with random testing sets each time.
+        
+        This is effectively holdout cross-validation, but repeated more than once
+        as mentioned above. These samples are done with replacement, so there can
+        be overlap.
+
+    \item $k$-fold cross-validation: randomly split the dataset into $k$ mutually
+        exclusive but collective exhaustive subsets; use each of these $k$ subsets
+        as a test set.
+        
+        This method is effectively used to avoid a problem with Monte Carlo where
+        there is a chance that some data are never used in the training or testing
+        dataset. It separates all data into $k $randomly generated bins, and uses
+        all of those bins in a Monte Carlo-style iteration.
+\end{itemize}
+
+\pagebreak
+\section{Code Examples}
+\subsection{Leave one out CV}
+\begin{verbatim}
+library(caret)
+cv_method <- trainControl(method = "LOOCV")
+model <- train(y ~ x1 + x2, data=data, method="lm", trControl = cv_method)
+\end{verbatim}
+
+\subsection{K-fold CV}
+\begin{verbatim}
+library(caret)
+cv_method <- trainControl(method = "cv", number = 10) # k = 10
+model <- train(y ~ x1 + x2, data=data, method="lm", trControl = cv_method)
+\end{verbatim}
+
+
+\end{document}

@@ -1,0 +1,378 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 15 - Special Distributions}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Normal Distributions}
+
+Let $X$ be a normal distribution with parameters $\mu$ and $\sigma$. We say that
+$X \sim \text{Norm}(\mu, \sigma^2)$.
+\begin{itemize}
+    \item PDF (for the standard \textit{standard} normal distribution):
+        \[
+            p(x) = \frac{1}{\sqrt{2\pi}}e^{-\frac{x^2}{2}}
+        \]
+    \item CDF (standard):
+        \[
+            \mathbb{P}(X \le t) = \Phi\left(\frac{t-\mu}{\sigma}\right)
+        \]
+    \item Expected value: $\mu$
+    \item Standard deviation: $\sigma$
+    \item Left tail probability:
+        \[
+            \mathbb{P}(X \le t) = \Phi\left(\frac{t-\mu}{\sigma}\right)
+        \]
+    \item Right tail probability:
+        \[
+            \mathbb{P}(X > t) = 1-\Phi\left(\frac{t-\mu}{\sigma}\right)
+        \]
+\end{itemize}
+
+\pagebreak
+\section{Uniform Distributions}
+A random variable has \textit{uniform} density on the interval $(a,b)$ if $X$ has
+density $p(x)$ which is constant on the interval $(a,b)$ and 0 everywhere else.
+We can extend this idea to areas in the plane, $X$ is uniform over a region $R$,
+if the density function is constant everywhere on $R$ and 0 everywhere else.)
+
+The PDF curve is a horizontal line on the interval $(a,b)$ and 0 everywhere else.
+Since the area of the rectangle below the curve must be 1, the $y$-intercept of
+the line must be $\frac{1}{b-a}$.
+
+\begin{ex}
+    Let $X \sim \text{Unif}(5,10)$. \textbf{What is} $\mathbb{P}(6 \le X \le 8)$?
+    \vspace{10px}
+    
+    Since the interval is $(5,10)$, the length of the area rectangle is 5, and the
+    height must therefore be $\frac{1}{5}$. Since we are looking for the 
+    probability on the interval (6,8), the width of that "slice" is 2, and the 
+    height is the same $\frac{1}{5}$. Thus:
+    \[
+        \boxed{\mathbb{P}(6 \le X \le 8) = 2 \cdot \frac{1}{5} = \frac{2}{5}} 
+    \]
+\end{ex}
+
+Let $X$ be uniform on $(a,b)$. We say that $X \sim \text{Unif}(a,b)$.
+\begin{itemize}
+    \item PDF:
+        \[
+            p(x) = 
+            \begin{cases}
+                \frac{1}{b-a} & a \le x \le b\\
+                0 & \text{else}
+            \end{cases}
+        \]
+   \item CDF:
+       \[
+           F(t) = \int_{-\infty}^{t}pdf =
+           \begin{cases}
+               \frac{t-a}{b-a} & a \le t \le b \\
+               1 & t > b \\
+               0 & t < a
+           \end{cases}
+           \]
+    \item Expected value: $\frac{a+b}{2}$.
+    \item Standard Deviation: $\frac{b-a}{\sqrt{12}}$.
+    \item Left tail probability (same as CDF): $\frac{t-a}{b-a}$
+    \item Right tail probability: $\frac{b-t}{b-a}$
+\end{itemize}
+
+\pagebreak
+\section{Exponential Distributions}
+Examples of an exponential distributions include the lifetime of something (light
+bulb, machine part, etc.), time spent waiting (i.e. in line or on hold), or time
+until the next thing (earthquake, etc.).
+
+Let $X$ be an exponential $(\lambda)$ random variable. Here, $\lambda$ is a 
+\textbf{rate constant}, that tells us our rate of decay (earthquakes per year, 
+for example). It is an average rate of number of events per time:
+\begin{itemize}
+    \item Range: $(0,\infty)$
+    \item PDF:
+        \[
+            f(x) = 
+            \begin{cases}
+                \lambda e^{-\lambda x} & x \ge 0 \\
+                0 & \text{else}
+            \end{cases}
+        \]
+    \item CDF:
+        \[
+            F(t) = \int_{0}^{t}f(x)dx =
+            \begin{cases}
+                1-e^{-\lambda t} & t \ge 0 \\
+                0 & \text{else}
+            \end{cases}
+        \]
+    \item Expected value: $\frac{1}{\lambda}$
+    \item Standard deviation: $\frac{1}{\lambda}$
+    \item Left tail probability:
+        \[
+            \mathbb{P}(X \le t) = \text{CDF} = 1 - e^{-\lambda t}
+        \]
+    \item Right tail probability:
+        \[
+            \mathbb{P}(X > t) = 1 - \text{CDF} = e^{-\lambda t}
+        \]
+\end{itemize}
+\begin{ex}
+    Suppose that the time until the next hurricane in a particular city is
+    exponentially distributed with an average rate of 2 hurricanes per year. Find
+    the probability that the next hurricane happens within:
+    \vspace{10px}
+    
+    \begin{enumerate}
+        \item one year
+            \vspace{10px}
+
+            Here, $\lambda$ is 2 hurricanes per year, thus $\lambda = 2$. Let $X$
+            be the time until the next hurricane. Thus, $X \sim \text{Exp}(2)$
+            and:
+           \begin{align*}
+               &\text{PDF} = 2e^{-2x} \text{for } x \ge 0 \\
+               &\mathbb{P}(X\le 1 \text{year}) = \int_{0}^{1}PDF =
+               \boxed{1 - e^{-2}} 
+           \end{align*}
+        \item six months
+            \vspace{10px}
+
+            Since our $\lambda$ is \textit{per year}, we have to convert from
+            months to years or years to months to use the relevant formulas
+            correctly. Here, we will convert months to years, thus $t =
+            \frac{1}{2}$. Therefore:
+            \[
+                    \mathbb{P}(X\le \frac{1}{2}) =
+                    1 - e^{-2\left(\frac{1}{2}\right)} = \boxed{1 - e^{-1}} 
+            \]
+    \end{enumerate}
+\end{ex}
+
+If $X$ is the lifetime of a component, then $\lambda$ is the ratio of 
+components used per unit time, each with an average lifetime of 
+$\frac{1}{\lambda}$. If $Y$ is the time until the next event, then $\lambda$ is
+the number of events per unit time, with $\frac{1}{\lambda}$ as the average
+time until the next event.
+
+\pagebreak
+\section{Poisson Arrival and Gamma Distribution}
+We use this process to analyze the rate that "arrivals" happen. These may be
+customers arriving at a store, alpha particles hitting a Giger counter, calls
+coming into a call center, etc. 
+
+\begin{itemize}
+    \item Let $X$ be the number of arrivals/hits within time $t$. We say that 
+        $X \sim \text{Poisson}(\lambda t)$, where $\lambda$ is the average rate of
+        arrival. We say that $W_n$ is the time between the $n$th arrival and the 
+        previous one (or start of system if $n=1$).
+    \item $W_n$ will always be an exponential distribution
+        $W_n\sim\text{Exp}(\lambda)$. In other words, we say that if the number
+        of arrivals is a Poisson distribution, then the time between arrivals is 
+        exponentially distributed. Inversely, if the time between arrivals is 
+        exponential, then the number of arrivals is Poisson.
+    \item We say that $T_n$ is the total time until the $n$th arrival. We say that
+        $T_n$ has a \textbf{gamma distribution} $T_n \sim \text{gamma}(n, 
+        \lambda)$.
+\end{itemize}
+
+\begin{definition}
+    A \textbf{gamma distribution} is the sum of independent, identically
+    distributed exponential random variables:
+    \[
+        T_n = \sum_{i=1}^{n}W_i
+    \]
+\end{definition}
+
+\subsection{Features of a Poisson arrival process}
+\begin{enumerate}
+    \item The number of arrivals in a time interval, $X \sim \text{Poisson}
+        (\lambda t)$. In a poisson arrival process, the numbers of arrivals 
+        during disjoin time intervals are independent.
+    \item The time between intervals, $Y \sim \text{Exp}(\lambda)$. In a
+        Poisson arrival process, the wait times between different arrivals are
+        independent.
+    \item The total time until the $n$th arrival, $Z \sim \text{gamma}(n,\lambda)$
+\end{enumerate}
+
+\begin{ex}
+    Calls arrive to a call center at an average rate of 3 calls per minute
+    according to a Poisson arrival process.
+    \begin{enumerate}
+        \item What is the probability that less than 3 calls arrive within the
+            first two minutes?
+            \vspace{10px}
+            
+            Here we know that the number of arrivals is 3 and the time is 2
+            minutes. Thus, $X = \text{Poisson}(3 \cdot 2)$.
+           \begin{align*}
+               \mathbb{P}(X < 3) &= \sum_{k=0}^{2}\frac{e^{-6}6^k}{k!}\\
+               \Aboxed{\mathbb{P}(X<3) &\approx 0.06197} 
+           \end{align*}
+        \item What is the probability that the first call takes two minutes or 
+            more to arrive?
+            \vspace{10px}
+            
+            We know that $W_1 \sim \text{Exp}(3)$, thus:
+           \begin{align*}
+               \mathbb{P}(W_1 \ge 2) &= e^{-3 \cdot2} \\
+               \Aboxed{\mathbb{P}(W_1 \ge 2) &\approx 0.0025} 
+           \end{align*}
+           
+        \item What is the probability that no calls arrive between $t=0$ and 
+            $t=2$, and at most 4 calls arrive between $t=2$ and $t=4$?
+            \vspace{10px}
+            
+            Here we will use independence. We have two different time intervals, 
+            each looking at the number of calls. Let $X_{0-2}$ be the first time
+            interval and $X_{2-4}$ be the second. We know they are independent
+            and both are Poisson.
+           \begin{align*}
+               &\mathbb{P}(X_{0-2}=0) = e^{-6} \cdot \frac{6^0}{0!}\\
+               &\mathbb{P}(X_{2-4} \le 4) = \sum_{k=0}^{4}
+               \frac{e^{-6}6^k}{k!}
+           \end{align*}
+            Using independence, we arrive at the following solution:
+            \[
+                \mathbb{P}(X_{0-2}=0) \cdot \mathbb{P}(X_{2-4}\le4)
+                \boxed{\approx 0.00071} 
+            \]
+        \item What is the probability that the 4th call arrives within 30 
+            seconds of the 3rd call?
+            \vspace{10px}
+
+            We know that $W_4 \sim \text{Exp}(3)$ given our rate of 3, and the 
+            fact that time intervals are exponentially distributed. Converting
+            between the units of seconds and minutes for uniformity, we arrive
+            at the following:
+            \[
+                \mathbb{P}\left(W_4 \le \frac{1}{2} \text{min}\right) = 
+                1-e^{-3 \cdot \frac{1}{2}} \boxed{\approx 0.777}
+            \]
+        \item What is the probability that the 5th call takes more than 2 minutes
+            to arrive?
+            \vspace{10px}
+            
+            Because we are looking at total time, we are using $T_5$, where
+            $T_5 \sim \text{Gamma}(5, \lambda=3)$.
+            \[
+               \mathbb{P}(T_5 > 2) = \mathbb{P}( \text{4 of fewer calls arrive
+               in the first 2 minutes}) \\
+            \]
+            Translating in to Poisson(3,2), we know that the probability that
+            4 or fewer calls arrive in the first 2 minutes is:
+            \[
+                \mathbb{P}(T_5 > 2) = \sum_{k=0}^{4}\frac{e^{-6}6^k}{k!}
+                \boxed{\approx 0.28506} 
+            \]
+        \item What is the expected time of the 5th call?
+            \vspace{10px}
+            
+            Here, we are looking for the expected value of $T_5$. Fortunately,
+            we know:
+           \begin{align*}
+               \mathbb{E}(T_5) &= \mathbb{E}(W_1 + \cdots + W_n) \\
+                               &= \mathbb{E}(W_1) + \cdots + \mathbb{E}(W_n) \\
+                               &= 5 \mathbb{E}(W_1) \\
+                               &= 5 \cdot \frac{1}{3} \\
+               \Aboxed{ \mathbb{E}(T_5) &= \frac{5}{3}} 
+           \end{align*}
+    \end{enumerate}
+\end{ex}
+
+\subsection{Properties of gamma distributions}
+Let $T_r$ be the time of the $r$th arrival in a Poisson arrival process, and let
+$W_i \sim \text{Exp}(\lambda)$ be the wait time between the $i-1$st and $i$th
+interval. Then, $T_r = W_1 + \cdots + W_r$ and $T_r$ has a $ \text{gamma}(
+r, \lambda)$ distribution.
+
+\begin{enumerate}
+    \item Right tail probability:
+          \begin{align*}
+            \mathbb{P}(T_r > t)&= \mathbb{P}( \text{fewer than $r$ arrivals within
+            the first $t$ minutes}) \\
+                               &= \sum_{k_0}^{r-1}\frac{e^{\lambda t}
+                               (\lambda t)^k}{k!}
+          \end{align*}
+    \item CDF:
+       \begin{align*}
+           \mathbb{P}(T_r\le t) &= 1-\mathbb{P}(T_r>t) = 1 - \sum_{k_0}^
+           {r-1}\frac{e^{\lambda t}(\lambda t)^k}{k!}
+       \end{align*}
+    \item PDF (bonus problem on homework, differentiate CDF): 
+        \[
+            p(t) = \lambda e^{-\lambda t}\frac{(\lambda t)^{r-1}}{(r-1)!}
+        \]
+    \item Expected value: 
+        \[
+            \mathbb{E}(T_r) = \frac{r}{\lambda}
+        \]
+    \item  Standard deviation:
+        \[
+            \sigma = \frac{\sqrt{r}}{\lambda}
+        \]
+\end{enumerate}
+
+\end{document}

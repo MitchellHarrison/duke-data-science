@@ -1,0 +1,153 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 14 - Peer Review}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{What is peer review?}
+
+\begin{definition}
+    \textbf{Peer review} is the "expert assessment of submitted materials" and is
+    used to help ensure that published materials are of high quality and free
+    from mistakes.
+\end{definition}
+
+Peer review is used to maintain quality standards and credibility in shared
+results. Many times peer review is blinded, which allows for more honest and
+constructive comments.
+
+\begin{note}
+    Peer review is \textit{not} limited to academic settings and journal
+    submissions!
+\end{note}
+
+Peer reviewers are tasked with providing a dispassionate evaluation of the work
+in question - this review is often used for decision-making purposes on behalf of
+a larger institution. 
+
+Useful peer reviews provide helpful feedback (both positive and negative) about
+the relative strengths and weaknesses of the piece being reviewed. Just because
+there are no mistakes doesn't necessarily mean that an article is worthy of
+publication!
+
+\pagebreak
+\section{Evaluating the introduction}
+\begin{itemize}
+    \item Was the main goal of the analysis easy to identify and appropriate for
+        addressing the research problem?
+    \item Was the rationale for the data analysis explained well?
+    \item Did the manuscript describe the context/background of the work and
+        its relation to existing literature?
+    \item Were the variables (response and predictors) clearly identified and
+        discussed?
+    \item Did the manuscript explain how the data were collected and/or how they
+        were derived?
+    \item If provided, was any EDA helpful and informative in addressing the main
+        goal(s)?i
+\end{itemize}
+
+\pagebreak
+\section{Evaluating the methodology}
+\begin{itemize}
+    \item Is the proposed analysis appropriate given the main goal(s) and 
+        dataset?
+    \item Why was this particular methodology chosed over competing choices?
+    \item Are the specific methods described in enough detail that the work could
+        be replicated by other researchers without access to the original
+        analysis code?
+    \item Is it clear which approaches/models were used to evaluate specific 
+        goals?
+    \item What assumptions are needed for the model(s), and how do you plan to
+        assess whether they hold?
+    \item What sensitivity analyses, if any, are planned, and how do they relate 
+        to your analysis approach?
+\end{itemize}
+
+\pagebreak
+\section{Evaluating the results}
+\begin{itemize}
+    \item Were tables formatted cleanly and precisely?
+    \item Did visualizations follow good practices (e.g., clean axis labels,
+        clear titles, appropriate figures given data types, etc.)?
+    \item Did tables/figures refer to raw variables names, or were all references
+        clearly made in context of the data?
+    \item Were appropriate conventions re: formatting (e.g., an acceptable
+        number of decimal places, table/figure captions, etc.) followed when
+        displaying results?
+    \item Was there an appropriate quantification of uncertainty of estimates?
+    \item Were all results interpreted correctly?
+\end{itemize}
+
+\pagebreak
+\section{Evaluating the discussion}
+\begin{itemize}
+    \item How did results address or fail to address the goal(s) of the 
+        manuscript?
+    \item Did the manuscript provide clear, correct, and effective interpretation
+        of the analysis results?
+    \item Were all conclusions made directly supported by the data?
+    \item Were there any issues with reliability or validity of the data?
+\end{itemize}
+
+\end{document}

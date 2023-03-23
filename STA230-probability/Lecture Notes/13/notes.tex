@@ -1,0 +1,161 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 12 - Central Limit Theorem}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+\begin{ex}
+    Let $X_1, X_2, \cdots $ be i.i.d. random variables, each with mean $\mu$ and
+    (finite) standard deviation $\sigma$
+    \vspace{10px}
+
+    \textbf{Sums:}
+
+    Let $S_n = X_1 + \cdots + X_n$
+    \[
+    \mathbb{P}(a \le S_n \le b) = \mathbb{P}\left(
+        \frac{a - n\mu}{\sqrt{n}\cdot\sigma} \le S_n^* \le
+        \frac{b - n\mu}{\sqrt{n}\cdot\sigma}\right)
+        \approx \Phi\left(\frac{b-n\mu}{\sqrt{n}\cdot\sigma}\right) -  
+        \Phi\left(\frac{a-n\mu}{\sqrt{n}\cdot\sigma}\right)
+    \]
+    \begin{note}
+        The $\Phi$ function here are basically finding \textit{z-scores}.
+    \end{note}
+    
+    \textbf{Averages}
+
+    Let $\bar X_n = \frac{X_1 + \cdots + X_n}{n}$:
+    \[
+    \mathbb{P}(a \le \bar X_n \le b) = \mathbb{P}\left(
+        \frac{a - \mu}{\frac{\sigma}{\sqrt{n}}}\le \bar X_n^* \le
+        \frac{b - \mu}{\frac{\sigma}{\sqrt{n}}}\right)
+        \approx \Phi\left(\frac{b-\mu}{\frac{\sigma}{\sqrt{n}}}\right) -  
+        \Phi\left(\frac{a-n\mu}{\frac{\sigma}{\sqrt{n}}}\right)
+    \]
+    These are true no matter what the distribution of $X$ is, and it also holds
+    for $X_i$'s with infinite range as long as the standard deviation is finite.
+\end{ex}
+
+\begin{note}
+    Anything with star (i.e. $\bar X_n^*$, $S_n^*$) is \textit{normallized}, thus
+    it has standard deviation 1 and mean 0. It is calculated as follows:
+    \[
+    S^*_n = \frac{S_n - \mathbb{E}(S_n)}{SD(S_n)}
+    \]
+\end{note}
+
+\pagebreak
+\section{Discrete Distributions}
+\subsection{Geometric distribution}
+\begin{ex}
+    You keep shooting free throws until you make one. You have about
+    a 1/6 chance of making each shot. Let $X$ be the number of shots you take. 
+    What is the distribution of $X$?
+    \vspace{10px}
+    
+    We are looking for $\mathbb{P}(X=k)$ in this problems:
+   \begin{align*}
+       X& \sim Geom\left(\frac{1}{6}\right) \\
+       X &= \text{\# of trials to and including success with 1/6 probability
+       of success} \\
+           \Aboxed{X &= \left(\frac{5}{6}\right)^{k-1}\left(\frac{1}{6}\right)}
+   \end{align*}
+\end{ex}
+
+You keep shooting free throws until you make one. You have about
+a 1/6 chance of making each shot. Let $X$ be the number of shots you take. What is
+the distribution of $X$.
+
+\begin{definition}
+    A random variable $Y$ with range \{1,2,3,...\} has a 
+    \textbf{geomtric-$p$ distribution} if $\mathbb{P}(Y=k) = (1-p)^{k-1}p$
+    \begin{itemize}
+        \item We say $Y ~ Geom(p)$ or $Y ~ Geometric(p)$
+        \item $ \mathbb{E}(Y) = \frac{1}{p}$
+        \item $SD(Y) = \frac{\sqrt{1-p}}{p}$
+    \end{itemize}
+    
+    A random variable $Y$ with range \{0,1,2,3,...\} has a 
+    \textbf{geometric-$p$ distribution} if $\mathbb{P}(Y=k) = (1-p)^kp$
+    \begin{itemize}
+        \item We say $Y ~ Geom(p)$ or $Y ~ Geometric(p)$
+        \item $ \mathbb{E}(Y) = \frac{1}{p}-1$
+        \item $SD(Y) = \frac{\sqrt{1-p}}{p}$
+    \end{itemize}
+\end{definition}
+
+\textbf{Examples of random variables with geometric distribution}
+\begin{itemize}
+    \item $X = $ number of flips until you get heads
+    \item $Y = $ number of unsuccessful trials before a success
+    \item $Z = $ number of packages of baseball cards purchased until finding
+        Honus Wagner
+\end{itemize}
+
+\pagebreak
+
+\end{document}
