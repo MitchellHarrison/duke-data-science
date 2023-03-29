@@ -1,0 +1,155 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 15 - Logistic Regression}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Introduction}
+
+\begin{definition}
+    \textbf{Logistic regression} is a modelling technique that is used when the
+    response variable is categorical.
+\end{definition}
+
+\begin{definition}
+    Let $p$ be the probability of some event. The \textbf{odds} that the event
+    occurs is:
+    \[
+        \frac{p}{1-p}
+    \]
+\end{definition}
+
+The \textbf{odds} are sometimes expressed as $X:Y$ and read "$X$ to $Y$". We
+can also talk about \textbf{odd ratios}, which is "odds of odds." Comparing two
+odds (e.g. "men have three times the odds of survival than women"), is 
+\textit{not} the same as \textit{probability} of success (i.e. survival).
+
+\begin{definition}
+    Odds are not necessarily between 0 and 1. To correct for that, we take the
+    natural log of the odds. This is the \textbf{logit} of $p$:
+    \[
+        logit(p) = \ln\left(\frac{p}{1-p}\right)
+    \]
+\end{definition}
+
+To invert $logit(p)$ and get the probability between 0 and 1, we perform the 
+following:
+\[
+    \text{inverse } logit(x) = \frac{1}{1+e^{-x}}
+\]
+\pagebreak
+\section{Logistic Regression}
+A logistic regression model is given by the following:
+\[
+    log\left(\frac{p_i}{1-p_i}\right) = \beta_0 + \beta_1x_{i1} + \cdots + 
+    \beta_nx_{in}
+\]
+\begin{note}
+    There is no error term in a logistic regression model.
+\end{note}
+
+\subsection{Example code}
+To construct a logistic regression model:
+\begin{verbatim}
+logit_mod <- glm(y ~ x1 + x2, data = data, family = "binomial")
+tidy(logit_mod)
+\end{verbatim}
+
+To predict \textit{log odds}:
+\begin{verbatim}
+pred_log_odds <- augment(logit_mod)
+\end{verbatim}
+
+\subsection{Interpretation}
+To interpret coefficients, we say that holding all other predictors constant, for
+every one increase in $x_i$, the odds of $y_i$ is \textit{predicted} to be
+multiplied by $e^{\beta_i}$.
+
+\pagebreak
+\section{Classification}
+Logistic regression allows us to obtain predicted probabilities of success for a
+binary variable. By imposing a threshold (e.g. 50\%), we can classify observations
+into various bins.
+
+\begin{definition}
+    A \textbf{z-statistic} is used here. Unlinke linear regression models, it has
+    a standard normal distribution under $H_0$.
+    \[
+        z = \frac{\hat\beta_k - \beta_{k,0}}{SE(\hat\beta)k}
+    \]
+\end{definition}
+
+\subsection{Confidence Intervals}
+A 95\% confidence interval for the \textit{log-odds} is given by:
+\[
+\hat \beta_k \pm z^\star \times SE(\hat \beta_k)
+\]
+Similarly, a 95\% confidence interval for \textit{odds} is given by:
+\[
+    e^{\hat \beta_k \pm z^\star \times SE(\hat \beta_k)}
+\]
+
+\end{document}

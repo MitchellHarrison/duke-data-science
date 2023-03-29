@@ -1,0 +1,174 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 16 - Logistic Regression (Cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Interpretation}
+
+The \textit{intercept} of a logistic regression model is the \textit{log-odds} of
+$y$ given that all $\beta$ coefficients are zero. To find the predicted odds, we 
+would convert from there to \textit{odds}. 
+
+\begin{note}
+    To have 1:1 odds of "success" for $y$, the \textit{log-odds} must be zero.
+\end{note}
+
+When predicting with a logistic regression model, the \textit{residual} is the
+difference in log odds between reality and what was predicted. That is typically
+not useful, so we rarely use logistic regression residuals in practice.
+
+\subsection{Code from log-odds to probability}
+\begin{verbatim}
+m1_aug <- augment(model1) |>
+    mutate(prob = exp(.fitted)/(1 + exp(.fitted)),
+           pred_y = if_else(prob > 0.5, TRUE, FALSE) |>
+    select(.fitted, prob, pred_y, y)
+\end{verbatim}
+
+\pagebreak
+\section{Binary Classifiers}
+Let $A$ be the event that an observation is a "positive" and let $B$ be the event
+that a classifier for that condition \textit{says} positive (i.e. 
+\textit{predicted} to be positive).
+
+\begin{itemize}
+    \item \textbf{Prevalence}: $\mathbb{P}(A)$ is the proportion of individuals
+        with the condition.
+    \item \textbf{Sensitivity:} $ \mathbb{P}\left(B \;\middle|\; A\right) $ is
+        the true positive rate.
+    \item \textbf{Specificity:} $ \mathbb{P}\left(B^\complement \;\middle|\; 
+        A^\complement \right) $ is 1 minus the false positive rate
+    \item \textbf{Positive Predictive Value:} $ \mathbb{P}\left(A \;\middle|\; 
+        B\right) $
+    \item \textbf{Negative Predictive Value:} $ \mathbb{P}\left(A^\complement 
+        \;\middle|\; B^\complement \right) $
+\end{itemize}
+
+\pagebreak
+\section{Discrimination Thresholds}
+\begin{definition}
+We can classify positivity and negativity at any point, not just 50\%. We can
+test each possible threshold using a \textbf{Receiver Operating Characteristic}
+curve. These show how specificity and sensitivity change as the threshold changes.
+\end{definition}
+
+\subsection{Code for an ROC curve}
+\begin{verbatim}
+m1_aug |>
+    roc_curve(
+        truth = as.factor(y),
+        prob,
+        event_level = "second"
+    )
+\end{verbatim}
+
+\begin{note}
+    You can visualize an ROC curve by piping the above code into the
+    \texttt{autoplot()} function.
+\end{note}
+
+\subsection{The area under the ROC curve}
+\begin{definition}
+    The \textbf{Area Under the Curve (AUC)} can be used to asses how well we are
+    predicting, and summarizes the entire ROC curve. An AUC of 0.5 implies that
+    the model is no better than a coin flip and an AUC of 1 implies a perfect fit.
+\end{definition}
+
+The AUC also represents the probability that a randomly selected positive-class
+observation has a higher estimated score than that of a randomly selected
+negative-class observation.
+m
+\pagebreak
+\section{Assumptions of Logistic Regression Models}
+We will only use two assumptions for logistic regression: \textbf{independence}
+and \textbf{linearlity}.
+\begin{itemize}
+    \item \textbf{Intependence:} the \textit{observations} are independent from
+        each other (not the predictors)
+    \item \textbf{Linearity:} there is a linear relationship between the log-odds
+        of the response and predictors
+\end{itemize}
+
+\subsection{Testing linearity: Empirical logits}
+\begin{definition}
+    The \textbf{empirical logit} is given by the following:
+    \[
+        log\left(\frac{\# \text{ positive-class observations}}
+        {\# \text{ negative-class observations}}\right)
+    \]
+\end{definition}
+
+\subsection{Code for empirical logits}
+\begin{verbatim}
+library(Stat2Data)
+emplogitplot1(y ~ x1 + x2, data = data, ngroups = 10)
+\end{verbatim}
+
+If the points on the empirical logit plot roughly track a straight line, we can
+say that \textbf{linearity has been upheld.}
+
+\end{document}

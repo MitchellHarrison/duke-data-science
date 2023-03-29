@@ -1,0 +1,193 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 16 - Change of Variable}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+\begin{ex}
+    Calls arrive at a call center according to a Poisson distribution. The
+    average rate at which calls arrive is 1 call per 3 minutes. \textbf{What is
+    the probability at least 40 calls arrive in 2 hours?}
+    \vspace{10px}
+    
+    We are given that $\lambda = \frac{1}{3}$ and $t$ is two hours, or $t=120$.
+    We then calculate $\mu = \lambda t = \frac{120}{3} = 40$. Plugging into the 
+    formula for Poisson arrival, we arrive at the following:
+    \[
+        \boxed{\mathbb{P}( \text{at least 40 calls in 2 hours}) =
+        \sum_{k=40}^{\infty}\frac{e^{-40}\cdot40^k}{k!}} 
+    \]
+\end{ex}
+
+\pagebreak
+\section{Change of Variable}
+Suppose we know the density function for $X$. If we have a related random variable
+$Y = g(X)$, how can we find the density function of $Y$? (Example: $X$ is height
+and $Y = |x-\mu|$.)
+
+\subsection{Linear change of variable}
+\begin{ex}
+    Suppose $X \sim $ Unif(0,1). Let $a > 0$. If $Y = aX + b$, what is the 
+    density function for $Y$?
+    \vspace{10px}
+    
+    Plugging in the limits of our range of $X$ (i.e. 0 and 1), we arrive at the
+    possible range of $Y$, which is $[b, a+b]$. Thus, the width of our uniform
+    distribution for $Y$ is $a+b-a$, or simply $a$. Since the area under the
+    PDF must be 1, we know the height of the rectangle formed by the uniform
+    distribution is $\frac{1}{a}$. Thus, we arrive at the PDF of $Y$:
+    \[
+        \boxed{\text{PDF}(Y) = 
+        \begin{cases}
+            \frac{1}{a} & b<y<a+b \\
+            0 & \text{else}
+        \end{cases}}
+    \]
+\end{ex}
+
+More generally, let $X$ be a continuous random variable with density function
+$f_X(x)$. Let $Y = aX+b$, then:
+\[
+    \boxed{f_Y(y) = \frac{1}{|a|}\cdot f_X\left(\frac{y-b}{a}\right)} 
+\]
+\subsection{One-to-one differentiable functions}
+Let $X$ be a continuous random variable with density $f_X$ on the interval 
+$(a,b)$. Let $Y=g(X)$ for some one-to-one differentiable function $g$ on the
+interval $(a,b)$. Then:
+\[
+    \boxed{f_Y(y) = \frac{1}{\left|\frac{dy}{dx}\right|}\cdot f_X(g^{-1}(y)} 
+\]
+The endpoints of the range of $Y$ must necessarily be $g(a)$ and $g(b)$.
+\begin{ex}
+    Let $X$ have the following density function:
+    \[
+        f_X(x) = 
+        \begin{cases}
+            e^{-x} & x>0 \\
+            0 & \text{else}
+        \end{cases}
+    \]
+    Let $Y = \sqrt{X}$. What is the densty function for $Y$?
+    \vspace{10px}
+    
+    First, we find the range of $Y$, which is all possible non-negative numbers
+    for the function $Y = \sqrt{X}$. Then, we confirm that $\sqrt{X}$ is one-to-
+    one differentiable, which it is. Next we solve for $X$ in terms of $Y$. In
+    this case, since $Y = \sqrt{X}$, then $X = Y^2$. Then we find $\frac{dy}{dx}$.
+    For this problem, $\frac{dy}{dx}(\sqrt{X}) = \frac{1}{2\sqrt{X}}$. Finally,
+    we plug in our findings:
+   \begin{align*}
+       f_Y(y) &= \frac{d_X(y^2)}{\left|\frac{dy}{dx}\right|} \\
+              &= \frac{e^{-x}}{\frac{1}{2\sqrt{X}}} \\
+              &= 2\sqrt{X}e^{-x}
+              &= 2ye^{-y^2}
+   \end{align*}
+    
+   Therefore,
+   \[
+   \boxed{
+        f_Y(y) = 
+        \begin{cases}
+            2ye^{-y^2} & y>0 \\
+            0 & \text{else}
+        \end{cases}
+   } 
+   \]
+\end{ex}
+
+\subsection{Many-to-one functions}
+Recall the discrete version:
+
+\vspace{10px}
+\begin{center}
+\begin{tabular}{c|c c c c c}
+    $x$ & -2 & -2 & 0 & 1 & 2 \\
+    \hline
+    $\mathbb{P}(X=x)$ & 1/6 & 1/6 & 1/3 & 1/6 & 1/6
+\end{tabular}
+\end{center}
+\vspace{10px}
+The, for $y = x^2$:
+\begin{center}
+\begin{tabular}{c|c c c}
+    $y$ & 0 & 1 & 4 \\
+    \hline
+    $\mathbb{P}(Y=y)$ & 1/3 & 1/3 & 1/3
+\end{tabular}
+\end{center}
+\vspace{10px}
+
+Let $X$ be a continuous random variable with a known density function $f_X$. Let
+$g$ be a differentiable function and define $Y=g(X)$. Then, the density function
+of $Y$ is:
+\[
+f_Y(y) = \sum_{x:y=g(x)} \frac{f_X}{\left|\frac{dy}{dx}\right|}
+\]
+where $x:y=g(x)$ denotes "all $x$ with $g(x) = y$".
+
+\end{document}
