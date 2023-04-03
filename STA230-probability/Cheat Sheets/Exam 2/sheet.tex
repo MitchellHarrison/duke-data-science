@@ -1,0 +1,287 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{multicol}
+\usepackage{blindtext}
+\usepackage[margin = .5in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\begin{document}
+\setlength{\parskip}{0.5\baselineskip}
+\setlength{\parindent}{15pt}
+\setlength{\belowdisplayskip}{0pt}
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayshortskip}{0pt}
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+
+\begin{multicols*}{2}
+
+\textbf{Normal Distribution:}
+\begin{enumerate}
+    \item PDF: 
+        \[
+            p(x) = \frac{1}{\sqrt{2\pi }}\cdot e^{-\frac{x^2}{2}}
+        \]
+    \item CDF:
+        \[
+            \mathbb{P}(X \le t) = \Phi\left(\frac{t-\mu}{\sigma}\right)
+        \]
+    \item Expected value: $\mu$ 
+    \item Standard deviation: $\sigma$
+    \item Left-tail probability: \textit{same as CDF}
+    \item Right-tail probability: $1 - $ CDF
+
+\end{enumerate}
+\textbf{Uniform Distribution}
+\begin{enumerate}
+    \item PDF: 
+        \[
+            p(x) =
+            \begin{cases}
+                \frac{1}{b-a} & a \le x \le b \\
+                0 & \text{else}
+            \end{cases}
+        \]
+    \item CDF:
+        \[
+            F(t) = \int_{-\infty}^{t}pdf =
+            \begin{cases}
+                \frac{t-a}{b-a} & a \le t \le b \\
+                1 & t > b \\
+                0 & t < a
+            \end{cases}
+        \]
+    \item Expected value: $\frac{a+b}{2}$ 
+    \item Standard deviation: $\frac{b-a}{\sqrt{12}}$
+    \item Left-tail probability: \textit{same as CDF}
+    \item Right-tail probability: $\frac{b-t}{b-a}$
+\end{enumerate}
+\textbf{Exponential Distribution}
+The lifetime of something. Here, $\lambda$ is the \textit{rate constant} (e.g.
+earthquakes per year).
+\begin{enumerate}
+    \item PDF: 
+        \[
+            f(x) =
+            \begin{cases}
+                \lambda e^{-\lambda x} & x \ge 0 \\
+                0 & \text{else}
+            \end{cases}
+        \]
+    \item CDF:
+        \[
+            F(t) = \int_{0}^{t}pdf =
+            \begin{cases}
+                1 - \lambda e^{-\lambda x} & t \ge 0 \\
+                0 & \text{else} \\
+            \end{cases}
+        \]
+    \item Expected value: $\frac{1}{\lambda}$ 
+    \item Standard deviation: $\frac{1}{\lambda}$
+    \item Left-tail probability: $\mathbb{P}(X\le t) = 1-e^{-\lambda t}$
+    \item Right-tail probability: $\mathbb{P}(X>t) = e^{-\lambda t}$
+\end{enumerate}
+\columnbreak
+\textbf{Gamma Distributions}
+The total time before the $i$th arrival in a Poisson process.
+\begin{enumerate}
+    \item Right tail probability (fewer than $r$ arrivals in $t$ minutes): 
+        \[
+            \mathbb{P}(T_r \ge t)  = 
+            \sum_{k=0}^{r-1}\frac{e^{-\lambda t}\cdot (\lambda t) ^k}{k!}
+        \]
+    \item CDF:
+        \[
+            \mathbb{P}(T_r\le t) = 1 - 
+            \sum_{k=0}^{r-1}\frac{e^{-\lambda t}\cdot (\lambda t) ^k}{k!}
+        \]
+        
+    \item Expected value: $\frac{r}{\lambda}$ 
+    \item Standard deviation: $\frac{\sqrt{r}}{\lambda}$
+\end{enumerate}
+\textbf{Negative Binomial Variants}: Running indepentent trials with $r$ as the
+desired number of success and $p$ as the probability of success.
+\begin{enumerate}
+    \item $X_1 = $ The number of successes before $r$ failures:
+       \begin{align*}
+           & \mathbb{P}(X_1 = k) = \binom{k+r-1}{k}p^k(1-p)^r \\
+           & \mathbb{E}(X_1) = \frac{pr}{1-p} \\
+           & SD(X_1) = \frac{\sqrt{pr}}{1-p}
+       \end{align*}
+    \item $X_2 = $ The number of failures before $r$ successes:
+       \begin{align*}
+           & \mathbb{P}(X_2 = k) = \binom{k+r-1}{k}p^r(1-p)^k \\
+           & \mathbb{E}(X_2) = \frac{r(1-p)}{p} \\
+           & SD(X_2) = \frac{\sqrt{r(1-p)}}{p}
+       \end{align*}
+    \item $X_3 = $The number of trials before $r$ successes:
+       \begin{align*}
+           & \mathbb{P}(X_3 = n) = \binom{n-1}{r-1}p^r(1-p)^{n-r} \\
+           & \mathbb{E}(X_3) = \frac{r}{p} \\
+           & SD(X_3) = \frac{r(1-p)}{p}
+       \end{align*}
+    \item $X_4 = $ The number of trials before $r$ failures:
+       \begin{align*}
+           & \mathbb{P}(X_4 = n) = \binom{n-1}{r-1}p^{n-r}(1-p)^r \\
+           & \mathbb{E}(X_4) = \frac{r}{1-p} \\
+           & SD(X_4) = \frac{\sqrt{pr}}{1-p}
+       \end{align*}
+\end{enumerate}
+\pagebreak
+\textbf{Geometric Distribution:} \# trials until success.
+
+For range starting at 1:
+\begin{enumerate}
+    \item $\mathbb{P}(Y=k) = (1-p)^{k-1}p$
+    \item $ \mathbb{E}(Y) = \frac{1}{p}$
+    \item $SD(Y) = \frac{\sqrt{1-p}}{p}$
+\end{enumerate}
+
+For range starting at 0:
+\begin{enumerate}
+    \item $\mathbb{P}(Y=k) = (1-p)^kp$
+    \item $ \mathbb{E}(Y) = \frac{1}{p}-1$
+    \item $SD(Y) = \frac{\sqrt{1-p}}{p}$
+\end{enumerate}
+
+\textbf{Change of Variable}
+\begin{enumerate}
+    \item \textit{Linear}:
+        \[
+            f_Y(y) = \frac{1}{|a|} \cdot f_X\left(\frac{y-b}{a}\right)
+        \]
+    \item \textit{One-to-one differentiable}:
+        \[
+            f_Y(y) = \frac{1}{\left|\frac{dy}{dx}\right|}\cdot f_X(g^{-1}(y))
+        \]
+    \item \textit{General}:
+        \[
+            f_Y(y) = \sum_{ \text{all $x$ with $y = g(x)$}}
+            \frac{f_X}{\left|\frac{dy}{dx}\right|}
+        \]
+\end{enumerate}
+
+\textbf{Law of Averages/Central Limit Theorem}:
+For large $n$,
+\begin{align*}
+    S &= X_1 + \cdots + X_n \\
+    \mathbb{E}(S) &= \mu_S \\
+    SD(S) &= \sigma_s \\
+    \mathbb{P}(a\le S\le b) &\approx \Phi\left(\frac{b-\mu_S}{\sigma_S}\right) -
+        \Phi\left(\frac{a-\mu_S}{\sigma_S}\right)\\
+    X_n &= \frac{X_1 + \cdots + X_n}{n} \\
+    \mathbb{E}(\bar X_n) &= \mu_X \\
+    SD(\bar X_n) &= \sigma_X / \sqrt{n}\\
+    \mathbb{P}(a\le S\le b) &\approx \Phi\left(\frac{b-\mu_X}{\sigma_X}\right) -
+        \Phi\left(\frac{a-\mu_X}{\sigma_X}\right)\\
+\end{align*}
+\textbf{Variance:}
+\begin{align*}
+    Var(X) &= \mathbb{E}((X-\mu_x)^2) = \mathbb{E}(X^2) - ( \mathbb{E}(X))^2 \\
+    Var(X) &= SD(X)^2\\
+    Var(X+Y) &= Var(X) + Var(Y) \\
+             & + 2 \mathbb{E}((X-\mu_x)(Y-\mu_y)) \\
+            Var(aX) &= a^2Var(X)
+\end{align*}
+\columnbreak
+
+\textbf{Expected Value:}
+\begin{enumerate}
+    \item \textit{Addition Rule}: $ \mathbb{E}(X+Y) = \mathbb{E}(X) + 
+        \mathbb{E}(Y)$
+    \item \textit{Multiplication} (if $X$ and $Y$ are independent):
+        \[
+            \mathbb{E}(XY) = \sum_{ \text{all }x,y}(xy)\mathbb{P}(X=x,Y=y)
+        \]
+    \item \textit{Constant coefficients}: $ \mathbb{E}(kX) = k \mathbb{E}(X)$ 
+    \item \textit{Tail sum formula} (for $X$ with possible ranges 
+        \{0,1,..., $n$\}, \textbf{useful for max's and min's}):
+        \[
+            \mathbb{E}(X) = \sum_{k=1}^{n} \mathbb{P}(X \ge k) =
+            \sum_{x=0}^{n}x \mathbb{P}(X=x)
+        \]
+\end{enumerate}
+\textbf{Poisson Distribution} ($Y$ is number of hits)
+\begin{enumerate}
+    \item $\mathbb{P}(Y=k) = \frac{e^{-\mu}\cdot\mu^k}{k!}$
+    \item $ \mathbb{E}(Y) = \mu$
+    \item $SD(Y) = \sqrt{\mu}$
+    \item $Var(X) = \lambda = rt$
+\end{enumerate}
+\textbf{Poisson Arrival} ($X$ is number of hits in time $t$ with rate $\lambda$)
+\begin{enumerate}
+    \item $X \sim Poisson(\lambda t)$
+    \item The time between the $i$th and $i-1$th arrival is $W_i \sim 
+        Exp(\lambda)$
+    \item Time until the $n$th arrival is 
+
+        $T_n \sim Gamma(n, \lambda)$.
+\end{enumerate}
+
+\textbf{Poisson Scatter}
+\begin{enumerate}
+    \item Number of hits on whole surface: $X \sim Poisson(\mu)$
+    \item Distribution of number of "special" hits with probability $p$ that a hit
+        is "special" (e.g. a raindrop is "large"): $Y \sim Poisson(\mu p)$
+\end{enumerate}
+
+\textbf{Standardization} : $X^\star = \frac{X-\mu}{\sigma}$
+
+\textbf{Indicator Functions:}
+\end{multicols*}
+
+\end{document}

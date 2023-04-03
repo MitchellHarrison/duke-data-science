@@ -1,0 +1,132 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 17 - Ordinal Regression}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Ordinal Data}
+
+\begin{definition}
+    \textbf{Ordinal data} is categorical bit has a logical order. For example,
+    levels of education or pain scales.
+\end{definition}
+
+\subsection{Cumulative link model}
+We might consider an outcome $Y$ that looks at all outcomes at once. For $j$
+total ordered categories, we might model the \textbf{cumulative probability}
+for observation $i$:
+\begin{align*}
+    \gamma_{ij} &= \mathbb{P}(Y_i \le j) \\
+                &= \sum_{n=1}^{j}\mathbb{P}(Y_i = n)
+\end{align*}
+\begin{note}
+    $\gamma$ is limited to values between 0 and 1 since it's a probability.
+\end{note}
+
+\begin{definition}
+    A \textbf{cumulative link model} takes the following form:
+    \[
+        logit(\gamma_{ij}) = \beta_{0_j} + \beta_1x_{i1} + 
+        \cdots + \beta_px_{ip}
+    \]
+\end{definition}
+
+In a cumulative link model, the $\beta_{0;j}$ term is what we would predict the
+logit of $\gamma$ would be if an observation had zeroes for all predictors.
+
+\subsection{Interpreting ordered logistic regression models}
+Exponentiating our model, we say that for a one-unit increase in $x_i$, we
+predict an $e^{\beta_i}$-fold increase in the odds of being in the next 
+highest level of the response variable.
+
+\pagebreak
+\subsection{The proportional odds assumption}
+\begin{definition}
+     The \textbf{proportional odds assumption} implies that changes in $X_k$ 
+     have the same conditional relationship with odds of being in categories
+     $a$ vs. $b$, $b$ vs $c$, $c$ vs. $d$, etc for any $j$ vs. $j-1$.
+\end{definition}
+
+\pagebreak
+\section{Code}
+The code for ordinal logistic regression models is as follows:
+\begin{verbatim}
+library(MASS)
+model <- polr(factor(y) ~ x1 + x2, data = data)
+\end{verbatim}
+
+To interpret:
+\begin{verbatim}
+exp(coef(model))
+\end{verbatim}
+
+Say we have a predictor called \texttt{got\_treatment} and another called
+\texttt{BMI}. The number ($n$) listed under \texttt{got\_treatment} means that 
+patients who receive treatment have $n$\% of the odds of having the next
+higher level of response variable compared to those who did not get treatment,
+while controlling form BMI.
+
+\end{document}

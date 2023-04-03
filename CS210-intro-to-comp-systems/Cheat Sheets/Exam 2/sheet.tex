@@ -1,0 +1,179 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{multicol}
+\usepackage{blindtext}
+\usepackage[margin = .5in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\begin{document}
+\setlength{\parskip}{0.5\baselineskip}
+\setlength{\parindent}{15pt}
+\setlength{\belowdisplayskip}{0pt}
+\setlength{\abovedisplayskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovedisplayshortskip}{0pt}
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+
+\begin{multicols*}{2}
+
+\textbf{Control:}
+\begin{itemize}
+    \item The \texttt{cmp src1, src2} instruction explicitly sets condition 
+        codes
+    \item \texttt{jmp} is an unconditional jump. All other \texttt{j*} opcodes
+        are conditional jumps.
+\end{itemize}
+
+\textbf{Procedures}:
+\begin{itemize}
+    \item The \textbf{callee} is called by the \textbf{caller}. To do so, the
+        \texttt{callq} and \texttt{retq} move the instruction pointer in and out 
+        of the callee.
+    \item \textit{Caller-saved} register values need to be pushed onto the stack
+        before making a procedure call only if the caller needs that value later.
+    \item \textit{Callee-saved} register values need to be pushed onto the stack
+        only if the callee intends to use those registers.
+\end{itemize}
+
+\textbf{Arrays/Overflows}:
+\begin{itemize}
+    \item Casting a pointer from one type to another will \textit{not} change its
+        address.
+\end{itemize}
+
+\textbf{Pointers, Compilation, Linking:}
+\begin{itemize}
+    \item The program's \textit{entry point} can be found in an executable object
+        file but not a relocatable object file.
+\end{itemize}
+
+\textbf{Exceptions, Processes}
+\begin{itemize}
+    \item A \textbf{preempt} is when the OS temporarily suspends an executing
+        process to execute a different process.
+    \item When a system call is performed in x86, the \texttt{\%rax} register
+        contains the system call index.
+    \item A divide-by-zero error \textit{always} results in the termination of a
+        process on Unix.
+    \item \textbf{Interrupts} are caused by hardware connected to the CPU.
+    \item A \textbf{fault} happens unintentionally, but may potentially be 
+        recovered from.
+\end{itemize}
+
+\columnbreak
+\textbf{Files}
+\begin{itemize}
+    \item \textbf{syscall stub procedures} contain assembly instructions, are
+        responsible for enforcing register conventions, and need to understand
+        how syscalls map to specific numbers
+    \item The CPU uses the exception table to identify handlers for both syscalls
+        and interrupts.
+    \item Both syscalls and interrupts jump to the next instruction of the
+        user-mode code when they finish, instead of re-executing the current
+        instruction.
+    \item regular files, directories, virtual divices, and process information
+        are exposed as files.
+\end{itemize}
+
+\textbf{Recurrsion}:
+\begin{itemize}
+    \item A \textbf{register spill} is when the register allocator runs out of
+        registers and must save and restore values from memory.
+\end{itemize}
+
+\textbf{File I/O and processes}
+\begin{itemize}
+    \item \textbf{Stubs} place the syscall number as an argument into registers
+        as needed, effectively giving the illusion that they are normal procedure
+        calls.
+    \item The stubs handle the return value from syscalls, which are placed in
+        \texttt{\%rax} by the kernel.
+    \item Hardware periodically raises interrupts that give control to other
+        processes to run.
+\end{itemize}
+
+\textbf{Storage}
+\begin{itemize}
+    \item Main memory is DRAM, off-chip L2 caches are SRAM.
+    \item A sequence of accesses has \textbf{stride} $k$ if it is $k$ elements 
+        from the previous access. (Stride of 1 is sequential)
+\end{itemize}
+
+\textbf{Cache Mapping Question:}
+Given a capacity $C$ of $2^n$ bytes, and a block size of $2^m$, the number of 
+blocks is $2^{n-m}$. The width of the block offset field is $m$. The total number of bits in an address is $B$, and the number of \textit{tag bits} is $B-n-m$.
+Basically, $m+n$ bits are used for the block offset and index, and the rest are
+the tag.
+
+\pagebreak
+\textbf{Caching:}
+\begin{itemize}
+    \item A \textbf{hit} is when data is in the selected block. A \textbf{miss} is
+        when it is not in that block and is fetched from memory (slower).
+    \item Three types of misses, \textit{Cold Miss} on the first request,
+        \textit{Capacity Miss} when the set of blocks in use doesn't fit, or
+        \textit{Conflict Miss} that arrises from a previous eviction.
+    \item \textit{Tag bits} differentiate blocks in the same index of a software
+        hash table.
+    \item Hash tables have a certain number of elements per slot in the table.
+        Old entries are evicted FIFO-style.
+\end{itemize}
+
+
+\end{multicols*}
+
+\end{document}
