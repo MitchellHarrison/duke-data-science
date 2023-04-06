@@ -1,0 +1,235 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{multicol}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 18 - Joint Distributions}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\setlength{\columnsep}{0pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+Probabilities for $(x,y)$ jointly uniform can be calculated as a ratio of areas.
+
+\begin{ex}
+    $X$ and $Y$ are jointly uniformly distributed over a triangle with vertices
+    (0,0), (1,0), and (0,1). \textbf{What is the probability} that 
+    $X+Y > \frac{1}{2}$?
+    \vspace{10px}
+    
+    The region of the triangle that makes $X+Y>\frac{1}{2}$ be true forms a
+    trapezoid with a base that is the hypotenuse of the triangle. The smaller base
+    of that trapezoid is the line $Y = \frac{1}{2}-X$. The probability of landing 
+    in that trapezoid is:
+   \begin{align*}
+       \frac{ \text{whole triangle} - \text{not in trapezoid}}{ \text{
+       whole triangle}} &= \frac{\frac{1}{2}-\frac{1}{8}}{\frac{1}{2}} \\
+       \Aboxed{\mathbb{P}\left(X+Y>\frac{1}{2}\right) &= \frac{3}{4}} 
+   \end{align*}
+\end{ex}
+
+\pagebreak
+\section{Non-uniform Joint Probability Densities}
+\subsection{Big example}
+$X$ and $Y$ have a joint density $6d^{-2x-3y}$ for $x,y>0$. \textbf{What is the
+probability} that $X<Y$?
+\vspace{10px}
+
+ We are given the following density function:
+ \[
+ f(x,y) = 
+ \begin{cases}
+     6e^{-2x-3y} & x,y>0 \\
+     0 & \text{else}
+ \end{cases}
+ \]
+First, we find our bounding region in the $XY$-plane where $X<Y$. Then we will
+use double integration to find the volume of the shape above those $XY$ bounds. 
+To find $X<Y$, we simple shade the region above the line $Y=X$ on the $XY$-plane.
+
+Once we find our $XY$ bounds, we double integrate over the CDF (since we are 
+looking for the volume under the CDF). For this example, we will integrate over
+$y$ first, then $x$. 
+
+To find the bounds of integration, we want all possible $Y$ values for a fixed $X$
+(for which the bounds may depend on $X$, i.e. the inner bounds depend on the
+outer variable). For $Y$ in this case, the lower bound is $X$ (because $(X,Y)$ is
+the point where we enter the region we found in the $XY$-plane. Because our
+region extends to infinity, then the upper bound of the inner integration is
+$\infty$.
+
+The outer bounds of integration will be \textit{constant}. In this case, the
+range of possible $X$ values is 0 to $\infty$. Thus, those will be our outer 
+bounds. We then arrive at our final integral.
+\[
+    \int_{0}^{\infty}\int_{y=x}^{y=\infty}6e^{-2x-3y}dydx
+\]
+Plugging into an integral solver, we arrive at a solution:
+
+\[
+    \boxed{\int_{0}^{\infty}\int_{y=x}^{y=\infty}6e^{-2x-3y}dydx =
+    \frac{2}{5}}
+\]
+\pagebreak
+\newgeometry{left=.5in, right = .5in}
+\subsection{Comparing discrete and continuous joint distributions}
+\begin{multicols}{2}
+    \textbf{Discrete Joint Distributions:}
+    \begin{enumerate}
+        \item Probability at a point:
+            \[
+            \mathbb{P}(X=x, Y=y)
+            \]
+        \item Probability of a set:
+            \[
+            \mathbb{P}((X,Y) \in B) = 
+            \sum_{(x,y) \in B}\mathbb{P}(X=x,Y=y)
+            \]
+        \item Marginals:
+           \begin{align*}
+               \mathbb{P}(X=x) &= \sum_{ \text{all $y$}} \mathbb{P}(X=x, Y=y) \\
+               \mathbb{P}(Y=y) &= \sum_{ \text{all $x$}}\mathbb{P}(X=x,Y=y)
+           \end{align*}
+
+        \item Expected value of a function of $X$ and $Y$:
+            \[
+            \mathbb{E}(g(X,Y)) = \sum_{x,y}g(x,y)\mathbb{P}(X=x,Y=y)
+            \]
+        \item Independence:
+            \[
+            \mathbb{P}(X=x,Y=y) = \mathbb{P}(X=x)\mathbb{P}(Y=y)
+            \]
+    \end{enumerate}
+
+\columnbreak
+
+    \textbf{Continuous Joint Distributions:}
+    \begin{enumerate}
+        \item Probability density at a point:
+            \[
+            f(x,y) = \frac{\mathbb{P}(X \in \Delta x, Y \in \Delta y)}{
+            \Delta x \Delta y}
+            \]
+        \item Probability of a set:
+            \[
+            \mathbb{P}((X,Y) \in B) = \int \int_{B}f(x,y)dydx
+            \]
+        \item Marginals:
+           \begin{align*}
+               f_X(x) &= \int_{-\infty}^{\infty}f(x,y)dy \\
+               f_Y(y) &= \int_{-\infty}^{\infty}f(x,y)dx
+           \end{align*}
+
+        \item Expected value of a function of $X$ and $Y$:
+            \[
+            \mathbb{E}(g(X,Y)) = \int \int g(x,y)f(x,y)dydx
+            \]
+        \item Independence
+            \[
+            f(x,y) = f_X(x)f_Y(y)
+            \]
+    \end{enumerate}
+\end{multicols}
+\restoregeometry
+\pagebreak
+\subsection{Sample problem}
+Let $T$ be the trapezoidal region defined by the vertices (0,0), (1,0), (1,1), 
+and (0,2). Suppose $(X,Y)$ are jointly uniformly distributed over the region $T$.
+
+\begin{enumerate}
+    \item Find the joint density of $(X,Y)$.
+        \vspace{10px}
+        
+        We can calculate the area of this trapezoid is $\frac{3}{2}$. Knowing 
+        this, we can find the density function:
+       \begin{align*}
+           f(x,y) &= 
+           \begin{cases}
+               \frac{1}{ \text{area}} & (x,y) \in T \\
+               0 & \text{else}
+           \end{cases}
+                  &=
+                  \begin{cases}
+                      \frac{2}{3} & (x,y) \in T \\
+                      0 & \text{else}
+                  \end{cases}
+       \end{align*}
+    \item Find the marginal densities $f_X(x)$ and $f_Y(y)$. In this case:
+       \begin{align*}
+           f_X(x) &= \int_{0}^{2-x}\frac{2}{3}dy =
+           \begin{cases}
+               \frac{2}{3}(2-x) & 0<x<1\\
+               0 & \text{else}
+           \end{cases} \\
+           f_Y(y) &=
+           \begin{cases}
+               \int_{0}^{1}\frac{2}{3}dx & 0<y<1\\
+               \int_{0}^{2-y}\frac{2}{3}dx & 1<y<2 \\
+               0 & \text{else}
+           \end{cases}
+       \end{align*}
+\end{enumerate}
+
+\end{document}

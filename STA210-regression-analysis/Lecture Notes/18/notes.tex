@@ -1,0 +1,172 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 18 - Multinomial Regression}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Multinomial Data}
+
+\begin{definition}
+    \textbf{Multinomial data} is categorical but \textit{not ordered}. The
+    lack of ordering means we can't use a simple logistic regression model.
+\end{definition}
+
+An outcome $Y$ has $J$ total categories. We might intuitively choose one of 
+these categories to be the referent category, and then compare each of the
+other categories against it in a pairwise comparison with logistic regressions.
+
+Suppose $j$ is the reference category. Then we will fit each of the following
+models for $j = 2, \cdots , J$:
+\[
+log\left(\frac{\mathbb{P}(Y_i = j)}{\mathbb{P}(Y_i = 1)}\right) =
+\beta_{0;j} + \beta_{1;j}x_{i1} + \cdots + \beta_{p;j}x_{ip}
+\]
+We only fit $j-1$ separate models because the math works out to allow the total
+probabilities of $j-1$ is <1. To get the probability of the $j$th category, we 
+sum the total probability of those models and subtract them from 1.
+
+\begin{note}
+    One important assumption in the multinomial model is that the probability
+    of being in category $A$ or $B$ shouldn't depend on whether category $C$ is
+    included or not as a potential option.
+\end{note}
+
+\subsection{Code for fitting multinomial regression}
+To fit a multinomial regression model:
+\begin{verbatim}
+library(nnet)
+model <- multinom(y ~ x1 + x2, data = data)
+\end{verbatim}
+
+Getting probabilities of each level from a model:
+\begin{verbatim}
+round(fitted(model), 3)
+\end{verbatim}
+
+\pagebreak
+\section{Outliers and Leverage}
+\begin{definition}
+    \textbf{Outliers} are points that don't follow the general pattern of the
+    rest of the data.
+\end{definition}
+
+\begin{definition}
+    Points are said to have high \textbf{leverage} when they are extreme in 
+    some sense (e.g., unusual variable values)
+\end{definition}
+
+\begin{definition}
+    \textbf{Influential} points are those that disproportionately influence the
+    results from regression fits (e.g., slope estimates, etc.)
+\end{definition}
+
+\subsection{Cook's distance}
+\textbf{Cook's distance} is an estimate of how influential each observation is
+in a linear regression model. It's basically a measure of how all of the fitted
+values change when the $i$th observation is removed. Larger Cook's distances
+imply larger influence. 
+
+\begin{note}
+    Cook's distances larger than $\approx 0.5$ is a good rule of thumb for a
+    potentially influential point.
+\end{note}
+
+\subsection{Code for Cook's distance}
+\begin{verbatim}
+library(car)
+plot(
+    cooks.distance(lm(y~x)), 
+    xlab = "Observation Index", 
+    ylab = "Cook's distance for regression model"
+)
+\end{verbatim}
+
+\begin{note}
+    Cook's distance is visible in \texttt{augment(model)} 
+\end{note}
+
+\subsection{Code for disgnostics}
+One useful function for graphically representing multiple statistical diagnostics
+is:
+\begin{verbatim}
+library(ggfortify)
+autoplot(model)
+\end{verbatim}
+
+\subsection{Handling outliers}
+We can often detect outliers visually or by using statistics such as Cook's 
+distance or examining leverage or other diagnostic plots.
+
+\textit{Do not ignore them when you find them}, and do not automatically
+delete them! Outliers are often very interesting points that you might want to
+learn more about, and aren't necessarily mistakes in the data (although
+sometimes they are).
+
+You may want to perform \textbf{sensitivity analyses} after removing outliers.
+Do you results or overall message change? How \textit{robust} are your
+conslusions to the outliers?
+
+\end{document}

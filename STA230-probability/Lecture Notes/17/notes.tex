@@ -1,0 +1,275 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 17 - Joint Distributions Pt. 1}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+\begin{ex}
+    Suppose $X \sim Unif(2,6)$ and $Y = g(X) = 10X+5$. \textbf{What is the
+    range of} $Y$?
+    \vspace{10px}
+    
+    Plugging in the minimum and maximum values for $X$ (2 and 6 respsectively),
+    we arrive at the range of possible values of $Y$, which is $g(2)$ and $g(6)$.
+    Thus:
+    \[
+        \boxed{range(Y) = [2,6]} 
+    \]
+\end{ex}
+
+\pagebreak
+\section{Max/Min Type Problems with Continuous Random Variables}
+\begin{ex}
+    You have a string of 5 light bulds, hooked up in series. The lifespan of each 
+    individual bulb is exponentially distributied with an average lifespan of 10
+    months. Each bulb's lifespan is independent of the others. Let $X$ be the time
+    it takes until the string goes dark. \textbf{Find the CDF, PDF, and Expected
+    value of $X$}.
+    \vspace{10px}
+    
+    We are given that $\lambda = \frac{1}{10}$ because we lose 1 bulb (which we 
+    define as an "arrival") per 10 months. The string goes dark when the 
+    \textit{first} bulb goes dark because they are connected in series. Thus, we
+    are looking for $min(X_1, \cdots ,X_5)$. The CDF is $\mathbb{P}(X\le t)$:
+    \begin{align*}
+       \mathbb{P}(X\le t) &= \mathbb{P}(min(X_1, \cdots ,X_5) \le t) \\
+                          &= 1 - \mathbb{P}(min(X_1, \cdots ,X_5) > t) \\
+                          &= 1 - \left(e^{-\lambda t} \right) \\
+       \Aboxed{\mathbb{P}(X \le t) &= 1 - \left(e^{-t/10}\right)^5} 
+    \end{align*}
+    \vspace{10px}
+    
+    Once we have the CDF, we can differentiate to find the PDF:
+    \begin{align*}
+       \frac{d}{dt}\left(F(t)\right) = \frac{1}{2}e^{-t/2}
+    \end{align*}
+    We see that the PDF is an exponential distribution where $X \sim Exp\left(
+    \frac{1}{2}\right)$.
+
+    Now that we have the PDF, we can find the expected value:
+    \begin{align*}
+        \mathbb{E}(X) &= \int_{0}^{\infty}x \cdot PDF \\
+                      &= \frac{1}{\lambda} \\
+                      &= \frac{1}{\frac{1}{2}} \\
+        \Aboxed{ \mathbb{E}(X) &= 2} 
+    \end{align*}
+\end{ex}
+
+\subsection{General expressions}
+Let $X_1, \cdots , X_n$ be independent (but not necessarily independently 
+distributed) random variables with CDF of $X_i$ equal to $F_i(t)$. Recall that
+$F_i(t) = \mathbb{P}(X_i \le t)$. 
+\begin{ex}
+    Let $Y$ be $min(X_1, \cdots , X_n)$. \textbf{Find the CDF} of $Y$.
+   \begin{align*}
+       \mathbb{P}(Y\le t) &= 1 - \mathbb{P}( \text{all $X_i>t$}) \\
+                          &= 1 - \mathbb{P}(X_1>t) \cdots \mathbb{P}(X_n > t) \\
+       \Aboxed{\mathbb{P}(Y \le t)&= 1 - \prod_{i=1}^n\left(1-F_i(t)\right)}
+   \end{align*}
+\end{ex}
+
+\begin{ex}
+    Let $Z$ be $max(X_1, \cdots , X_n)$. \textbf{Find the CDF of $Z$}.
+   \begin{align*}
+       \mathbb{P}(Z \le t) &= \mathbb{P}( \text{all $X_i \le t$}) \\
+       \Aboxed{\mathbb{P}(Z \le t) &= \prod_{i=1}^{n}F_i(t)}
+   \end{align*}
+\end{ex}
+
+\pagebreak
+\section{Joint Distributions for Continuous Random Variables}
+What is we have two related random variables? Maybe we measure the heights of a
+parent and child (on average, these are related random variables). We could ask a
+question like "what is the probability that both a parent and child are three
+standard deviations above the mean height?"
+\begin{definition}
+    A \textbf{joint density function} $f(x,y)$ for two random variables $X$ and
+    $Y$ gives a probability per unit area near the point $(x,y)$. It's still a
+    density function, but this time \textit{volumes} correspond to probabilities.
+\end{definition}
+
+For a range of $X$ values $(a,b)$ and range of $Y$ values $(c,d)$ on the $X$ and
+$Y$ axes, the volume above a rectangle in the $XY$-plane with those bounds is:
+\[
+    \mathbb{P}(a<X<b \text{ and } c<Y<d)
+\]
+For brevity, we use the following notation:
+\[
+    \mathbb{P}(X \in \Delta x, Y \in \Delta y)
+\]
+For a bivariate joint distribution, 
+\[
+    \boxed{f(x,y) = \frac{\mathbb{P}(X \in \Delta x, Y \in \Delta y)}{\Delta X 
+            \Delta Y}} 
+\]
+\subsection{Uniform densities in $\mathbb{R}^2$ and $\mathbb{R}^3$}
+For uniform densities, areas (or volumes) corespond to probabilities. If we can 
+find the area (or volume), we can get the probability.
+\vspace{10px}
+
+If a random point $(X,Y)$ has uniform distribution over a region $R$, then
+\[
+    \mathbb{P}((X,Y) \in C) = \frac{area(C)}{area(D)}
+\]
+If $X$ and $Y$ are independent random variables, each uniformly distributed on an
+interval, then $(X,Y)$ is uniformly distributed on a rectangle.
+\vspace{10px}
+
+If $(X,Y)$ are uniform over some reigon $R$, then:
+\[
+    f(x,y) = 
+    \begin{cases}
+        \frac{1}{area(R)} & (x,y) \in R\\
+        0 & else
+    \end{cases}
+\]
+\begin{note}
+    If two uniformly distributed random variables are independent, then they are
+    jointly uniform. For example, if $X \sim unif(0,1)$ and $Y \sim unif(3,7)$, 
+    then:
+    \[
+        f(x,y) = 
+        \begin{cases}
+            \frac{1}{4} & 0<x<1; 3<y<7\\
+            0 & \text{else}
+        \end{cases}
+    \]
+\end{note}
+\subsection{Method of infinitesimals}
+For a uniform distribution, we can use the idea that area proportions correspond
+to probabilities.
+\begin{ex}
+    Consider a right triangle with vertices at (0,0), (0,1), and (1,0). Let
+    $X$ be the $x$-coordinate of a point picked uniformly at random (i.e. all
+    points are equally likely). \textbf{What is the PDF of $X$}? Additionally,
+    \textbf{what is $ \mathbb{E}(X)$}?
+    \vspace{10px}
+    
+    We know, since the $(X,Y)$ is jointly uniform, that the CDF of is:
+    \[
+    f(x,y) = 
+    \begin{cases}
+        2 & (x,y) \text{ in triangle} \\
+        0 & else
+    \end{cases}
+    \]
+    \textbf{Method 1 (using CDF)}: We know that the CDF is $\mathbb{P}(X \le t)$.
+    Therefore, the ratio of the area of the trapezoid formed within the triangle
+    by the vertical line $X=t$ and the whole triangle is the total probability.
+    to simplify the arithmetic, we can use the complement rule:
+    \begin{align*}
+        \mathbb{P}(X \le t) &= 1 - \mathbb{P}(X > t) \\
+                            &= 1 = \frac{ \text{area of triangle to the 
+                        right of $t$}}{ \text{area of the whole triangle}} \\
+                            &= 1 - \frac{\frac{(1-t)^2}{2}}{\frac{1}{2}} \\
+        \Aboxed{&= 1 - (1-t)^2} 
+    \end{align*}
+    Once we have the CDF, we differentiate to arrive at the PDF $f(x)$:
+    \begin{align*}
+        f(x) &= \frac{d}{dt} = -2(1-t)(-1) = 2(1-t) \\
+        f(x) &=
+        \begin{cases}
+            2(1-x) & 0<x<1 \\
+            0 & \text{else}
+        \end{cases}
+    \end{align*}
+    \textbf{Method 2 (method of infinitesimals)}: We will use the following
+    formula:
+    \[
+        \boxed{ f(x) = \lim_{\Delta x \to \infty} \frac{\mathbb{P}(X \in 
+        \Delta x)}{\Delta x}}
+    \]
+    First, we handle the numerator of that function. \textit{Note:} we approximate
+    the area of a trapezoid over a small $x$ interval using a rectangle.
+    \begin{align*}
+        \mathbb{P}(X \in  \Delta x) &= \frac{ \text{area of 
+        trapezoid formed on interval $x \to \Delta x$}}{ \text{area of whole
+        triangle}} \\
+                                    &\approx \frac{ \text{area of rectangle
+                                    formed on that interval}}{ \text{area of the
+                                    whole triangle}} \\
+                                    &= \frac{(1-x)\Delta x}{\frac{1}{2}} \\
+                \Aboxed{&= 2(1-x)\Delta x} 
+    \end{align*}
+    Now that we've handled the numerator, we complete the function:
+    \begin{align*}
+        f_X(x) &= \lim_{\Delta x \to \infty} \frac{2(1-x)\Delta x}{\Delta x} \\
+               &= 2(1-x)
+    \end{align*}
+    Therefore, we arrive at the solution:
+    \[
+        \boxed{f_X(x) = 
+        \begin{cases}
+            2(1-x) & 0<x<1 \\
+            0 & \text{else}
+        \end{cases}
+        } 
+    \]
+\end{ex}
+
+\end{document}
