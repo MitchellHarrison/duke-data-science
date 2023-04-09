@@ -1,0 +1,105 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 19 - Linear Mixed Models pt. 1}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Mixed Models}
+
+Say we have a dataset of various coffee species and their properties. There may
+be an independence violation because coffee grown in the same region may have
+similar properties. This is a \textbf{independence violation due to nesting.} 
+Thus, we are left with two "levels" of variance: one inter-
+region variance and one intra-region variance. Using a single model would not be
+able to get at both of these variances.
+
+\subsection{Random intercept models}
+\begin{definition}
+    \textbf{Random effects} are a second course of variability (not $\epsilon$).
+    For each region in the coffee example, all slope coefficients may be the same,
+    but the intercept term would vary such that $\beta_{0j} = \gamma_{00} + 
+    u_{0j}$ for the $j$th region in the dataset.
+\end{definition}
+
+Taking these random effects into a linear model with identical slopes but varying
+intercepts, we arrive at the following model for the $i$th observation of region
+$j$.
+\[
+    y_{ij} = (\gamma_{00} + u_{0j}) + \gamma_1x_1 + \cdots + \epsilon_{ij}
+\]
+With a \textbf{random intercept model} like the one above, we can answer questions
+like "What is the relationship between region and $y$ while taking into account
+region-level clustering?" or "how much variability in $y$ occurs at the region-
+specific level (while knowing that higher $x$ are associated with higher $y$?"
+
+These random effect can also be used with slopes, not just intercepts. These are
+\textbf{random slopes} and look like the following:
+\[
+    y_{ij} = (\gamma_{00} + u_{0j}) + (\gamma_{10} + u_{1j})x_{1j} + 
+    \cdots + \epsilon_{ij}
+\]
+
+\end{document}

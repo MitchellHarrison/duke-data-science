@@ -1,0 +1,180 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 19 - Missing Data}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Missing Data}
+\subsection{Visualizing Missing Data}
+The code for visualizing missing data in a table:
+\begin{verbatim}
+library(naniar)
+vis_miss(data) # option 1
+gg_miss_fct(x = data, fct = x1) # option 2, levels of single categorical var
+\end{verbatim}
+
+Other options from a different library:
+\begin{verbatim}
+library(UpSetR)
+gg_miss_upset(nhanes2)
+\end{verbatim}
+
+\subsection{Terminology}
+Suppose $Z = (Z_1, \cdots , Z_k)$ is the full data, which may be completely or
+partially missing for some observations, and suppose $R = (R_1, \cdots , R_k)$ is
+a vactor of indicators for whether each $Z_i$ is observed (1 if observed, 0 if
+missing).
+
+\begin{definition}
+    \textbf{Missing Completely at Random (MCAR)}: 
+    $ \mathbb{P}\left(R=r \;\middle|\; Z\right) $ does not depend on $Z$ (i.e.
+    $R$ and $Z$ are independent).
+\end{definition}
+
+\begin{definition}
+    \textbf{Missing at Random (MAR)}: 
+    $ \mathbb{P}\left(R=r \;\middle|\; Z\right) $ only depends on elements of $Z$
+    that are observed for $R=r$.
+\end{definition}
+
+\begin{definition}
+    \textbf{Missing Not at Random (MNAR)}:
+    $ \mathbb{P}\left(R=r \;\middle|\; Z\right) $ depends on elements of $Z$ that 
+    are \textit{not} observed for $R=r$.
+\end{definition}
+
+\subsection{Examples of missingness mechanisms}
+Suppose you are designing a written survey examining alcohol consumption among
+students and your goal is to quantify alcohol consumption and examine potential
+predictors.
+
+Under MCAR, \textit{no systematic differences exist} between those with missing
+data and those with complete data. Those with missing data are representative of
+the entire population.
+
+Suppose some survey responses are destroyed because the building that the 
+responses were housed in burns down. In this case, whether a response is missing
+or not is completely unrelated to the data at hand.
+
+\begin{note}
+    MCAR is a very strong assumption and is usually unrealistic unless the study 
+    was deliberately designed to include missing data and account for it
+    appropriately.
+\end{note}
+
+Under MAR, missing data are related to observed data, but not with the unobserved
+data. Taking the same survey example, suppose statistics students recognize the
+importance of having complete data and were more likely to complete the survey
+compared to other departments. Also suppose whether someone completed the survey
+was due solely to major, and that we fully observed everyone's major. In this
+case, we would have MAR data.
+
+Under MNAR, missing data are related to \textit{unobserved} data. For instance,
+suppose instead that students who have higher alcohol consumption are less likely
+to respond to the survey. In this case, whether a survey is missing depends 
+directly on the value of that unobserved response itself: the data are missing
+\textit{not} at random.
+
+\begin{note}
+    You cannot use your dataset to find whether your data or MAR vs MNAR. But if
+    we make the MAR assumption, there \textit{are} methods to test MAR vs. MCAR.
+    However, MAR is an \textit{unverifiable} assumption and must be justified in
+    the context of each problem.
+\end{note}
+
+\subsection{Imputation}
+\begin{definition}
+    The idea behind \textbf{imputation} is to "fill in" missing values in the 
+    data in a reasonable way.
+\end{definition}
+
+Often times for missing continuous variables, researchers may simply plug in the
+mean or median of observed values for missing values. For categorical variables,
+researchers may plug in the most common category.
+
+\begin{note}
+    Typically, imputation artificially deflates standard error, as many
+    observations now contain the same value.
+\end{note}
+
+The previous approach is often termed \textit{unconditional} mean/median/mode
+imputation, because it doesn't take into consideration the other covariates in
+the dataset (which may be especially undesirable for MAR mechanisms, for example).
+
+We might instead try to create a model for the missing values based on the
+observed data and use predictions from these models as imputed values (e.g. a
+linear model for missing continuous predictors). We may also try \textbf{hot
+deck imputation}, which fills in missing data based on observed values from 
+other observations which "match" in some sense.
+
+To have an "ideal" imputation procedure, we may want to consider methods that:
+\begin{itemize}
+    \item provide consistent estimation of parameters of interest
+    \item take into consideration extra variability due to imputation procedure
+    \item allow for principles quantification of variability of estimated
+        parameters
+\end{itemize}
+\end{document}
