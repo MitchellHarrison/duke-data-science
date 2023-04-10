@@ -1,0 +1,298 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 19 - Normal \& Rayleigh}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+The expected value of a function involving two random variables, we need the
+\textit{joint density dunction}. For example, with the function $XY + X^2Y^3$:
+\[
+    \mathbb{E}(XY+X^2Y^3) = \int \int (xy+x^2y^3)f(x,y)dxdy
+\]
+Finding the limits of these integrals involves finding the possible values of
+$X$ and $Y$. The \textit{marginal density} $f_X(x)$ is the PDF of $X$. Recall that
+the bounds of the inner integral could involve the outer variable.
+
+$X$ and $Y$ are \textit{independent} if $f(x,y) = f_X(x)f_Y(y)$. And the reverse
+is also true.
+
+\begin{ex}
+    Which of the following is approximately equal to $f(x,y)$?
+    \begin{enumerate}
+        \item 
+            \[
+            \frac{\mathbb{P}(X \in \Delta x, Y \in \Delta y)}{\Delta x \Delta y}
+            \]
+        \item  
+            \[
+            \mathbb{P}(X \in \Delta x, Y \in \Delta y)
+            \]
+        \item 
+            \[
+            f_X(x)f_Y(y)
+            \]
+        \item 
+            \[
+            f_X(x)f_Y(y)\Delta x \Delta y
+            \]
+    \end{enumerate}
+    \vspace{10px}
+    
+    Recall the following:
+    \[
+    f(x) \approx \lim_{\Delta x \to 0} \frac{\mathbb{P}(X\in\Delta x)}{\Delta x}
+    \]
+    Thus, for two variables and diving by area (to arrive at density), we find a
+    solution:
+    \[
+    \boxed{\frac{\mathbb{P}(X \in \Delta x, Y \in \Delta y)}{\Delta x \Delta y}}
+    \]
+    
+\end{ex}
+\pagebreak
+\section{Joint Distributions: Min, Max, and Expected Value}
+If $X$ and $Y$ are \textit{dependent}, one way to find the joint density is using
+infinitesimals:
+\[
+f(x,y)\Delta x \Delta y \approx \mathbb{P}(X \in \Delta x, Y \in \Delta y)
+\]
+\begin{ex}
+    Suppose you have 3 light bulbs. Let $X_i$ be the lifespan of each light bulb
+    $i$. Each $X_i$ is exponentially distributed with an average lifespan of 24
+    months. Each light bulb has a lifespan indipendent of the others. Let $Y = 
+    min(X_1,X_2,X_3)$ and $Z = max(X_1, X_2, X_3)$.
+    \begin{enumerate}
+        \item \textbf{Are $X$ and $Y$ independent?}
+
+        \item \textbf{Find the joint density of $(Y,Z)$}.
+            \vspace{10px}
+            
+            Note that the jump to the second step here happens because we select
+            one $X$ to be our min (i.e. $X_1$), another to be our max $(X_2)$, 
+            and the final one to be somewhere in between. We then multiply the
+            numerator by 3 and 2 because we have 3 to pick from as the min, then
+            2 to be the max. This is different than $3!$ because we stop there, so
+            for $n$ different $X$'s, we multiply by $n(n-1)$.
+           \begin{align*}
+               f(y,z) &= \frac{\mathbb{P}(Y \in \Delta y, Z \in \Delta z)}{
+               \Delta y \Delta z} \\
+                      &= \frac{\mathbb{P}(X_1 \in \Delta y, X_2 \in \Delta z
+                      , y < X_3 < z) \cdot 3 \cdot 2}{\Delta y \Delta z} \\
+           \end{align*}
+            To find $\mathbb{P}(y<X_3<z)$, we integrate with limits $y$ and $z$.
+            We know the PDF because $X$ is exponentially distributed.
+            \begin{align*}
+                \mathbb{P}(y<X_3<z) &= \int_{y}^{z}\frac{1}{24} e^{-x/24} \\
+                                    &= e^{-y/24}-e^{-z/24}
+            \end{align*}
+            Next, we integrate the other components of the numerator starting with
+            $\mathbb{P}(X_2 \in \Delta z)$. Recall that $\mathbb{P}(X \in \Delta
+            x) = f_X(x)\cdot \Delta x$.
+            \begin{align*}
+                \mathbb{P}(X_2 \in \Delta z) &= \frac{1}{24}e^{-z/24} \\
+                \mathbb{P}(X_1 \in \Delta y) &= \frac{1}{24}e^{-y/24}
+            \end{align*}
+            Plugging back in to the original density function that we found, we
+            arrive at a new density function:
+            \begin{align*}
+                f(y,z) &= \frac{
+                6\left(\frac{1}{24}e^{-y/24}\right)
+                \left(\frac{1}{24}e^{-z/24}\right)\left(e^{-y/24}-
+                e^{-z/24}\right) \Delta y \Delta z}{\Delta y \Delta z} \\
+                &= 6\left(\frac{1}{24}e^{-y/24}\right)
+                \left(\frac{1}{24}e^{-z/24}\right)\left(e^{-y/24}-
+                e^{-z/24}\right)
+            \end{align*}
+            
+            We know that all $X>0$ and all $Z \ge Y$, thus we arrive at a 
+            solution:
+            \[
+            \boxed{
+                f(y,z) = 
+                \begin{cases}
+                    6\left(\frac{1}{24}e^{-y/24}\right)
+                \left(\frac{1}{24}e^{-z/24}\right)\left(e^{-y/24}-
+                e^{-z/24}\right)& 0 \le y \le z \\
+                    0 & \text{else}
+                \end{cases}
+            } 
+            \]
+        \item If none of the light bulbs has burned out within the first year, 
+            \textbf{find the probability} that the longest burning bulb lasts at
+            least 36 months.
+            \vspace{10px}
+            
+            We are looking for the following:
+            \[
+                \mathbb{P}\left(Z>36 \;\middle|\; Y>12\right) 
+            \]
+            Using what we know about the conditionals, we know the following:
+            \[
+                \mathbb{P}\left(Z>36 \;\middle|\; Y>12\right) 
+                = \frac{\mathbb{P}(Z \ge 36 \cap Y \ge 12)}{\mathbb{P}(Y \ge 12)}
+            \]
+            To find the denominator, we find the possible values of $y$ and $z$, 
+            then perform a double integration:
+            \begin{align*}
+                \mathbb{P}(Y \ge 12) &= 
+                \int_{12}^{\infty} \int_{y=12}^{y=z}f(y,z)dydz
+            \end{align*}
+            To find the numerator, we perform a similar function, but the limits
+            of $y$ and $z$ will be different because of the conditional:
+            \begin{align*}
+                \mathbb{P}(Z \ge 36 \cap Y \ge 12) &=
+                \int_{y=12}^{y=z}\int_{36}^{\infty}f(y,z)dydz
+            \end{align*}
+            Plugging our integrals into a calculator and dividing, we arrive at
+            the final solution:
+            \[
+            \boxed{
+                \mathbb{P}\left(Z > 36 \;\middle|\; Y > 12\right) \approx 0.747
+            } 
+            \]
+    \end{enumerate}
+\end{ex}
+
+Let $X_i$ be independent with the same distribution, $Y = min(X_1, \cdots ,X_n)$,
+and $Z = max(X_1, \cdots , X_n)$. Then, the \textbf{general formula for the
+joint density} of $Y,Z$ is:
+\[
+    \boxed{
+    f(y,z) = n(n-1)f_{X_i}(y)f_{Xi}(z)\left(\int_{y}^{z}f_{X_i}(x)dx)\right)^{n-2}
+    }
+\]
+\pagebreak
+\section{Independent Normal Variables}
+Suppose we have two independent standard normal random variables with a mean and
+variance. Let $X \sim Norm(\mu_x, \sigma^2)$ and $Y \sim Norm(\mu_y, \sigma^2)$.
+Note that for ease of math, their means differ but their variances are identical.
+
+\begin{ex}
+    What is the joint density function of $X$ and $Y$ if $X \sim Norm(\mu_x, 
+    \sigma^2)$ and $Y \sim Norm(\mu_y, \sigma^2)$?
+    \vspace{10px}
+    
+    Since they are independent, we can simply multiply:
+    \begin{align*}
+        f(x,y) &= f_X(x)f_Y(y) \\
+               &= \frac{1}{\sigma^22\pi }e^
+               {-((x-\mu_x)^2 + (y-\mu_y)^2)/2\sigma^2}
+    \end{align*}
+    The above function forms a 3-dimensional "bell curve" \textit{rotated about
+    the point $(\mu_x, \mu_y)$}.
+    \begin{note}
+        This rotational symmetry can only hold if the standard deviations are
+        equivalent.
+    \end{note}
+\end{ex}
+
+\textbf{Key concept:} The joint density function of two independent standard
+normal random variables has rotational symmetry. We can leverage this symmetry to
+solve problems. Because of this symmetry:
+\[
+\boxed{
+    \mathbb{P}((x,y) \text{ are in infinite sector cut out by angle $\theta$ with
+    vertex $(\mu_x, \mu_y)$)} = \frac{\theta}{2\pi }
+}
+\]
+\begin{ex}
+    Let $X$ and $Y$ be independent standard normal random variables. \textbf{
+    Compute $\mathbb{P}(Y>0 \text{ and } Y>X$}.
+    \vspace{10px}
+    
+    Graphing the region where our conditions hold, we see that the total rotation
+    about the origin that encapsulates that region has a rotation of 
+    $\frac{\pi }{2} + \frac{\pi }{4} = \frac{3\pi }{4}$. Thus:
+    \[
+        \mathbb{P} = \frac{\frac{3\pi }{4}}{2\pi } = \boxed{\frac{3}{8}}
+    \]
+\end{ex}
+
+\pagebreak
+\subsection{Combining independent normal random variables}
+\textbf{Key concept}: The sums of independent normal random variables are normal.
+If $X \sim Norm(\mu_i, \sigma_1^2)$ and $X_i$'s are independent, then we can
+create a new random variable, $Y = aX_1 + bX_2$. $Y$ is a normal random variable
+with mean $ \mathbb{E}(Y) = a\mu_1 + b\mu_2$ and variance $Var(Y) = 
+a^2\sigma_1^2 + b^2+\sigma_2^2$. In other words, you can add, subtract, or
+multiply by a constant, and normal distributions will still stay normal 
+(assuming independence). Thus:
+\[
+    Y \sim Norm(a\mu_1 + b\mu_2, a^2\sigma_1^2 + b^2\sigma_2^2)
+\]
+\begin{ex}
+    Tail lengths are normally distributed among salamanders. A researcher is 
+    studying 3 types of salamanders. Their tail length distributions are given
+    by $X_1 \sim N(10,4)$, $X_2 \sim N(8,2)$, and $X_3 \sim N(6,1)$.
+    \textbf{What is the distribution} of $X_1 + X_2 - X_3$, assuming these 
+    are independent?
+    \[
+        \boxed{\mu = 12 \; \sigma = \sqrt{17}} 
+    \]
+\end{ex}
+\end{document}
