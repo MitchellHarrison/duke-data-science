@@ -1,0 +1,134 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+% -------------------------------------------------- %
+% ------------------- SETTINGS --------------------- %
+% -------------------------------------------------- %
+\setlength{\parindent}{0pt}
+\pagenumbering{arabic}
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 21 - Linear Mixed Models pt.2}}
+\author{\large{Mitch Harrison}}
+\date{\today}
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Code for Fitting Mixed Effects Models}
+
+In the below code, the \texttt{c1} variable is categorical, while all \texttt{x} variables
+are numeric. Also note the \texttt{1} term that is constant. It is telling R that we want
+an intercept. The \texttt{|} operator tells R that that term is a mixed effect, while
+all "normal" terms are fixed.
+
+\begin{verbatim}
+library(lme4)
+model <- lmer(y ~ 1 + x1 + (1 + x2 | c1), data = data)
+\end{verbatim}
+
+\begin{note}
+    The \texttt{summary()} function will then show different sections for mixed and fixed
+    effects. Additionally, \texttt{summary(model)\$coef} will not show the random effects.
+\end{note}
+
+\pagebreak
+\section{Longitudinal Data}
+\begin{definition}
+    \textbf{Longitudinal data} are collected on the same subjects over time. For example,
+    surveying the same participants every year for 10 years.
+\end{definition}
+
+Longitudinal data is \textit{not} independent across time by definition, since the same
+participants are involved at each time period. This is true whether or not each participant
+is independent from others.
+
+\pagebreak
+\section{Conditional vs. Marginal Models}
+Interpreting the fixed effects are the \textit{conditional slopes} for a participant. Even
+though we have only a single fixed effect here, we are still performing estimation
+conditionally on something.
+
+If there is large between-group variability, then maybe the relative associations due to 
+the fixed effects would be small. We may want to examine the slopes corresponding to
+fixed effects at different levels of the random effects, or even what the average fixed
+effects are while \textbf{marginalizing} out the random effects.
+
+\subsection{Generalized estimating equations}
+GEE's are often used for clustered or longitudinal data when we are interested in marginal
+effects of parameter estimates. That is, a \textbf{population average effect}. This is in
+contrast to the cluster-specific model being estimated previously.
+
+\begin{definition}
+    \textbf{Generalized estimated equations (GEEs)} estimate the population
+    \textit{average} without trying to model the covariance struction "within each subject"
+    like when we estimate subject-specific random effects in mixed models.
+\end{definition}
+
+The type of question we use GEEs with is "For a one-unit increase in $X$ in the
+\textit{population}, how much would the average $Y$ be expected to change?
+
+\subsection{Correlation structure}
+We can specify a correlation structure based on prior knowledge of the way observations
+are correlated.
+\begin{itemize}
+    \item Independent (time points are independent)
+    \item Exchangeable (pairs of points have identical correlations)
+    \item Autoregressive (time points have autoregressive structure, so correlation
+        between two observations one unit apart is $p$, two units apart is $p^2$, etc.)
+    \item Unstructured (unique correlation estimated for each pair of points
+    \item ... and others.
+\end{itemize}
+
+\pagebreak
+\subsection{Code for fitting a GEE}
+This will not be asked on any in-class assessment, but is good for possible final
+project/future work. \textit{Note: the \texttt{subject} variable is whichever variable
+is tracking the identity of each participant.}
+
+\begin{verbatim}
+library(gee)
+model <- gee(
+    y ~ x1,
+    data = data,
+    id = subject,
+    family = "gaussian",
+    corstr = "exchangeable"
+)
+\end{verbatim}
+
+\begin{note}
+    The \texttt{corstr} parameter is \textit{correlation structure}. There are many
+    possible values, and each correspond to a different type of correlation described
+    above.
+\end{note}
+
+\end{document}
