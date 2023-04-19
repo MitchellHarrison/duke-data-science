@@ -1,0 +1,323 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 20 - Normal/Rayleigh \& Conditional}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+\subsection{Linear Combinations of independent normal random variables}
+\textbf{Key concept:} If $X_i \sim Norm(\mu_i, \sigma_i^2)$, and $X_i$'s are independent,
+then we can create a new random variable $Y = aX_1 + bX_2$. $Y$ is a normal random 
+variable with mean $ \mathbb{E}(Y) = a\mu_1 + b\mu_2$ and variance $Var(Y) = a^2\sigma_1^2
++ b^2\sigma_2^2$.
+
+In other words, you can add, subtract, or multiply by a constant, and normal distributions
+will still stay normal (assuming independence). This is due to rotational symmetry.
+
+\begin{ex}
+    Tail lengths are normally distributed among salamanders. A researcher is 
+    studying 3 types of salamanders. Their tail length distributions are given
+    by $X_1 \sim N(10,4)$, $X_2 \sim N(8,2)$, and $X_3 \sim N(6,1)$.
+    \begin{enumerate}
+        \item \textbf{What is the distribution} of $X_1 + X_2 - X_3$, assuming these 
+            are independent?
+            \vspace{10px}
+            
+            Let $Y = X_1 + X_2 - X_3$:
+            \begin{align*}
+                \mathbb{E}(Y) &= \mu_y = 10 + 8 - 6 = \boxed{12} \\
+                Var(Y) &= 4^2 + 2^2 + (-1)^2 = \boxed{17}
+            \end{align*}
+        \item \textbf{Compute} $\mathbb{P}(2X_3 > X_1 + X_2)$.
+            \vspace{10px}
+            
+            If you see a problem with sums of random variables, we usually use a joint
+            density function. So we will try to reduce this problem down from a problem
+            about \textit{three} random variables to a problem with \textit{one}:
+            \[
+                \mathbb{P}(2X_3 > X_1 + X_2) = \mathbb{P}(0 > X_1 + X_2 - 2X_3)
+            \]
+            Thus, we define a new variable $W = X_1 + X_2 - 2X_3$. Using the mean and 
+            variance arithmetic from the previous problem we arrive at the following:
+            \[
+                W \sim Norm(6,10)
+            \]
+            Now that we've defined a new variable, we simply need to find
+            $\mathbb{P}(W < 0)$. Since this is a normal random variable, we can use our
+            $\Phi$ function to arrive at a solution:
+            \[
+                \mathbb{P}(W<0) = \Phi\left(\frac{0-6}{\sqrt{10}}\right) \approx 
+                \boxed{0.03}            
+            \]
+    \end{enumerate}
+\end{ex}
+
+\pagebreak
+\section{Rayleigh Distribution}
+Let $X$ and $Y$ be independent normal random variables with $\mu_x = \mu_y = 0$ and
+$\sigma_x = \sigma_y = 1$. The joint density is constant on rings centered at the origin.
+Let $R^2 = X^2 + Y^2$. Then, $R$ is the distance from the origin of the point $(X,Y)$.
+\textbf{What is the distribution of $R$?} Here, we will use the method of infinitesimals.
+
+The method of infinitesimals will give us the PDF of $R$:
+\[
+    f_R(r) = \lim_{\Delta r \to 0} \frac{\mathbb{P}(R \in \Delta r)}{\Delta r}
+\]
+In the above formula, the numerator gives the probability that a radius is in an
+infinitesimally thin ring in the $xy$-plane. Due to rotational symmetry, the height of
+the graph in the $z$ direction is the same at all points on that circle. Thus, the 
+probability is the volume of the thin cylinder in $\mathbb{R}^3$ formed.
+\[
+    \mathbb{P}(R \in \Delta r) = \text{Volume of cylinder} = 
+    2\pi r \cdot \frac{1}{2\pi } e^{-\frac{x^2+y^2}{2}} \cdot \Delta r
+\]
+Thus, we find the following solution:
+\begin{align*}
+    \frac{\mathbb{P}(R \in \Delta r}{\Delta r} &= \frac{r \cdot e^{-r^2/2}\Delta r}
+        {\Delta r} \\
+                                               &= r \cdot e^{-r^2/2} \\
+        f_R(r) &= 
+            \begin{cases}
+                re^{-r^2/2} & r>0 \\
+                0 & \text{else}
+            \end{cases}
+\end{align*}
+
+\begin{note}
+    We use a piecewise function because distance can never be negative, thus the function
+    is only valid for $r>0$.
+\end{note}
+
+\begin{definition}
+    The \textbf{Rayleigh Distribution} is the distribtion of $R = \sqrt{X^2+Y^2}$ for
+    independent \textit{standard} normal random variables $X$ and $Y$.
+    \begin{itemize}
+        \item $f_R(r) = re^{-r^2/2}$ for $r > 0$
+        \item $F_R(r) = 1 - e^{-r^2/2}$ for $r > 0$
+        \item $ \mathbb{E}(R) = \sqrt{\frac{\pi }{2}}$
+        \item $Var(R) = \frac{4-\pi }{2}$
+    \end{itemize}
+    If you have variables with the same standard deviation $\sigma \ne 1$, you can do
+    calculations in terms of "standard units" and multiply my $\sigma$ to translate 
+    into the units of $X$ and $Y$.
+\end{definition}
+
+\pagebreak
+\textbf{Key Concept:} You can convert from a Rayleigh distribution in "standard units" to
+a Rayleigh distribution in which $X,Y \sim Norm(0,\sigma^2)$ by multiplying by $\sigma$.
+
+\begin{ex}
+    A marksman shoots at a target. The shots are (roughly) symmetrically distributed about
+    the origin (think joint normal!). 50\% of the shots are in the bullseye.
+    \begin{enumerate}
+        \item \textbf{What percentage of the shots} fall inside a circle with 1.5 times the
+            radius of the bullseye?
+            \vspace{10px}
+            
+            We will assume that the bullseye is centered on the origin. Thus, the 
+            coordinates of shots are $(X,Y) \sim Norm(0, \sigma^2$. Let $b$ be the radius
+            of the bullseye. Note that this is a non-standard Rayleigh distribution
+            because we don't know the standard deviation. We are \textbf{given} 
+            $\mathbb{P}(R_\sigma \le b) = 0.5$.
+            \begin{align*}
+                \mathbb{P}(R_\sigma \le b) &= 0.5 \\
+                \mathbb{P}(R_\text{standard} \le \frac{b}{\sigma}) = 0.5
+            \end{align*}
+            To solve, we use the density function $F_R(r)$ for left tails.
+            \begin{align*}
+                \mathbb{P}\left(R_\text{standard} \le 1.5\cdot\frac{b}{\sigma}\right) &= 
+                1 - e^{-\left(\frac{b}{\sigma}\right)^2/2} = 0.5 \\
+                \frac{b}{\sigma} \approx 1.774
+            \end{align*}
+            Now that we have $\frac{b}{\sigma}$, we solve:
+            \[
+                \boxed{\mathbb{P}(R_\text{standard} \le 1.5(1.774)) =
+                1-e^{-(1.5\cdot 1.774)^2/2}}
+            \]
+
+        \item If the bullseye circle has a 6-inch radius, \textbf{how large (in inches) 
+            is the radius} of the circle that contains 90\% of the shots?
+            \vspace{10px}
+            
+            From the previous problem, we know that $\frac{b}{\sigma} \approx 1.1774$. In
+            this problem, we are given $b=6$.
+            \begin{align*}
+                \mathbb{P}(R_\sigma \le x) &= 0.9 \\
+                \mathbb{P}(R_\text{standard} \le \frac{x}{\sigma^2}) &= 0.9 \\
+                1 - e^{-\left(\frac{x}{\sigma}\right)^2/2} &= 0.9
+            \end{align*}
+            Solving for $\frac{x}{\sigma}$ in the last equation, we find:
+            \[
+                \frac{x}{\sigma} = 2.2
+            \]
+            To solve for $\sigma$, we plug $b$ into $x$ and set equal to 1.1774, since we
+            approximated that equation in the previous problem
+            \begin{align*}
+                \frac{b}{\sigma} &\approx 1.1774 \\
+                \frac{6}{\sigma} &\approx 1.1774 \\
+                \sigma \approx 5
+            \end{align*}
+            Now that we have sigma, we can solve for $x$:
+            \begin{align*}
+                \frac{x}{\sigma} &= 2.2 \\
+                \frac{x}{5} &= 2.2 \\
+                \Aboxed{x &\approx 11 \text{ inches}} 
+            \end{align*}
+
+        \item If the bullseye circle has a 6-inch radius, on average, \textbf{how far is
+            a shot from the very center of the target?}
+            \vspace{10px}
+            
+            Here, we are asked to find the expected value for this non-standard Rayleigh
+            distribution. Recall that we can pull constants out of expected value 
+            functions.
+            \begin{align*}
+                \mathbb{E}(R_\sigma) &= \mathbb{E}(\sigma\cdot R_\text{standard}) \\
+                                     &= \sigma \cdot \mathbb{E}(R_\text{standard}) \\
+                \Aboxed{&\approx 5 \cdot \sqrt{\frac{\pi }{2}}} 
+            \end{align*}
+    \end{enumerate}
+\end{ex}
+
+\pagebreak
+\section{Conditional Distributions}
+\textbf{Recall from section 1.4:}
+
+We've already done work with conditional probability:
+\begin{enumerate}
+    \item Multiplication rule:
+        \[
+            \mathbb{P}(A \cap B) = \mathbb{P}(A) \mathbb{P}\left(B \;\middle|\; A\right) 
+        \]
+    \item Conditional probablility (division rule):
+        \[
+            \mathbb{P}\left(B \;\middle|\; A\right) = 
+            \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(A)}
+        \]
+    \item Bayes' rule:
+        \[
+        \mathbb{P}\left(A \;\middle|\; B\right) =
+        \frac{ \mathbb{P}\left(B \;\middle|\; A\right) \mathbb{P}(A)}
+        { \mathbb{P}\left(B \;\middle|\; A\right) \mathbb{P}(A) +
+        \mathbb{P}\left(B \;\middle|\; A^\complement \right) \mathbb{P}(A^\complement )}
+        \]
+    \item Averaging conditional probabilities:
+        \[
+            \mathbb{P}(A) = 
+            \sum_{x} \mathbb{P}\left(A \;\middle|\; X=x\right) \mathbb{P}(X=x)
+        \]
+    \item Marginal distributions:
+        \[
+        \mathbb{P}(X=x) = 
+        \sum_{y}\mathbb{P}(X=x, Y=y) = 
+        \sum_{y} \mathbb{P}\left(X=x \;\middle|\; Y=y\right) \mathbb{P}(Y=y)
+        \] 
+    \item \textbf{NEW:} Conditional Expectation:
+        \[
+            \mathbb{E}(X) = \sum_{y} \mathbb{E}(X|Y=y)\mathbb{P}(Y=y)
+        \]
+\end{enumerate}
+
+\begin{ex}
+    You roll a fair six-sided die until you get a 6. \textbf{What is the expected number
+    of 2's?}
+    \vspace{10px}
+    
+    Here, there is a dependency because the expected number of rolls depends on the 
+    number of total rolls done. Let $Y$ be the number of rolls to get a 6. Given that it 
+    takes $y$ rolls to get a 6, \textbf{what is the conditional distribution of the
+    number of 2's?}
+    \vspace{10px}
+    
+    We are looking for $ \mathbb{P}\left(X=x \;\middle|\; Y=y\right)$. We know that there
+    are $y-1$ possible rolls where we could get a 2 (because the last rolls is a 6), and
+    each has a $\frac{1}{5}$ chance of being a 2 (since we know that it isn't 6). This
+    leaves us with a binomial distribution:
+    \[
+        \boxed{Binom\left(y-1, \frac{1}{5}\right)}
+    \]
+    We can then use this distribution to arrive at a final solution to the original 
+    problem:
+    \begin{align*}
+        \mathbb{E}(X) &= \sum_{x}x\cdot \mathbb{P}(X=x) \\
+                      &=\sum_{x}x \cdot\sum_{y}\mathbb{P}
+                      \left(X=x\;\middle|\;Y=y\right)\mathbb{P}(Y=y) \\
+                      &= \sum_{y}\left(\sum_{x}\cdot
+                          \mathbb{P}\left(X=x \;\middle|\; Y=y\right) \right)
+                          \mathbb{P}(Y=y)
+    \end{align*}
+    We just solved for the inner-most conditional property by showing that it was
+    binomial. We use the expected value formula for binomial to continue our work:
+    \begin{align*}
+        \mathbb{E}(X) &= \sum_{y}\left((y-1)\cdot\frac{1}{5}\right)\mathbb{P}(Y=y) \\
+                      &= \mathbb{E}\left(\frac{1}{5}(y-1)\right) \\
+                      &= \frac{1}{5} \mathbb{E}(y-1) \\
+                      &= \frac{1}{5}\left( \mathbb{E}(y)-1\right) \\
+                      &= \frac{1}{5}(6-1) \\
+        \Aboxed{ \mathbb{E}(X) &= 1} 
+    \end{align*}
+\end{ex}
+
+\end{document}
