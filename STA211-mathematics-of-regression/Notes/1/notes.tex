@@ -1,0 +1,112 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{OLS Estimator (1)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Linear Regression Models}
+
+Linear regression models are linear \textit{in the parameters}. That is, for a 
+given observation $Y_i$:
+\[
+    Y_i = \beta_0 + \beta_1f_1(X_{i1}) + \cdots + \beta_pf_p(X_{ip}) + \epsilon_i
+\]
+The functions $f_1, \cdots , f_p$ may themselves be non-linear, but as long as
+$\beta$ is linear in $y$, we have a linear regression model.
+
+\subsection{Loss Functions}
+In STA210, we minimized the squared \textbf{residuals} to fit our models.
+\begin{definition}
+    \textbf{Residuals} are calculated as follows:
+    \[
+        \hat \epsilon = y_i - \hat{y_i} = y_i - (\beta_0 + \beta_1x_1)
+    \]
+\end{definition}
+Minimizing squared residuals is only one of a potentially infinite number of 
+possible loss functions.
+
+\subsection{Interaction models}
+Recall from STA210 that \textbf{interaction models} are models where some terms
+contain multiples of more than one variable. For example:
+\[
+    y_i = \beta_0 + \beta_1x_1 + \beta_2x_2 + \beta_3x_1x_2
+\]
+Note that the $\beta_3$ term contains the interaction.
+
+\pagebreak
+\section{R tools}
+The following are available in R:
+\begin{itemize}
+    \item \texttt{as.matrix()} function sets an object as a matrix object in R.
+    \item \texttt{\%*\%} is the matrix multiplication operator in R. For example,
+        \texttt{C <- A \%*\% B} where \texttt{A} and \texttt{B} are R matrix
+        objects.
+    \item \texttt{t()}  function takes the transpose of a matrix.
+    \item \texttt{solve()} function inverts a matrix.
+\end{itemize}
+
+
+\end{document}
