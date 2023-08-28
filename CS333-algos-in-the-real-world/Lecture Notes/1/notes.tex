@@ -1,0 +1,142 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 1 - Algorithmic Realism, Stable Matching, and School Choice}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Algorithm Examples}
+
+\begin{definition}
+    \textbf{Desiderata} (singular \textit{desideratum}) are desirable properties
+    of an algorithmic systems. For example, deciding what the algorithm should be
+    optimizing or what would make one want to use it.
+\end{definition}
+
+\subsection{Dorm assignment}
+Suppose there are $m$ dorms $\{1,2, \cdots ,m\}$. Dorm $j$ has capacity 
+$c_j$. There are $n$ students. Student $i$ has preference ordering over each 
+dorm (e.g. $\{5, 3, 4, 2, 1\}$). \textbf{How should you assign students to 
+dorms?}
+
+\subsection{Recent graduate hiring}
+Hiring recent college graduates has two-sided preferences. That is, both
+employers and candidates have preferences for the other. The market is
+\textit{decentralized} on an annual cycle (e.g. applications in the winter,
+negotiations in the spring, etc.). There are also timing effects where a
+candidate could say yes to a sub-optimal employer while waiting for a response
+from a more optimal one.
+
+\subsection{National Resident Matching Program (NRMP)}
+This system has been used to assign recent medical school graduates to medical
+residencies in the United States since 1953. It is a matching algorithm in the
+vein of recent graduate hiring.
+
+\pagebreak
+\section{Algorithms and Algorithmic Systems}
+"Algorithms in the real world" refers primarily to algorithmic systems that play
+a role in laypeoples' lives, regardless of their understanding of the 
+underlying algorithms. Most of these algorithms take advantage of the flood of
+data produced by modern living (e.g. smartphones).
+
+\begin{note}
+    Book recommendation: \textit{Weapons of Math Destruction}
+\end{note}
+
+Algorithmic systems have deep impacts on the lives of individuals, from deciding
+who goes to jail to which medical student gets his or her dream residency. An
+algorithm exists, for example, to decide whether or not to grant bail to people
+accused of crimes. It was found to potentially be biased against people of color,
+especially African Americans.
+
+\begin{note}
+    Book recommendations: \textit{Algorithms of Opression} and \textit{System 
+    Error: Where Big Tech Went Wrong and How We Can Reboot}
+\end{note}
+
+\subsection{Algorithmic Formalism, Algorithmic Realism}
+Algorithms are developed inside of a strict formalism of math and engineering, but
+then deployed into the real world where such formalisms are less rigid. This 
+often leads to designers with good intentions building systems that go against
+their own goals.
+
+\pagebreak
+\section{Course Information}
+
+This course is both technical \textit{and} societal. It will be a collaborative,
+project-driven, research-oriented course. Our work will (hopefully) be
+public-facing, with projects being shown to friends, family, or the public at 
+large.
+
+This course is \textit{not} a software engineering course or job interview 
+preparation. It is also not a "problem-solving" course in the abstract.
+
+\subsection{What kinds of systems will we study?}
+More established algorithms that we will study will include stable matching, web
+search, sorting and ranking, and others. Later in the course, we will study more
+modern algorithmic systems like machine learning, generative AI, and language
+models.
+
+\end{document}
