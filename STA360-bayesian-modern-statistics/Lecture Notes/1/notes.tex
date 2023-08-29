@@ -1,0 +1,146 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 1 - Intro, History, Notation}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Overview}
+\subsection{Our goal as statisticians}
+\begin{definition}
+    Suppose we flip a fair coin 10 times and get $h$ heads. Previous courses have 
+    covered the calculation of probabilities like $\mathbb{P}(h=8)$. This is
+    \textbf{deductive reasoning}.
+
+    Usually, scientists and statisticians are more interested in the opposite 
+    problem form the one above. For example, \textit{given some data, is the coin 
+    fair?} This is \textbf{inductive reasoning}.
+\end{definition}
+
+\subsection{Why Bayesian statistics?}
+
+\begin{definition}
+    \textbf{Bayesian statistics} is in contrast with more classical (or
+    \textit{frequentist} statistics). Frequentists define probability as the
+    long-run frequency of an event (e.g. $\mathbb{P}( \text{heads})$ in 
+    infinitely many coin flips.
+
+    In Bayesian statistics, probability is a numeric quantity that describes
+    one's belief that an event will occur.
+\end{definition}
+
+Bayesian statistics provides a unified theory for inductive reasoning and
+applying it to any number of problems. Second, Bayesian statistics provides a
+more interpretable uncertainty quantification. Classical statistics are often more
+challenging to interpret.
+    
+\pagebreak
+\section{History and Notation}
+\subsection{History}
+
+In 1713, James Bernoulli posed statistical questions that were answered by 
+reverand Thoman Bayes in 1763. Most of these solutions were formalized by 
+Laplace in 1812, who used these solutions to solve new statistical questions 
+(e.g. the mass of Saturn). Not until the 1990s did Bayesian statistics explode
+in popularity, largely due to the increase in computing power around (and since)
+that time.
+
+\subsection{Notation}
+
+\begin{itemize}
+    \item We use $\mathbb{P}(x)$ to mean both the $pmf(x)$ if $x$ is discrete and
+        $pdf(x)$ if $x$ is continuous. It is shorthand for "the probability of 
+        $x$". 
+        This is an abuse of notation since, strictly speaking:
+        \[
+            pdf(x) = \lim_{\Delta x \to 0} 
+            \frac{\mathbb{P}(x<X<x+\Delta x)}{\Delta x}
+        \]
+        and
+        \[
+            \mathbb{P}(x_1<X<x_2) = \int_{x_1}^{x_2}pdf(x)dx
+        \]
+    \item $log(n)$ will mean the \textit{natural log} (i.e. $ln(x)$).
+    \item $\mathbb{P}(\neg A)$ is the probability of "not $A$"
+    \item $\mathbb{P}(A,B)$ is the probability of "$A$ and $B$"
+    \item $ \mathbb{P}\left(A \;\middle|\; B\right) $ is "probability of $A$ given
+        $B$."
+\end{itemize}
+
+\pagebreak
+\section{Review of Textbook Chapter 2}
+
+For all sets $F$, $G$, and $H$:
+\begin{itemize}
+    \item $0 = \mathbb{P}(\neg A) \le \mathbb{P}\left(F \;\middle|\; H\right) 
+        \le \mathbb{P}\left(H \;\middle|\; H\right) = 1$
+    \item $\mathbb{P}(F \cup G | H) = \mathbb{P}\left(F \;\middle|\; H\right) 
+        + \mathbb{P}\left(G \;\middle|\; H\right) \text{ if } F \cap G = 
+        \emptyset$
+    \item $\mathbb{P}(F \cap G | H) = \mathbb{P}\left(G \;\middle|\; H\right) 
+        \mathbb{P}\left(F \;\middle|\; G \cap H\right) $
+\end{itemize}
+
+\end{document}

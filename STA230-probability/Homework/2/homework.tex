@@ -1,0 +1,311 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+\usepackage{graphicx}
+
+\graphicspath{{./images/}}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Homework 2}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Question 1}
+
+\[
+\Omega = \{a,b,c,d,e,f,g,h\}
+\]
+A \textit{partition} of $\Omega$ is any collection of disjoint subsets that combine to form $\Omega$. For example:
+\begin{align*}
+    \Omega_1 &= \{a,d,c,d\} \\
+    \Omega_2 &= \{e,f,g,h\}
+\end{align*}
+\[
+    \boxed{\Omega_1 \cup \Omega_2 = \Omega} 
+\]
+\pagebreak
+\section{Question 2}
+A \textit{distribution} is a function that takes an event as input and returns the probability of that event occurring. \textbf{Option \textit{(a)} is is a distribution} because the output of the function relies on the input value of $A$. However, \textbf{option \textit{(b)} is not a distribution} because the output is always $\frac{1}{5}$, regardless of the event given as input.
+
+\pagebreak
+\section{Question 3}
+\textit{(a)} $\boxed{10!}$ \\[.1in]
+\textit{(b)} 
+
+We begin by taking a line  of 10 people and forming it into a circle. For each of all $10!$ permutations of that line, there are 10 possible identical circle permutations, one for each position that circle can be rotated to. Therefore, the possible circles are as follows:
+\[
+    \frac{10!}{10} = \boxed{9! \text{ possible circles}}
+\]
+\textit{(c)} 
+
+We know that Ana must be among the selectees (meaning $\binom{1}{1}$), leaving 9 possible choices for the remaining 3 selectees. Thus, we are left with the following number of possible combinations:
+\begin{align*}
+    \binom{1}{1} \binom{9}{3} &= \frac{9 \cdot 8 \cdot 7}{3 \cdot 2 \cdot 1} \\
+                              &= \boxed{84 \text{ possible groups}}
+\end{align*}
+
+\pagebreak
+\section{Question 4}
+There are two slots in the 6-digit passcode for duplicates. There are $\binom{6}{2}$ possible slots to choose. For the remaining 4 slots, each much be unique. Thus, we find the total number of combinations as follows:
+\begin{align*}
+    \binom{6}{2} \frac{9!}{5!} &= \left(\frac{6 \cdot 5}{2}\right) \left(9 \cdot 8 \cdot 7 \cdot 6\right) \\
+                               &= 15 \cdot 9 \cdot 8 \cdot 7 \cdot 6 \\
+                               &= \boxed{45360 \text{ possible passcodes}} 
+\end{align*}
+
+\pagebreak
+\section{Question 5}
+The outcome space for two dice rolls is as follows:
+\begin{align*}
+    \Omega = \{&(1,1), (1,2), (1,3), (1,4), (1,5), (1,6), \\
+           &(2,1), (2,2), (2,3), (2,4), (2,5), (2,6), \\
+           &(3,1), (3,2), (3,3), (3,4), (3,5), (3,6), \\
+           &(4,1), (4,2), (4,3), (4,4), (4,5), (4,6), \\
+           &(5,1), (5,2), (5,3), (5,4), (5,5), (5,6), \\
+           &(6,1), (6,2), (6,3), (6,4), (6,5), (6,6) \}
+\end{align*}
+To arrive at a probability mass function, we count the occurrences for each digit where that digit is the minimum value of the two rolls. By reducing fractions, we arrive at the following function:
+\renewcommand{\arraystretch}{1.5}
+\begin{center}
+    \begin{tabular}{ c|c|c|c|c|c|c| }
+        $A$ & 1 & 2 & 3 & 4 & 5 & 6 \\
+        \hline
+        $\mathbb{P}(A)$ & $\frac{11}{36}$ & $\frac{1}{4}$ & $\frac{7}{36}$ & $\frac{5}{36}$ & $\frac{1}{12}$ & $\frac{1}{36}$ 
+    \end{tabular}
+\end{center}
+
+\pagebreak
+\section{Question 6}
+When flipping a fair coin thrice, we are given the following events:
+\[
+    A = \text{Flip at least 2 heads} \quad B = \text{Exactly 2 flips are heads}
+\]
+\textit{(a)}
+
+Given that at least two flips are heads (event $A$), the only way for event $B$ to be true is if the outcome is contained in the following event:
+\[
+    \{HHT,\, HTH,\, THH\}
+\]
+Since there is only one possible event that makes $B$ false given that $A$ occurred ($HHH$), we arrive at the conditional probability:
+\[
+    \boxed{\mathbb{P}\left(B \;\middle|\; A\right) = \frac{3}{4}}
+\]
+\textit{(b)}
+
+Since $A$ must be true if $B$ is true, we know that $B \subseteq A$, and therefore:
+\[
+    \boxed{\mathbb{P}\left(A\;\middle|\;B\right) = 1}
+\]
+\pagebreak
+\section{Question 7}
+The only possible coordinates from which the ant can reach (4,2) are (4,1) and (3,2). Since the probability for each possible step is $\frac{1}{2}$, we arrive at the following:
+\begin{align*}
+    \mathbb{P}(\text{Arrives at }(4,2)) &= \frac{1}{2}\mathbb{P}((4,1)) + \frac{1}{2} \mathbb{P}((3,2)) \\
+                                        &= \frac{1}{2} \left(\frac{5}{32}\right) + \frac{1}{2} \left(\frac{10}{32} \right) \\
+                                        &= \frac{5}{64} + \frac{10}{64} \\
+    \Aboxed{\mathbb{P}(\text{Arrives at } (4,2)) &= \frac{15}{64}}
+\end{align*}
+
+
+\pagebreak
+\section{Question 8}
+Let:
+\begin{align*}
+    A &= {C_1 \text{ works}} \\
+    B &= {C_2 \text{ works}}
+\end{align*}
+and,
+\begin{align*}
+    \mathbb{P}(A) &= .9 \\
+    \mathbb{P}(B) &= .8 \\
+    \mathbb{P}\left(B \;\middle|\; A^\complement \right) &= .4
+\end{align*}
+
+\textit{(a)} 
+
+Since We know that the probability of $C_2$ functioning only changes in the event that $C_1$ fails, thus if $C_1$ is functional, the probability that $C_2$ is:
+\begin{align*}
+    \mathbb{P}\left(B \;\middle|\; A\right) &= \mathbb{P}(B) \\
+                                            &= \boxed{80\%}
+\end{align*}
+
+\textit{(b)} 
+
+Given that only one component needs to fail, the only possible chance of the system functioning is that both componenents remain working. The chances of both components functioning on a given day is given by the following:
+\begin{align*}
+    \mathbb{P}(\text{system functions}) &= \mathbb{P}(A)\mathbb{P}(B) \\
+                                       &= .9(.8) \\
+    &= \boxed{72\%} 
+\end{align*}
+
+\textit{(c)} 
+
+Given that the overall system failed, there are three possible causes. First, $C_1$ failed and $C_2$ did not. Second, $C_2$ failed and $C_1$ did not. Third, both $C_1$ and $C_2$ failed. The probability of each is as follows:
+\begin{align*}
+    \mathbb{P}(C_1\text{ failed}) &= 1 - .9 = 10\% \\
+    \mathbb{P}(C_2\text{ failed}) &= .1 \cdot .4 = 4\% \\
+    \mathbb{P}(\text{both failed}) &= .1 \cdot .6 = 6\%
+\end{align*}
+
+This leaves a 20\% total chance of failure under normal conditions. However, we know that the system failed, and thus we multiply each probability by 5 to arrive at 100\% total. Thus:
+\begin{align*}
+    \mathbb{P}(C_1\text{ failed}) &= 50\% \\
+    \mathbb{P}(C_2\text{ failed}) &= 20\% \\
+    \mathbb{P}(\text{both failed}) &= 30\%
+\end{align*}
+
+And we see our final probability that $C_1$ is still operational:
+\[
+    \boxed{\mathbb{P}(\text{only }C_2 \text{ failed}) = 20\%}
+\]
+\pagebreak
+\section{Question 9}
+Since $A$ and $B$ are independent,
+\[
+    \mathbb{P}\left(A \;\middle|\; B\right) = \mathbb{P}(A) = \frac{1}{7} 
+\]
+and,
+\[
+    \mathbb{P}(A \cap B) = \mathbb{P}(A)\mathbb{P}(B)
+\]
+Since there are 14 possible outcomes in $\Omega$, each with a $\frac{1}{14}$ chance of occurring:
+\begin{align*}
+    \mathbb{P}(A \cap B) &= \frac{1}{7} \cdot \mathbb{P}(B) = \frac{1}{14} \\
+    \Aboxed{\mathbb{P}(B) &= \frac{1}{2}} 
+\end{align*}
+\pagebreak
+\section{Question 10}
+Let,
+\begin{align*}
+    A &= \text{Heads after odd number of flips} \\
+    B &= \text{3 or more flips} \\
+    C &= \text{4 or more flips}
+\end{align*}
+\textit{(a)} 
+
+To lose, there must be an odd number of flips before arriving at heads. For the first flip, there is a $\frac{1}{2}$ chance of that occurring. If not, we must get tails on the second throw (another $\frac{1}{2}$ chance), and heads on the third throw for a third $\frac{1}{2}$ chance. This leaves us with the following geometric series:
+\[
+\frac{1}{2} + \frac{1}{8} + \cdots = \sum_{n=0}^{\infty}\frac{1}{2} \left(\frac{1}{4}\right)^n
+\]
+Solving this geometric series, we arrive at the probability of our loss $A$:
+\begin{align*}
+    \sum_{n=0}^{\infty}\frac{1}{2} \left(\frac{1}{4}\right)^n &= \frac{\frac{1}{2} }{1 - \frac{1}{4}} \\
+                                                              &= \frac{1}{2} \cdot \frac{4}{3} \\
+                                                              &= \frac{4}{6} \\
+    \Aboxed{\mathbb{P}(A) &= \frac{2}{3}} 
+\end{align*}
+
+
+
+\textit{(b)} 
+
+As long as the starting point is an odd number of turns (1 in part \textit{(a)}, 3 here), the probability of each player's victory remains the same. Thus:
+\[
+    \mathbb{P}\left(A \;\middle|\; B\right) = \mathbb{P}(A) = \frac{2}{3} 
+\]
+Therefore, $\boxed{A \text{ and } B \text{ are independent.}}$ 
+
+\textit{(c)} 
+
+If we begin counting at an even number of turns, the probability of each player's victory is reversed, since the first coin toss being heads gives the opposite player a victory and so on. Thus: 
+\[
+    \mathbb{P}\left(A \;\middle|\; C\right) \ne \mathbb{P}(A)
+\]
+Therefore, $\boxed{A \text{ and } C\text{ are dependent}}$
+
+\pagebreak
+\section{Question 11}
+My work partners were Aseda Asomani and Blake Morris.
+
+\pagebreak
+\section{Question 12}
+Translating the problem into a geometric series gives us:
+\[
+    \sum_{n=2}^{\infty}\frac{1}{c^n} 
+\]
+which is equivalent to:
+\[
+    \sum_{n=0}^{\infty}\frac{1}{c^n} - \sum_{n=0}^{1}\frac{1}{c^n} = \sum_{n=0}^{\infty}\frac{1}{c^n} -1-\frac{1}{c}
+\]
+Since we are solving a probability mass function, the sum of this series must be 1. Therefore:
+\[
+    \sum_{n=0}^{\infty}\frac{1}{c^n} - 1 - \frac{1}{c} = 1 = 2 + \frac{1}{c} 
+\]
+Using the formula to solve an infinite geometric series starting at 0, where $a = 1$ and $r = \frac{1}{c}$, we arrive at:
+\begin{align*}
+    \sum_{n=0}^{\infty}\frac{1}{c^n} = \frac{1}{1-\frac{1}{c}} &= 2+\frac{1}{c} \\
+    1 &= \left(2+\frac{1}{c}\right)\left(1-\frac{1}{c}\right) \\
+    1 &= 2 + \frac{1}{c} - \frac{2}{c} - \frac{1}{c^2} \\
+    1 &= 2 - \frac{1}{c} - \frac{1}{c^2} \\
+    1 &= \frac{1}{c^2} + \frac{1}{c} \\
+    0 &= \frac{1}{c^2} + \frac{1}{c} - 1
+\end{align*}
+
+Plugging into the quadratic formula, we arrive at two possible solutions:
+\begin{align*}
+    c_1 &= \frac{1+\sqrt{5}}{2} &c_2 = \frac{1-\sqrt5}{2} 
+\end{align*}
+
+But, since $|c_2| < 1$, the only possible solution is $c_1$, as the demoniator $c$ must be greater than 1 or the series diverges, thus:
+\[
+\boxed{c = \frac{1+\sqrt5}{2}} 
+\]
+
+\end{document}

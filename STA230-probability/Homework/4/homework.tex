@@ -1,0 +1,236 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Homework 4}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Question 1}
+
+Let $B$ be the event that the dice are biased and $R_7$ be the event that a
+seven is rolled. Bayes' Rule gives us:
+\[
+\mathbb{P}\left(B \;\middle|\; R_7\right) = \frac{ 
+\mathbb{P}\left(R_7 \;\middle|\; B\right) \mathbb{P}(B)}
+{ \mathbb{P}\left(R_7 \;\middle|\; B\right) \mathbb{P}(B) +
+\mathbb{P}\left(R_7 \;\middle|\; \neg B \right) \mathbb{P}(\neg B)}
+\]
+
+We know that $\mathbb{P}(B) = \mathbb{P}(\neg B) = \frac{1}{2}$.
+To calculate $ \mathbb{P}\left(R_7 \;\middle|\; B\right) $, we use a binomial 
+distribution:
+\begin{align*}
+    \mathbb{P}\left(R_7 \;\middle|\; B\right) &= binom
+    \left(3,\frac{1}{3}\right) \\
+                                              &= \binom{3}{1}\left(\frac{1}{2}
+                                                  \right)\left(\frac{2}{3} 
+                                                      \right)^2 \\
+                                              &= \frac{4}{9} 
+\end{align*}
+Similar calculations gives $ \mathbb{P}\left(R_7 \;\middle|\; \neg B\right) 
+= \frac{25}{72} $. Plugging into the formula given by Bayes' Rule, we arrive at
+a solution:
+
+\[
+    \boxed{ \mathbb{P}\left(B \;\middle|\; R_7\right) \approx 0.5614}
+\]
+\pagebreak
+\section{Question 2}
+We are given the following:
+\begin{align*}
+    n &= 1000 \\
+    p &= 0.1 \\
+    a &= 90 \\
+    b &= 115 \\
+    \sigma &= \sqrt{1000 \cdot .1 \cdot .9} = \sqrt{90}
+\end{align*}
+
+Plugging these in to the $\Phi$ functions for non-standard normal distributions,
+we arrive at a solution:
+\begin{align*}
+    \mathbb{P}(90 \le \hat p \le 115) &\approx \Phi\left(\frac{115+\frac{1}{2} -
+    100}{\sqrt{90}}\right) \\
+    &\approx \Phi(1.63) - \Phi(-1.11) \\
+    &\approx \Phi(1.63)-(1-\Phi(1.11)) \\
+    &\approx 0.9484 - (1-0.8665) \\
+            \Aboxed{\mathbb{P}(90 \le \hat p \le 115) &\approx 0.8149}
+\end{align*}
+
+\pagebreak
+\section{Question 3}
+\textit{(a)} 
+
+We are given that $n = 500$ and $p = .002$. We find the exact solution with a
+summation:
+
+\[
+    \sum_{k=0}^{2}\binom{500}{k}(.002)^k(.998)^{500-k}
+\]
+Plugging that summation into a computer algebra system, we arrive at a solution:
+
+\[
+    \boxed{\mathbb{P}(k<3) \approx 0.9198} 
+\]
+
+To estimate using a normal approximation, we first calculate the mean and 
+standard deviation.
+\begin{align*}
+    \sigma &= \sqrt{500(.002)(.998)} \approx 1 \\
+    \mu &= 500(.002) = 1
+\end{align*}
+Plugging these into a $\Phi$ function with a continuity correction, we estimate
+the probability of 3 or fewer faults:
+\[
+    \Phi\left(\frac{3-\frac{1}{2} -1}{1}\right) = \Phi\left(\frac{3}{2} \right)
+    \approx \boxed{0.9332}
+\]
+
+\textit{(b)} 
+
+We are given $p$ and population size, but need to solve for $n$. To do so, we use
+a $\Phi$ function:
+
+\begin{align*}
+    1 - \Phi\left(\frac{10,000-\frac{1}{2} -.998n}{\sqrt{.998n-.002}}\right)
+    &= .997 \\
+        \Phi\left(\frac{10,000-\frac{1}{2} -.998n}{\sqrt{.998n-.002}}\right)
+                                                                      &= .003 \\
+            \Phi\left(\frac{.998n - 9999.5}{\sqrt{.998n-.002}}
+        \right) &=.997
+\end{align*}
+
+Plugging into the $\Phi^{-1}$ table and solving for $n$, we arrive at a solution:
+\begin{align*}
+    \frac{.998n - 9999.5}{\sqrt{.998n-.002}} &= 2.75 \\
+    \Aboxed{n &\approx 10,299 \text{ batteries}} 
+\end{align*}
+
+\pagebreak
+\section{Question 4}
+\textit{(a)} 
+
+Our desired confidence is 99\%, but our number of trials $n$ is unknown. We will
+use $p = \frac{1}{2} $ to get a worst-case solution. Using $\Phi$ functions and
+$p = \frac{1}{2} $, we arrive at a solution:
+\begin{align*}
+    0.99 &\approx \Phi\left(\frac{p+.01-p}{\frac{\sqrt{p(1-p)}}{\sqrt{n}} }\right)
+    - \Phi\left(\frac{p-.01-p}{\frac{\sqrt{p(1-p)}}{\sqrt{n}} }\right) \\
+         &\approx 2\Phi\left(\frac{0.01}{\frac{\sqrt{p(1-p)}}{\sqrt{n}} }\right)
+         -1 \\
+    .995 &\approx \Phi\left(\frac{0.01\sqrt{n}}{\sqrt{p(1-p)}}\right) \\
+        2.675 &\approx \frac{.01\sqrt{n}}{\sqrt{p(1-p)}} = \frac{
+        .01\sqrt{n}}{\frac{1}{2} } \\
+        2.675 &\approx 0.02\sqrt{n} \\
+        133.75 &\approx \sqrt{n} \\
+        \Aboxed{17,889 &\approx n} 
+\end{align*}
+
+\textit{(b)} 
+
+We are given $\hat p = \frac{80}{100} $. To calculate the worst-case standard
+deviation, we let $p = \frac{1}{2} $, thus:
+\[
+ \sigma = \frac{\sqrt{p(1-p)}}{10} = \frac{\sqrt{\frac{1}{4} }}{10} =
+ \frac{1}{20} 
+\]
+
+Therefore, our final confidence interval is:
+\[
+    \left(p-\frac{1}{20}, p+\frac{1}{20} \right) = 
+    \boxed{\left(\frac{3}{4}, \frac{17}{20} \right) }
+\]
+
+\pagebreak
+\section{Question 5}
+Let $H_4$ be the event that 4 people have sickle-cell anemia, $A$ represent
+selecting population A, and $B$ represent selection population B. Bayes' Rule
+states that:
+\[
+\mathbb{P}\left(A \;\middle|\; H_4\right) = \frac{
+\mathbb{P}\left(H_4 \;\middle|\; A\right) \mathbb{P}(A)}{
+\mathbb{P}\left(H_4 \;\middle|\; A\right) \mathbb{P}(A) + 
+\mathbb{P}\left(H_4 \;\middle|\; B\right) \mathbb{P}(B)} 
+\]
+We use a hypergeometric distribution to calculate $ \mathbb{P}\left(H_4 
+\;\middle|\; A\right) $:
+\[
+\mathbb{P}\left(H_4 \;\middle|\; A\right) = \frac{
+ \binom{500}{4}\binom{500}{6}}{\binom{1000}{10}} \approx 0.2057
+\]
+
+Using the same method, we find that $ \mathbb{P}\left(H_4 \;\middle|\; B\right) 
+\approx 0.0104$. Plugging into the formula given by Bayes' Rule, we arrive at
+a solution:
+\begin{align*}
+    \mathbb{P}\left(A \;\middle|\; H_4\right) &= \frac{
+\mathbb{P}\left(H_4 \;\middle|\; A\right) \mathbb{P}(A)}{
+\mathbb{P}\left(H_4 \;\middle|\; A\right) \mathbb{P}(A) + 
+\mathbb{P}\left(H_4 \;\middle|\; B\right) \mathbb{P}(B)} \\
+&= \frac{.2057(.5)}{.2057(.5)+.0104(.5)} \\
+        \Aboxed{ \mathbb{P}\left(A \;\middle|\; H_4\right) &\approx .9519} 
+\end{align*}
+
+\pagebreak
+\section{Question 6}
+My work partners were Aseda Asomani, Blake Morris, and Nathaniel Wullar.
+
+\end{document}

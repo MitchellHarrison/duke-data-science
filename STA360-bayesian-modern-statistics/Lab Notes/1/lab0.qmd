@@ -1,0 +1,49 @@
+---
+title: "Lab 0"
+author: "Mitchell Harrison"
+output: pdf
+---
+
+## Exercise 1
+```{r}
+x = 0.1
+y = 0.1
+z = 1
+(x + y) + z == x + (y + z)
+```
+
+The above cell returns `FALSE`, even though the answers should be identical.
+
+```{r}
+all.equal((x + y) + z, x + (y + z))
+```
+
+Using the `all.equal()` function, we see that the arithmetic from the first
+code chunk are considered "equal" after the `all.equal()` function corrects for
+some floating point arithmetic peculiarities.
+
+## Exercise 2
+```{r}
+rnorm(10, mean = 1, sd = 2)
+pnorm(0)
+dnorm(0.5)
+qnorm(0.5)
+```
+
+The `rnorm()` outputs an array (here of length 10) with a given mean and
+standard deviation (here 1 and 2 respectively).
+
+The `dnorm()` function calculates the value of the PDF of a normal distribution
+at a given $x$ value. The following function will calculate it manually:
+$$
+f(x) = \frac{1}{\sqrt{2\pi}}e^{-\frac{0.5}{2}} \approx 0.3520653
+$$
+
+## Exercise 3
+```{r}
+X <- rnorm(100, mean = 0, sd = 1)
+Y <- rnorm(100, mean = 1, sd = sqrt(2))
+mean(X + Y)
+var(X + Y)
+```
+

@@ -1,0 +1,175 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Leture 1 - Introduction and Data Fitting}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Introduction}
+
+This is not a deep learning or generative AI (e.g. ChatGPT) course. Many of the
+tools that we discuss are relevant to those topics, but they are not the purpose
+of this course. We will cover the basics of deep learning, but also other 
+predictor types.
+
+There are other problem spaces that require more discriminative with higher stakes
+that require specific, annotated data. For example:
+\begin{itemize}
+    \item Data security
+    \item Fraud detection
+    \item Smart cars
+    \item Medical diagnosis
+    \item Facial recognition
+    \item Marketing personalization
+    \item Financial trading
+\end{itemize}
+
+\subsection{Machine learning in a nutshell}
+Machine learning (generally) takes place with the following steps:
+\begin{enumerate}
+    \item Identify a function $y = f(x)$. Here, $x$ may be something like a
+        smartphone face picture, and $y$ would be a choice whether or not to 
+        unlock a phone given that $x$.
+    \item Give lots of examples (a \textbf{training set}). In deep learning
+        applications, $N$ is often in the hundreds of thousands or millions. In
+        traditional ML, many systems can work when $N$ is in the hundreds.
+        \[
+            T = \{(x_1, y_1), \cdots , (x_N, y_N)\}
+        \]
+    \item A \textbf{learner} is another function $\lambda$. It takes $T$ as an
+        input and outputs an approximation to $f$:
+        \[
+            h = \lambda(T)
+        \]
+    \item Hopefully, $f$ and $h$ behave roughly the same, \textit{even on 
+        previously unseen data}. This function is built during the 
+        \textbf{training} stage.
+        \[
+            h(x) \approx f(x)
+        \]
+\end{enumerate}
+
+Machine learning differs from traditional linear regression or other forms of
+data fitting because ML is concerned with $h$, even for $x$ values that fall
+outside of the training set. Linear regression, on the other hand, is concerned
+with modelling trends in training data to find trends in that data. Adding 
+unknown $x$ values to the problem space drastically increases the difficulty of 
+the problem, and spawned the field of ML.
+
+\pagebreak
+\section{Course logistics}
+
+Class notes and homework assignments are on Sakai, and are required reading. All
+appendices are optional reading, but will often be helpful to homework assignments
+or depth of learning. Lectures will be recorded on Panopto and posted to Sakai.
+Slides are available online but \textbf{should not be used as study materials}.
+
+Homework will be assigned weekly and are \textbf{due Thursdays at 8:30 am}. 
+Groups as large as three are allowed, but discussion of homework with students
+outside your group constitutes cheating. There are \textbf{two submissions} on
+Gradescope: a rendered PDF and a Jupyter Notebook file (\texttt{.ipynb}). The
+two lowest homework scores (including 0s for non-submissions) will be dropped.
+\textbf{Late homework will not be accepted.}
+
+\begin{note}
+    To render a Jupyter Notebook to PDF, first save as HTML (there is an option
+    in Jupyter for this), then render the HTML page to PDF in your browser. There
+    is an in-built option for rendering to PDF straight from Jupyter, but it
+    \textit{will not work} and should be avoided. Render errors could cause 
+    mistakes in grading.
+\end{note}
+
+There are two exams, one midterm and one final. The final exam is \textbf{not
+cumulative}.
+
+\pagebreak
+\section{Functions and Data Fitting}
+
+\begin{definition}
+    An \textbf{affine function} is a linear function plus a constant. For 
+    example:
+    \[
+        f(x_1, x_2) = a_1x_1 + a_2x_2 + b
+    \]
+    This is distinct from a linear function because of the additional constant
+    being added. An affine function where $b=0$ happens to be a linear function.
+    Even though the graph of an affine function is a line, it is strictly
+    \textit{not} linear unless $b=0$.
+\end{definition}
+
+\subsection{Spam email example}
+\begin{align*}
+    & A = \{ \text{all possible emails} \} \\
+    & Y = \{ \text{true, false} \} \\
+    & f : A \rightarrow Y \text{ and } y = f(a) \in Y \text{ for } a \in A
+\end{align*}
+
+\subsection{Virtual tennis example}
+\begin{align*}
+    & A = \{ \text{all possible video frames} \} \subset \mathbb{R}^d \\
+    & Y = \{ \text{body configurations} \} \subset \mathbb{R}^e
+\end{align*}
+
+\end{document}
