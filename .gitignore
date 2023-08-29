@@ -1,12 +1,5 @@
-*.DS_Store
-*.pdf
-*.aux
-*.fls
-*.log
-*.toc
-*.fdb_latexmk
-*.synctex.gz
-
-.Rproj.user
-
-*/Homework/*
+*
+!*.tex
+!*.md
+!*.qmd
+!*.R
