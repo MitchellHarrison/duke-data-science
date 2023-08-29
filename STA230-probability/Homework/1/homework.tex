@@ -1,0 +1,254 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{mathtools}
+\usepackage{pdfpages}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage[margin = 1in]{geometry}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Homework 1}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\setlength{\jot}{10pt}
+\maketitle
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Question 1}
+\textit{(a)} 
+\[
+    \int_{1}^{\infty} \frac{c}{x^n}dx = c \int_{1}^{\infty} x^{-n}dx = 1 \quad \text{and} 
+    \quad n > 1
+\]
+\begin{align*}
+    \int_{1}^{\infty}x^{-n}dx &= \lim_{t \to \infty} \int_{1}^{t} x^{-n}dx \\
+    &= \lim_{t \to \infty} \bigbracket{\frac{x^{1-n}}{1-n}}_1^t \quad n > 1 \\
+    &= \lim_{t \to \infty} \bigbracket{\frac{\frac{1}{x^{n-1}}}{1-n}}_1^t \\
+    &= \lim_{t \to \infty} \bigbracket{\frac{1}{(1-n)t^{n-1}} - \frac{1}{1-n}} \\
+    &= \lim_{t \to \infty} \bigbracket{\frac{1}{1-n}\bigparen{\frac{1}{t^{n-1}} - 1}} \\
+    &= -\frac{1}{1-n} \\
+    \int_{1}^{\infty}x^{-n}dx &= \frac{1}{n-1} \\
+    \therefore \frac{c}{n-1} &= 1 \\
+    \Aboxed{c &= n-1}
+\end{align*}
+
+\pagebreak
+\textit{(b)} 
+\[
+    \sum_{k=2}^{\infty}\frac{2^k}{5\cdot k!} =\frac{1}{5}\sum_{k=2}^{\infty}\frac{2^k}{k!}
+\]
+Here, $\sum_{k=2}^{\infty}\frac{2^k}{k!}$ is similar to the Taylor Series representation of $e^x$, but $x = 2$ and the series does not start at $k=0$. Thus:
+\begin{align*}
+    \sum_{k=2}^{\infty}\frac{2^k}{k!} &= e^{2} - \sum_{k=0}^{1}\frac{2^k}{k!} \\
+    &= e^{2} - 3 \\
+    \Aboxed{\sum_{k=2}^{\infty}\frac{2^k}{5 \cdot k!} &= \frac{e^{2} - 3}{5}}
+\end{align*}
+
+\textit{(c)} 
+\[
+    \sum_{k=1}^{\infty}3p^{2k+1} = \sum_{k=0}^{\infty}3p^{2k+1}-3p
+\]
+
+\[
+    3p^{2k+1} = (3p)(p^2)^k
+\]
+
+\[
+    \sum_{k=0}^{\infty}3p(p^2)^k = \frac{3p}{1-p^2} 
+\]
+
+\[
+    \boxed{\sum_{k=1}^{\infty}3p^{2k+1} = \frac{3p}{1-p^2} - 3p} 
+\]
+\pagebreak
+
+\textit{(d)} 
+\begin{align*}
+    e^{-y} &= \frac{1}{\frac{dy}{dx}} \\
+    \frac{1}{e^y} &= \frac{dx}{dy} \\
+    e^y &= \frac{dy}{dx} \\
+    dx &= e^{-y}dy
+\end{align*}
+
+\[
+    \int e^{-y}dy = -e^{-y} + c_1 \quad \int dx = x + c_2
+\]
+
+\begin{align*}
+    -e^{-y} &= x + c \\
+    e^{-y} &= -x - c \\
+    -y &= \ln(-x-c) \\
+    y &= -\ln(-x-c)
+\end{align*}
+
+We know $y(0) = 0$, therefore:
+\begin{align*}
+    0 &= \ln(0-c) \\
+    &= \ln(-c) \\
+    e^0 &= e^{\ln(-c)} \\
+    1 &= -c \\
+    -1 &= c
+\end{align*}
+
+Now that $c = -1$ is known, we find a general solution:
+\[
+    \boxed{f(x) = -\ln(-x+1)} 
+\]
+\pagebreak
+
+\section{Question 2}
+The set of all possible sums of two dice rolls is as follows:
+\[
+    \boxed{\Omega = \{2,3,4,5,6,7,8,9,10,11,12\}}
+\]
+These are not all equally likely. For example, there is only one possible combination of dice rolls that sum to $2$ or $12$, but more than one for $7$ ($6+1$, $4+3$, etc.).
+\pagebreak
+
+\section{Question 3}
+\setlength{\jot}{5pt}
+\begin{align*}
+    \omega = \{&(1,1), (1,2), (1,3), (1,4), (1,5), (1,6), \\
+           &(2,1), (2,2), (2,3), (2,4), (2,5), (2,6), \\
+           &(3,1), (3,2), (3,3), (3,4), (3,5), (3,6), \\
+           &(4,1), (4,2), (4,3), (4,4), (4,5), (4,6), \\
+           &(5,1), (5,2), (5,3), (5,4), (5,5), (5,6), \\
+           &(6,1), (6,2), (6,3), (6,4), (6,5), (6,6) \}
+\end{align*}
+
+\textit{(a)} 
+\setlength{\jot}{5pt}
+\begin{align*}
+    A = \{&(1,1), (1,2), (1,3), (1,4), (1,5), (1,6), \\
+          &(2,1), (2,2), (2,3), (2,4), (2,5), (2,6), \\
+          &(3,1), (3,2), (3,3), (3,4), (3,5), (3,6)\}
+\end{align*}
+\begin{align*}
+    \mathbb{P}(A) &= \frac{\#A}{\#\Omega} = \frac{18}{36} \\
+    \Aboxed{\mathbb{P}(A) &= \frac{1}{2}}
+\end{align*}
+
+\textit{(b)} 
+\[
+    B = \{(2,6), (3,5), (4,4), (5,3), (6,2)\}
+\]
+\begin{align*}
+    \mathbb{P}(B) &= \frac{\#B}{\#\Omega} = \frac{5}{36} \\
+    \Aboxed{\mathbb{P}(B) &= \frac{5}{36}}
+\end{align*}
+
+\textit{(c)} 
+\begin{align*}
+     A \cup B = \{&(1,1), (1,2), (1,3), (1,4), (1,5), (1,6), \\
+             &(2,1), (2,2), (2,3), (2,4), (2,5), (2,6), \\
+             &(3,1), (3,2), (3,3), (3,4), (3,5), (3,6), \\
+             &(4,4), (5,3), (6,2)\}
+\end{align*}
+
+\begin{align*}
+    \mathbb{P}(A \cup B) &= \frac{\#(A \cup B)}{\#\Omega} = \frac{21}{36} \\
+    \Aboxed{\mathbb{P}(A \cup B) &= \frac{7}{12}}
+\end{align*}
+
+\textit{(d)} 
+\[
+    A \cap B = \{(2,6), (3,5)\}
+\]
+\begin{align*}
+    \mathbb{P}(A \cap B) &= \frac{\#(A \cap B)}{\#\Omega} = \frac{2}{36} \\
+    \Aboxed{\mathbb{P}(A \cap B) &= \frac{1}{18}}
+\end{align*}
+
+
+\textit{(e)} 
+\begin{align*}
+    B^\complement = \{&(1,1), (1,2), (1,3), (1,4), (1,5), (1,6), \\
+          &(2,1), (2,2), (2,3), (2,4), (2,5), \\
+          &(3,1), (3,2), (3,3), (3,4), (3,6), \\
+          &(4,1), (4,2), (4,3), (4,5), (4,6), \\
+          &(5,1), (5,2), (5,4), (5,5), (5,6), \\
+          &(6,1), (6,3), (6,4), (6,5), (6,6) \} \\[.1in]
+    A \cap B^\complement = \{&(1,1), (1,2), (1,3), (1,4), (1,5), (1,6), \\
+             &(2,1), (2,2), (2,3), (2,4), (2,5), \\
+             &(3,1), (3,2), (3,3), (3,4), (3,6)\}
+\end{align*}
+
+\begin{align*}
+    \mathbb{P}(A \cap B^\complement) &= \frac{\#(A \cap B^\complement)}{\#\Omega} = \frac{16}{36}  \\
+    \Aboxed{\mathbb{P}(A \cap B^\complement) &= \frac{4}{9}}
+\end{align*}
+
+\textit{(f)} 
+\begin{align*}
+    C = \{&(1,1), (1,3), (1,5), \\
+          &(3,1), (3,3), (3,5), \\
+          (5,1), (5,3), (5,5)\}
+\end{align*}
+\begin{align*}
+    A \cap B \cap C &= \{(3,5)\} \\
+    \mathbb{P}(A \cap B \cap C) &= \frac{\#(A \cap B \cap C)}{\#\Omega} = \frac{1}{36} \\
+    \Aboxed{\mathbb{P}(A \cap B \cap C) &= \frac{1}{36}}
+\end{align*}
+\pagebreak
+
+\textit{(g)} 
+\begin{align*}
+    A \cup A^\complement &= \Omega \\
+    \mathbb{P}(\Omega) &= 1 \\
+    \Aboxed{\mathbb{P}(A \cup A^\complement) &= 1}
+\end{align*}
+\pagebreak
+
+\section{Question 4}
+My work partner was Aseda Asomani.
+
+\end{document}
