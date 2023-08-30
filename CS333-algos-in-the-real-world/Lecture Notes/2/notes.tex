@@ -122,7 +122,7 @@ The \textbf{Gale-Shapely Deferred Acceptance Algorithm} works as follows:
     \item In subsequent rounds, each applicant who is not tentatively matched
         applies to their next most preferred school. Then, each school 
         \textit{tentatively} accepts their most preferred applicants from
-        among the new applicants this round 
+        among the new applicants.
 \end{enumerate}
 
 \subsection{Proof sketch of stability}
@@ -172,5 +172,45 @@ matching algorithm can be both applicant- \textit{and} employer-optimal.
 \end{definition}
 
 Deferred acceptance is both strategy proof \textit{and} stable, but \textbf{not
-Pareto Optimal}.
+Pareto Optimal}. There is another algorithm, the \textbf{Top Trading Cycles}
+algorithm that is strategy-proof \textit{and} Pareto optimal, but not
+stable.
+
+\pagebreak
+\section{Practical Problems}
+\subsection{Preference generation}
+Both schools and student must submit a preference ranking of the other.
+The act of an individual or school generating a list of preferences is
+non-trivial, since many students may not be able to visit or research every
+school to generate an accurate preference list. Schools/employers have a
+similar issue. In NYC, lower-performing students often list worse schools
+higher on their preferences lists than higher-achieving student do. NYC also saw
+roughly 300 students appeal placement decisions, even though they were given their
+first choice. Clearly, educating applicants about the programs to which they are
+applying is necessary.
+
+\subsection{Affirmative action}
+Some schools may have an incentive to accept minoritized or economically 
+disadvantaged students into their programs. One way to apply affirmative action is
+to add a coice function to the algorithm that generates preferences for schools.
+Another, perhaps superior, implementation is as follows:
+\begin{enumerate}
+    \item Each school splits their capacity $c_j$ into two components: $q_j$ and
+        $c_j-q_j$.
+    \item The employer appears as two \textit{different} employers in the
+        algorithm: one with capacity $q_j$ that ranks underrepresented applicants
+        before any others, and another with capacity $c_j-q_j$ that has 
+        preferences for the employer disregarding diversity.
+    \item The applicant preferences are simply duplicated for both entities.
+\end{enumerate}
+
+\subsection{Coupled preferences}
+\begin{definition}
+    \textbf{Coupled preferences} occur when two applicants only want to be matched
+    together. For example, if romantic partners want to be matched together.
+    \begin{note}
+        Note that there may not be a stable matching with coupled preferences.
+    \end{note}
+\end{definition}
+
 \end{document}
