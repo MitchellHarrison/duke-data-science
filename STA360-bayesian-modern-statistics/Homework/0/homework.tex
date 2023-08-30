@@ -1,0 +1,203 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Homework 0}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Question 1}
+\begin{ex}
+    \textbf{Simplify}:
+    \[
+        log(e^{a_1}e^{a_2}e^{a_3} \cdots e^{a_n}).
+    \]
+\end{ex}
+
+\begin{align*}
+    log(e^{a_1}e^{a_2}e^{a_3} \cdots e^{a_n}) &= log(e^{a_1+a_2 \cdots +a_n}) \\
+                                              &= a_1+a_2 \cdots +a_n \\
+    \Aboxed{log(e^{a_1}e^{a_2}e^{a_3} \cdots e^{a_n}) &= \sum_{i=1}^{n}a_n}
+\end{align*}
+
+\section{Question 2}
+\begin{ex}
+    \textbf{Find the derivative}:
+    \[
+        \frac{d}{dx}\left( \frac{x}{log(x)}\right)
+    \]
+\end{ex}
+
+Per the quotient rule, we know:
+\[
+    \frac{d}{dx}\left(\frac{u(x)}{v(x)}\right) = \frac{u'(x)v(x) - 
+    u(x)v'(x)}{v(x)^{2}}
+\]
+\begin{align*}
+    u(x) &= x & u'(x) &= 1 \\
+    v(x) &= log(x) & v'(x) &= \frac{1}{x}
+\end{align*}
+
+Thus,
+
+\begin{align*}
+    \frac{d}{dx}\left(\frac{x}{log(x)}\right) &= \frac{
+        log(x) - x\left(\frac{1}{x}\right)}{log(x)^{2}} \\
+        &= \frac{log(x) - \frac{x}{x}}{log(x)^{2}} \\
+        \Aboxed{\frac{d}{dx}\left(\frac{x}{log(x)}\right) &=
+        \frac{log(x) - 1}{log(x)^{2}}} 
+\end{align*}
+
+\pagebreak
+\section{Question 3}
+\begin{ex}
+    \textbf{What is the OLS estimator} of $\beta$ (1-dimensional) in the linear
+    regression $y = x\beta + \epsilon$ with iid errors?
+\end{ex}
+
+The formula for OLS estimation of simple linear regression is as follows:
+\[
+    \boxed{\hat\beta = \frac{\sum_{i=1}^{n}(x_i - \bar x)(y_i - \bar y)}
+    {\sum_{j=1}^{n}(x_i - \bar x)^{2}}} 
+\]
+
+\section{Question 4}
+\begin{ex}
+    \textbf{What is the OLS estimator} of $\beta$ ($p$-dimensional) in the linear
+    regression $y = X\beta + \epsilon$ with iid errors?
+\end{ex}
+
+The formula for OLS estimation of $p$-dimensional regression is follows, where
+$y$ is a vector of response variable values, $X$ is a matrix of observed data,
+$\beta$ is a coefficient vector:
+\[
+    \boxed{\hat\beta = \left(X^{T}X\right)^{-1}X^{T}y} 
+\]
+\section{Question 5}
+\begin{ex}
+    In linear regression with $p$-dimensional $\beta$, \textbf{what is the 
+    interpretation} of the estimate for the $j$th coefficient?
+\end{ex}
+
+Given that the $\beta$ vector is a coefficient vector for all predictors in
+the regression, $\beta_j$ represents the predicted increase in $y$ after a
+one-unit increase in $x_j$ (the $j$th predictor), while holding all other 
+predictors constant.
+
+\pagebreak
+\section{Question 6}
+\begin{ex}
+    \textbf{Compute the integral}:
+    \[
+        \int_{-\infty}^{\infty}e^{-x^{2}}dx
+    \]
+\end{ex}
+
+This is the Gaussian integral, the solution for which is known to be
+$\boxed{\approx \sqrt{\pi }}$.
+
+\section{Question 7}
+\begin{ex}
+    $X \sim N(\mu, \sigma^{2}$ reads "$X$ is a normally distributed random
+    variable with mean $\mu$ and variance $\sigma^{2}$. Let
+    \begin{align*}
+        & X \sim N(0,1) \\
+        & Y \sim N(3,2) \\
+        & Z = X + Y
+    \end{align*}
+    \textbf{What is the distribution of $Z$? What is $ \mathbb{E}(Z)$ and
+    $Var(Z)$?}
+\end{ex}
+
+Since both $X$ and $Y$ are normally distributed, the mean of $Z$ 
+(i.e. $ \mathbb{E}(Z)$) will be $\mu_X + \mu_Y$, and the variance of $Z$ will be
+$Var(X) + Var(Y)$. Thus,
+\begin{align*}
+    0+3 = \Aboxed{\mathbb{E}(Z) &= 3} \\
+    1+2 = \Aboxed{Var(Z) &= 3}
+\end{align*}
+
+$Z$ will therefore be $\boxed{ \text{normally distributed}}$ such that
+$Z \sim N(3,3)$.
+
+\section{Question 8}
+\begin{ex}
+    In your own words, the \textbf{support} of a random variable is...
+\end{ex}
+
+The support of a random variable is the set of all possible values for a random
+variable for which the propability of occurence is non-zero. For example, 7 is
+not contained in the support for a random variable representing a standard 
+6-sided die roll, which is $\{1,2,3,4,5,6\}$.
+
+\pagebreak
+\section{Question 9}
+\begin{ex}
+    \textbf{TRUE/FALSE}: The product of two uniform[0, 1] random variables is
+    uniform[0, 1].
+\end{ex}
+
+\textbf{False}. Multiplying two standard uniform random variables results in a 
+triangular distribution, which is non-uniform.
+
+\end{document}

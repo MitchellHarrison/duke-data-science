@@ -1,0 +1,176 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 2 - Matching Algorithms and Implementation}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Matching Algorithms in Practice}
+\subsection{School choice in NYC}
+For the context of this example, \textbf{school choice} refers to choices of 
+public schools, not the choice between public, private, and charter. Since 2003,
+NYC has used a matching algorithm similar to the algorithm used to place medical
+students into residency programs.
+
+Before 2003, school placement was decided either by lottery or by geography (with
+some exceptions made for schools that require auditions for example). First,
+students/parents apply to five schools. For three rounds, the algorithm gets 
+decisions from schools and the families accept or reject offers. After those three
+rounds, students were assigned geographically. With this program, roughly 30\% of 
+students were not matched to anywhere they applied, and families needed to be
+strategic about where they applied. Schools also concealed their capacity for
+students, and would fill slots themselves after the final cycle of matching.
+
+\subsection{Preference formalism}
+Ideally, every student (or employee, etc.) will rank every school (or employer,
+etc.) and each school will rank each student. Mathematically, we say that there 
+are $n$ applicants $A = \{1,2 \cdots ,n\}$ and $m$ schools $B = \{1,2,\cdots,m\}$.
+Applicant $i$ has a preference ordering over employers. We call each ranking 
+$\pi_A$. School $j$ has capacity $c_j$ for students.
+
+\subsection{Boston matching algorithm}
+In the Boston matching algorithm, there are a series of rounds. In the first 
+round, each applicant "applies" to their most preferred school and each school
+"accepts" their most preferred applicant, up to capacity. In subsequent rounds, 
+unmatched applicants apply to their next most preferred school and each school
+accepts applicants up to their capacity. This repeats until all applicants are
+matched.
+
+This algorithm matches the number of applicants that get their top choice, but 
+schools that applicants don't prefer get the least "competitive" students, which
+could keep lower-preference schools
+
+\begin{definition}
+    \textbf{Stability}: $f$ is \textit{stable} if it has no blocking pairs. A
+    \textbf{blocking pair} is an applicant $i \in A$ and an employer $j \in B$
+    such that:
+    \begin{enumerate}
+        \item $j \succ_i f(i)$, and
+        \item There exists $i' \in A$ auch that $f(i')=j$ and $i\succ_ji'$
+    \end{enumerate}
+\end{definition}
+
+\pagebreak
+\section{Gale-Shapely Deferred Acceptance Algorithm}
+The \textbf{Gale-Shapely Deferred Acceptance Algorithm} works as follows:
+\begin{enumerate}
+    \item In the first round, each applicant applies to their most preferred
+        school and each school \textit{tentatively} accepts their most
+        preferred applicants (up to capacity).
+    \item In subsequent rounds, each applicant who is not tentatively matched
+        applies to their next most preferred school. Then, each school 
+        \textit{tentatively} accepts their most preferred applicants from
+        among the new applicants this round 
+\end{enumerate}
+
+\subsection{Proof sketch of stability}
+Our \textbf{claim }is that the matching produced by the deferred acceptance
+algorithm is stable. Recall that the following describes a blocking pair:
+\begin{enumerate}
+    \item $j \succ_i f(i)$
+    \item There exists $i'\in A$ such that $f(i') = j$ and $i \succ_j i'$.
+\end{enumerate}
+Since $j \succ_i f(i)$, $i$ must have applied to $j$ before $f(i)$. Since 
+$f(i) \ne j$, $j$ must have been tentatively matched to $c_j$ other applicants,
+all of whom prefers $j$ over $i$. However, emplyers only ever get more
+preferred applicants as time goes on, so $j$ must prefer all of the final $c_j$
+applicants mathed to $j$ over $i$. Thus, from the employer's perspective, as time
+goes on, applicants become increasingly preferred.
+
+\subsection{Another desideratum: strategy-proofness}
+\begin{definition}
+    $M$ is a \textbf{strategy-proof} for applicants if, for all $i \in A$ and
+    preferences $\succ_i$, for all $\pi_A$ with $i$'s true preferences and 
+    $\pi_A$ with any other reported preferences of $i$, the following holds:
+    \[
+    M(\pi_A, \pi_B, c_1, \cdots ,c_m)(i) \succeq M(\pi_A', \pi_B, c_1, \cdots 
+    ,c_m)(i)
+    \]
+    where $j \succeq_i j'$ means $j \succ j'$ or $j = j'$.
+\end{definition}
+The intuitive "proof" of the strategy-proofness of deferred acceptance is that
+applicants do not need to worry about theie less competitive middle choices
+"filling up" while they apply to their more competitive top choices.
+
+\subsection{Optimality}
+\begin{definition}
+    \textbf{Proposer-side optimality}: For every applicant $i$, let $h(i)$ be the
+    most-preferred employer to whom $i$ is matched in \textit{any} stable
+    matching. A stable matching $f$ is \textbf{applicant-optimal} if for every
+    applicant $i$, $f(i) \succeq_i h(i)$.
+\end{definition}
+
+Deferred-acceptance is applicant-optimal, but \textit{not} employer-optimal. No
+matching algorithm can be both applicant- \textit{and} employer-optimal.
+
+\begin{definition}
+    A matching $f$ is \textbf{Pareto Optimal} if there does not exist another
+    matching $f'$ such that $f'(i) \succeq_i f(i)$ for all $i$ with at least one
+    preference strict.
+\end{definition}
+
+Deferred acceptance is both strategy proof \textit{and} stable, but \textbf{not
+Pareto Optimal}.
+\end{document}
