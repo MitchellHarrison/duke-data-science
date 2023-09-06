@@ -1,0 +1,220 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 3 - Single Parameter Estimation}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review (Exchangability)}
+
+If we have a scenario with conditionally iid random variables with some underlying
+parameter $\theta \sim p(\theta)$ and we are given that $Y_1, \cdots , Y_n |
+\theta$, then marginally, unconditional on $\theta$, $Y_1, \cdots ,Y_n$ are
+\textbf{exchangable}. This means that we can permute the subscripts and lose no
+information.
+
+\begin{note}
+    For homework problem 1, recall:
+    \begin{align*}
+        p(y_i|\theta) &= p(y_j|\theta) \\
+        \mathbb{E}(y_i|\theta) &= \mathbb{E}(y_j|\theta) \\
+    \end{align*}
+\end{note}
+
+\subsection{de Finetti's theorem}
+Let $y_i \in Y$ for all $i \in \{1,2, \cdots \}$. Suppose for any $n$, our belief
+model for $y_1, \cdots , y_n$ is exchangeable:
+\[
+    p(y_1, \cdots ,y_n) = p(y_{\pi 1}, \cdots , y_{\pi n}).
+\]
+then,
+\[
+    p(\vec y) = \int \prod_{i=1}^{n}p(y_i|\theta)p(\theta)d \theta
+\]
+for some parameter $\theta$, some prior $p(\theta)$ and some data generative 
+model (\textit{likelihood}) $p(\vec y | \theta)$.
+
+\begin{note}
+    For homework, recall that de Finetti essentially says, "if I have
+    exchangability, I have iid," and allows for all of the more plesant math
+    that comes when working with iid random variables.
+\end{note}
+
+\begin{note}
+    Also for homework, recall the \textbf{law of total expectations}:
+    \[
+        \mathbb{E}(X) = \mathbb{E}( \mathbb{E}(X|Y)).
+    \]
+    We defined this law mathematically:
+    \begin{align*}
+        \mathbb{E}(X) &= \mathbb{E}( \mathbb{E}(X|Y)) \\
+        \int xp(x)dx &= \int \int x p(x|y)dx p(y)dy
+    \end{align*}
+\end{note}
+
+\pagebreak
+\section{Single parameter estimation}
+\subsection{Is the coin fair?}
+Say we've observed 10 flips of a dubious coin. In those 10 flips, we observe 
+$Y=1$ coin flips. We seek to find whether or not the coin is fair. To articulate
+this mathematically, let $\theta \in [0,1]$ be the bias-weighting (the chance of
+heads) of the coin. Fundamentally, we want $p(\theta|y)$, which we can expand via
+Bayes' rule,
+\[
+p(\theta|y) = \frac{p(y|\theta)p(\theta)}{\int_{\theta \in \Theta}p(y|\theta)
+p(\theta)d \theta}
+\]
+Here, note the following:
+\begin{itemize}
+    \item $p(y|\theta)$ is our \textbf{likelihood}, or our data generative model.
+        This is the likelihood of our data occurring given our data.
+    \item $p(\theta)$ is our \textbf{prior}. This represents our beliefs about
+        the coin before we generated the data.
+    \item $p(\theta|y)$ is our \textbf{posterior}. This represents our updated
+        belief after our data is generated.
+    \item The entire denominator is a \textbf{normalizing constant}, which 
+        enables the PMF or PDF $p(\theta|y)$ to integrate to 1. Note that 
+        anything that doesn't depend on $y$ (i.e. it depends on $\theta$) can be 
+        considered a constant. This is the \textit{marginal likelihood} $p(y)$.
+\end{itemize}
+
+\subsection{Data generative process (likelihood)}
+Let $X_i$ be the single outcome of a single coin flip as a 0 or 1. Say we begin
+with the belief that
+\begin{align*}
+    \mathbb{P}(X_i =1|\theta) &= \theta \\
+    \mathbb{P}(X_i =p|\theta) &= 1-\theta .
+\end{align*}
+
+As a notation trick we can say that $\mathbb{P}(X_i = x_i|\theta) = \theta^{x_i}
+(1-\theta)^{1-x_i}$. Given conditional independence, we can say that
+\[
+\mathbb{P}(X_1, \cdots , X_n | \theta) = \prod_{i=1}^{n}\mathbb{P}(X_i | \theta).
+\]
+Multiplying this expression out, we see that our joint likelihood of the data is
+only dependent on the sum:
+\[
+\prod_{i=1}^{n}\mathbb{P}(X_i | \theta) = \theta^{\sum x_i}(1-\theta)^{n-
+\sum x_i}
+\]
+\begin{definition}
+    In the above expression, $\sum x_i$ is a \textbf{sufficient statistic}. That
+    is, it is the only dependence on data in the likelihood.
+\end{definition}
+
+Recall that the total number of heads is a binomial distribution 
+$y \sim Binom(n, \theta)$, and using the binomial distribution formula, we can
+arrive at $\mathbb{P}(y|\theta)$, which is
+\[
+    \mathbb{P}(y|\theta) \propto \theta^{y}(1-\theta)^{n-y}
+\]
+\subsection{Uniform prior}
+Let $y$ be the number of heads in $n$ coin flips.
+\[
+    \mathbb{P}(\theta|y) \propto \theta^{y}(1-\theta)^{n-y}
+\]
+This is the kernel of a \textit{beta density}, where $\alpha = y+1$ and 
+$\beta = n-y+1$, hence:
+\[
+\mathbb{P}(\theta|y) = \frac{\Gamma(n+2)}{\Gamma(y+1)\Gamma(n-y+1)}\theta^{y}
+(1-\theta)^{n-y}
+\]
+and the posterior mean is $\frac{y+1}{n+2}$ and the posterior variance is
+$\frac{(y+1)(n-y+1)}{(n+2)^{2}(n+1)}$. Notice that before any coin flip, 
+$\mathbb{P}(\theta|y)=1$, which means all we have is our prior. As we increase
+$n$, we can plot the changes to visualize the posterior distribution change. See
+the course website for these plots and code to generate them.
+
+\subsection{Conjugacy}
+If $\theta \sim  Uniform(0,1)$, then $p(\theta) = 1$ for all $\theta \in [0,1]$.
+Similarly, if $\theta \sim Beta(1,1)$, then $p(\theta) = 1$.
+\begin{definition}
+    A prior is said to be \textbf{conjugate} to a data generative model 
+    (likelihood) $p(y|\theta)$ if the family of the posterior is necessarily in
+    the same family as the prior. In math, $p(\theta)$ is conjugate to $p(y|
+    \theta)$ if
+    \[
+        p(\theta) \in \mathcal{P} \rightarrow p(\theta|y) \in \mathcal{P}
+    \]
+\end{definition}
+To prove, let $\theta \sim Beta$ and $y|\theta \sim Binomial \rightarrow 
+\theta|y \sim Beta$:
+\begin{align*}
+    \mathbb{P}(y|\theta) &= \binom{n}{y}\theta^{y}(1-\theta)^{n-y} \\
+    \mathbb{P}(\theta) &= \frac{\theta^{a-1}(1-\theta)^{b-1}}{B(a,b)}
+\end{align*}
+
+We know that
+\begin{align*}
+    \mathbb{P}(\theta|y) &\propto \mathbb{P}\left(y \;\middle|\; \theta\right)
+    \mathbb{P}(\theta) \\
+                         &\propto \theta^{y+a-1}(1-\theta)^{n-y+b-1},
+\end{align*}
+which is the kernel of the beta distribution.
+
+Note that while conjugate priors make calculation easy, they may not accurately
+reflect our prior beliefs.
+
+\end{document}

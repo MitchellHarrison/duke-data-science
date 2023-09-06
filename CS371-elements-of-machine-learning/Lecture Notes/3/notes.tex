@@ -1,0 +1,221 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 3 - Data Fitting and Introduction to Machine Learning}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Univariate Fitting}
+
+\begin{definition}
+    The \textbf{Vandermonde matrix} holds values for all observed data. The first
+    column is all 1's (degree zero), the second holds all $x_i$, the third holds
+    all $x_i^{2}$, etc.
+\end{definition}
+
+There is always a balance between \textit{fit} and \textit{generalization}. A 
+model on 10 points may be perfectly fit with $k=9$ (where $k$ is the highest 
+possible degree of any term in the polynomial), but it will often be overfit,
+resulting in poor generalization to new terms given to the model in the future. An
+affine model (i.e. a polynomial with maximum degree $k=1$ or a "linear" 
+function), could be prone to the opposite issue (i.e. underfitting) due to the
+rigidity of affine functions. In machine learning, we are more concerned with how
+a model performs on test data than training data, but the results on training data
+is often a good starting point for potential results with training data.
+
+\begin{definition}
+    A model \textbf{interpolates} when the remaining empirical risk is zero. That
+    is, the model perfectly contacts each data point. Such a model is highly prone
+    to overfitting.
+\end{definition}
+
+In univariate analysis, the dimension of the variable space is $d=1$.
+
+\pagebreak
+\section{Multivariate Polynomial}
+An examply multivaraite polynomial is as follows:
+\[
+    h(x) = c_0 + c_1x_1 + c_2x_2 + c_3x_2^{2} + c_4x_1x_2 + c_5x_2^{2}
+\]
+The above function is a polynomial of up to degree 2. The \textbf{Vandermonde
+matrix} would look like the following:
+\[
+\begin{bmatrix}
+    1 & x_{11} & x_{12} & x^{2}_{11} & x_{11}x_{12} & x_{12}^{2}\\ 
+    \cdots & \cdots  & \cdots  & \cdots  & \cdots & \cdots \\ 
+    1 & x_{N1} & x_{N2} & x_{N1}^{2}  & x_{N1}x_{N2} & x_{N2}^{2} 
+\end{bmatrix}
+\]
+This is particularly promising because \textbf{Taylor's Theorem} shows that any
+arbitrary function (that is analytic function [i.e. its a "nice," continuous
+function]) can be approximated by a polynomial of appropriate dimension. When one
+does so, they arrive at a \textit{Taylor series}. However, fitting a model with a
+Taylor series will only ever be able to overfit to training data. This is not a
+problem with Taylor specifically, but with using polynomials in general 
+for machine learning tasks.
+
+\subsection{Counting monomials}
+A polynomial is made of monomial. An example of a monomial of degree $k'\le k$ in
+$d$ variables:
+\[
+    x_1^{k_1} \cdots x_d^{k_d} \text{ where } k_1 + \cdots + k_d = k'
+\]
+How many monomials of degree up to $k$ are there?
+\[
+    m(d,k) = \binom{d+k}{k}
+\]
+Take an example where $k = 10$, $k'=7$, and $d = 3$. We hope to have our exponents
+add to $k$, not $k'$, but we have the following:
+\[
+    x_1^{2}  x_2^{1}  x_3^{4}.
+\]
+To add an exponent without changing the results, we can simply add a 1 term:
+\[
+    1^{3}  x_1^{2}  x_2^{1}  x_3^{4}
+\]
+Now, our exponents sum to $k=10$, rather than $k'=7$. We can rewrite without the
+exponents:
+\[
+    1 \cdot 1 \cdot 1 \cdot x_1 \cdot x_1 \cdot x_2 \cdots \cdot x_3^{4}
+\]
+We can encode this formula using a bitstring of 13 bits where the set bits (i.e.
+bits that contain a value of 1) mark the boundary where the $x_i$ terms change.
+For this example:
+\begin{verbatim}
+0001001010000
+\end{verbatim}
+
+This encodes an otherwise relatively complex monomial into a simple bit string.
+
+\subsection{Asymptotics: too many monomials}
+Because $d$ is in the numerator of $m(d,k)$, if we hold $k$ constant and increase
+$d$, the number of monomials grows asymptotically in $O(d^{k})$. If we keep $d$
+fixed and add to $k$, the monomials grow in $O(k^{d})$. Either way, the number of
+monomials grows exponentially. It is often the case that we need to increase both
+$k$ and $d$. The easiest way to do this would be to set $k=d$ and grow them
+together. This is not often done in practice, but is simple to conceptualize. This
+practice would make $m(d,d)$ grow in the following time:
+\[
+    m(d,d) \rightarrow O\left(\frac{4^{d}}{\sqrt{d}}\right)
+\]
+Except when $k=d=1$, growth is polynomial (with typically large power) or
+exponential (if $k$ and $d$ grow together). This difficulty is specific to
+polynomials, with the lone exception of affine polynomials $(k=1)$ linear in the
+number of $d$ varaibles.
+
+\subsection{The "Curse of Dimensionality"}
+A large $d$ is typically troublesome. We also want a training set $T$ to be
+representative, but not too sparsely spaced in the possible values of its
+variables. We could "fill" $ \mathbb{R}^{d}$ with $N$ samples $X = [0,1]^{2}
+\subset R^{2}$, but that could be too sparse. We could instead split our $T$ into
+10 bins per dimension $(X = [0,1]^{d} \subset \mathbb{R}^{d}$. But then we would
+end up needing $10^{d}$ inputs. 
+
+\begin{definition}
+    The above is the \textbf{curse of dimensionality}, where increasing $d$ 
+    means we will \textit{always have too few data points}. In general, you have
+    tho think of you data space as fundamentally empty. This is, in
+    essense, the entire reason that machine learning is so hard.
+\end{definition}
+
+\pagebreak
+\section{Introduction to Machine Learning}
+\subsection{Supervised vs. Unsupervised training}
+\begin{definition}
+    In \textbf{supervised training}, we train with pairs of values $(x,y)$, where
+    $x$ is a training data point and $y$ is a classification. For example, a
+    hand-written digit dataset has an image of a digit in pixels alongside a 
+    label of the correct value of that digit. (This is the \textit{MNIST} 
+    dataset.)
+\end{definition}
+
+Supervised learning could be used for classification (handwriting analysis) or
+regression (YouTube predicting median age of video viewers).
+
+\begin{definition}
+    \textbf{Unsupervied learning} has training data that only contains $x$, the
+    training data point. No correct labels are provided.
+\end{definition}
+
+Unsupervised learning typically uses clustering (group customers by similar tastes
+for advertising) and dimensionality reduction. \textit{Dimensionality reduction}
+involves finding the dimensions that contain the most variation, and focusing
+training on those. For example, if point in 3D are relatively flat in 
+$ \mathbb{R}^{3}$, we will often approximate that dimension with a plane and not
+use that dimension further. We can do this with any number of shapes in any number
+of dimension. 
+
+\begin{note}
+    This course will only cover supervised learning, \textit{not} unsupervised
+    learning.
+\end{note}
+
+\subsection{Classifiers as partitions of $X$}
+Classifiers require all data points to belong a single classification (e.g.
+true, false), but never both. In data space, we effectively draw a region that
+separates space into two portions: one in which the classification is true, and
+the other where it is false. This partitions space to encompass its entirety.
+ 
+\end{document}

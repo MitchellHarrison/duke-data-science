@@ -1,0 +1,183 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 2 - Functions and Data Fitting pt. 2}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Functions}
+
+\begin{definition}
+    A \textbf{function} is an abstract mathematical object that maps any number of
+    inputs (\textbf{domain}) to a single output (\textbf{co-domain}). They can 
+    be many-to-one (multiple input combinations give the same output.
+\end{definition}
+
+\begin{definition}
+    When a function assigns one of multiple discrete categories (e.g. handwritten
+    number reader), the function is a \textbf{classifier}. If the output is a
+    real number (e.g. simple linear regression), the function is a
+    \textbf{regressor}.
+\end{definition}
+
+\subsection{Classic and ML}
+In \textbf{classic} modelling, both the \textit{features} and the function $f$
+were designed by hand. For example, if we were to manually write a spam filter,
+we would try to figure out which words were associated with spam after reading
+many emails, then program a function that searches for those words and marks 
+emails as spam using some mathematical technique. In this time, the term
+\textbf{feature} was very loosely defined, essentially meaning anything that is 
+used as an input into the decision function.
+
+\textbf{Machine learning} formalizes many of the classical techniques. First,
+$A$ and $Y$ as our domain and co-domain. We collect $T_a = \{(a_y,y_1), \cdots 
+,(a_N,y_N)\} \subset A \times Y$. Then we select an outputl set 
+$\mathcal{F}$, and design $\lambda : \{ \text{all possible } T_a\} \rightarrow
+\mathcal{F}$. Finally we \textit{train} $f = \lambda(T_a)$, and hopefully 
+$y \approx f(a)$ now \textbf{and forever}. In general, machine learning takes in
+inputs and outputs a function (more specifically, the \textit{parameters} of that
+function.
+
+\begin{note}
+    The \textit{domain} of ML functions is the set of all possible training sets.
+    The \textit{co-domain} is the set of all possible polynomials (specifically,
+    the set of all possible coefficients) output by the model.
+\end{note}
+
+\subsection{Features}
+From $A$ to $X \subseteq \mathbb{R}^{d}$:
+\begin{align*}
+    x &= \phi(a) \\
+    y &= h(x) = h(\phi (a)) = f(a) \\
+    h &: X \subseteq \mathbb{R}^{d} \rightarrow 
+    Y \subseteq \mathbb{R}^{e} \\
+    \mathcal{H} &\subseteq \{X \rightarrow Y\} \\
+    T &= \{(x_1,y_1), \cdots , (x_N, y_N)\} \subset X \times Y
+\end{align*}
+
+\begin{definition}
+    These are all just numbers. They map inputs from a possible training
+    set to a single output in the co-domain of the trained function. Here, we call
+    $x$ the \textbf{feature vector}.
+\end{definition}
+    
+\begin{ex}
+    For spam filtering, the domain $d$ of possible inputs are the roughly 
+    20,000 words in the English language. Here, $\phi $ is useful in order to 
+    make $d$ smaller or $x$ more informative. We could map every word in an email
+    to a histogram of word counts. Importantly, we can map an email to a
+    histogram, but we can \textbf{not} use the histogram to re-create the email.
+    Modern spam filters use algorithms similar (but notably more complex) to 
+    filter spam words.
+\end{ex}
+
+Features are perhaps easiest to find in images, which are already simply a 
+vector of numbers. The absolute number of numbers may be large, but they come
+pre-built as matrices, which in some ways makes working with them simpler than
+text inputs.
+
+\subsection{Fitting and learning}
+\begin{definition}
+    A \textbf{loss function} $l(y, h(x)) : Y \times Y \rightarrow \mathbb{R}^{+}$.
+    Here, $h(x) = \hat y$. It measures how well a model performs on a dataset by
+    quantifying errors numerically.
+\end{definition}
+
+\begin{definition}
+    \textbf{Empirical Risk} (ER) is the average loss on $T$. This is called
+    \textit{empirical} because it is calculated from the data. Other risk 
+    measurements are based on probability and not derived from calculation on the
+    training set. These are not empirical.
+\end{definition}
+
+Given $T \subset X \times Y$ with $X \subseteq \mathbb{R}^{d}$, 
+$ \mathcal{H}: \{h:X \rightarrow Y\}$. This is the \textit{hypothesis space.}
+When \textbf{fitting,} we choose $h \in \mathcal{H}$ to minimize ER over T. 
+\textbf{Learning}, in contrast, chooses $h \in \mathcal{H}$ to minimize some risk
+over previously unseen $(x,y)$.
+
+\pagebreak
+\section{Data Fitting}
+\subsection{Univariate polynomials}
+\begin{align*}
+    h &: \mathbb{R} \rightarrow \mathbb{R} \\
+    h(x) &= c_0 + c_1x + \cdots + c_kx^{k} \text{, with} \\
+    c_i \in \mathbb{R} \text{ for } i = 0, \cdots ,k
+\end{align*}
+The definition of the structure of $h$ defines the hypothesis space $\mathcal{H}$.
+Here, the unknowns are the $c$ values, which represent the coefficients in the
+output function. For a single sample, a linear system looks as follows:
+\[
+y_n = c_0 + c_1x_n + \cdots + c_kx^{k}_n
+\]
+Rewriting the entire system for all samples as a matrix of observations $A$, 
+we arrive at:
+\begin{align*}
+    &Ac = b \\
+    &b \in range(A) \\
+    &\hat c \in argmin ||Ac-b||^{2}
+\end{align*}
+
+\end{document}

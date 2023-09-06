@@ -1,0 +1,306 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 2 - Probability}}
+\author{\large{Mitch Harrison}}
+\date{August 31, 2023}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+\subsection{Set theory}
+
+\begin{definition}
+    A \textbf{set} is a collection of elements denoted by {}. For example:
+    \begin{align*}
+        \phi &= \{\} \text{"the empty set"}\\
+        A &= \{1,2,3\} \\
+        B &= \{ \text{taken STA199, not taken STA 199}\} \\
+        C &= \{\{1,2,3\}, \{4,5\}\}
+    \end{align*}
+\end{definition}
+
+\begin{definition}
+    A \textbf{subset} is denoted by $ \subset $. $A \subset B$ if and only if
+    $a \in A \rightarrow a \in B$. For example, using $A,B,$ and $C$ from above:
+    \begin{align*}
+        A & \subset C \\
+        A & \notin B
+    \end{align*}
+\end{definition}
+
+\begin{definition}
+    A \textbf{partition} is a collection of subsets that are \textit{disjoint} 
+    (have no overlap), but together make up a total set $ \mathcal{H}$. For
+    example:
+    \begin{align*}
+        \mathcal{H}_n \cap \mathcal{H}_m = \emptyset \\
+        \mathcal{H}_1 \cup \cdots \cup \mathcal{H}_n = \mathcal{H}
+    \end{align*}
+\end{definition}
+
+\begin{definition}
+    A \textbf{sample space} $ \mathcal{H}$ is the set of all possible data sets
+    (outcomes), and an \textbf{event} is a set of one or more of those outcomes.
+    \begin{note}
+        $\mathbb{P}( \mathcal{H}) = 1$
+    \end{note}
+\end{definition}
+
+\subsection{Axioms of probability}
+\textbf{P1}: probabilities are between 0 and 1, and 
+$ \mathbb{P}\left( \neg H \;\middle|\; H\right) =0$ and
+$ \mathbb{P}\left(H \;\middle|\; H\right) =1$.
+
+\textbf{P2}: If two events $A$ and $B$ are disjoint, then $\mathbb{P}(A
+\cup B) = \mathbb{P}(A) + \mathbb{P}(B)$.
+
+\textbf{P3}: The joint probability of two events may be broken down stepwise:
+$\mathbb{P}(A,B) = \mathbb{P}\left(A \;\middle|\; B\right) \mathbb{P}(B)$.
+
+From these axioms, it follows that:
+\begin{itemize}
+    \item The \textbf{rule of total probability}: 
+        For any partition, $\sum_{i=1}^{n}\mathbb{P}(H_i)=1$. More simply,
+        $\mathbb{P}(A) + \mathbb{P}(\neg A) = 1$
+    \item The \textbf{rule of marginal probability}: $\mathbb{P}(A) =
+        \sum_{i=1}^{n}\mathbb{P}(A_i \cap H_i)$. 
+    \item $ \mathbb{P}\left(A \;\middle|\; B\right) = \mathbb{P}(A \cap B) /
+        \mathbb{P}(B)$ when $\mathbb{P}(B) \ne 0$.
+\end{itemize}
+
+\begin{note}
+    All of the above statements can be made with multiple conditions:
+    \[
+        \mathbb{P}\left(A \;\middle|\; B,H\right) = 
+        \frac{ \mathbb{P}\left(A,B \;\middle|\; H\right) }{
+        \mathbb{P}\left(B \;\middle|\; H\right)}
+    \]
+    and,
+    \[
+        \mathbb{P}\left(A,B \;\middle|\; H\right) =
+        \mathbb{P}\left(A \;\middle|\; B,H\right) \mathbb{P}\left(B \;\middle|\; 
+        H\right) = \mathbb{P}\left(B \;\middle|\; A,H\right) \mathbb{P}\left(A 
+        \;\middle|\; H\right) 
+    \]
+\end{note}
+
+\subsection{Deriving Bayes' Rule}
+\begin{align*}
+    \mathbb{P}\left(H_i \;\middle|\; X\right) &= \frac{\mathbb{P}(
+    H_1 \cap X)}{\mathbb{P}(X)} \\ \mathbb{P}(H_i \cap X) &= \mathbb{P}\left(X \;\middle|\; H_i\right) 
+    \mathbb{P}(H_i) \\
+        \mathbb{P}(X) &= \sum_{k=1}^{n} \mathbb{P}\left(X \;\middle|\; H_n\right) 
+    \mathbb{P}(H_k) \\
+        \Aboxed{ \mathbb{P}\left(H_i \;\middle|\; X\right) &= \frac{
+    \mathbb{P}\left(X \;\middle|\; H_i\right) \mathbb{P}(H_i)}{
+    \sum_{k=1}^{n} \mathbb{P}\left(X \;\middle|\; H_k\right) \mathbb{P}(H_k)}}
+\end{align*}
+
+\begin{definition}
+    Two events $F$ and $G$ are \textbf{conditionally independent} given $H$ if
+    $ \mathbb{P}\left(F \cap G \;\middle|\; H\right) = 
+    \mathbb{P}\left(F \;\middle|\; H\right) \mathbb{P}\left(G \;\middle|\; 
+    H\right) $.
+\end{definition}
+
+\pagebreak
+
+\begin{ex}
+    \textbf{Show} that conditional independence implies that
+    $ \mathbb{P}\left(F \;\middle|\; H,G\right) = \mathbb{P}\left(F \;\middle|\; 
+    H\right) $:
+
+    \vspace{10px}
+    We know that 
+    \[
+         \mathbb{P}\left(F,G \;\middle|\; H\right) = 
+        \mathbb{P}\left(F \;\middle|\; G,H\right) \mathbb{P}\left(G \;\middle|\; 
+        H\right).
+    \]
+    Thus,
+    \begin{align*}
+        \mathbb{P}\left(F \;\middle|\; G,H\right) \mathbb{P}\left(G \;\middle|\; 
+        H\right) &= \mathbb{P}\left(F \;\middle|\; H\right) \mathbb{P}\left(
+        G\;\middle|\; H\right) 
+    \end{align*}
+    
+    Dividing both sides by $ \mathbb{P}\left(G \;\middle|\; H\right) $, we
+    arrive at a solution:
+    \[
+        \boxed{ \mathbb{P}\left(F \;\middle|\; H,G\right) = 
+        \mathbb{P}\left(F \;\middle|\; H\right) } 
+    \]
+\end{ex}
+
+\subsection{Random variables}
+\begin{definition}
+    A \textbf{random variable} is an unknown numerical quantity about which we
+    make probability statements. For example:
+    \begin{itemize}
+        \item \textit{Data}: The amount of wheat that a field will yield later
+            this year. Since this data has not been generated, the quantity is 
+            unknown.
+        \item \textit{Population parameter}: the true mean resting heart rate of
+            Duke students. Note: this is a fixed (non-random) quantity, but it is
+            also unknown. We use probability to describe our uncertainty in this
+            quantity.
+    \end{itemize}
+\end{definition}
+
+\begin{definition}
+    A \textbf{discrete random variable} is a random variable that takes
+    countably many possible values (note that these can be finite or infinite).
+    For example, possible values of a die roll.
+    For each $y \in \mathcal{Y}$, let $p(Y) = \mathbb{P}(Y=y)$. The
+    \textbf{probability mass function} of a random variable $Y$ is $p$.
+\end{definition}
+
+\begin{definition}
+    A \textbf{continuous random variable} is a random variable that takes
+    \textit{uncountably} many possible values. The \textbf{probability
+    density function} (PDF) of a continuous variable $X$ is defined:
+    \[
+        pdf(x) = \lim_{\Delta x \to 0} 
+        \frac{\mathbb{P}(x < X < x + \Delta x}{\Delta x}
+    \]
+    and the probability $X$ is in some interval is:
+    \[
+        \mathbb{P}(x_1<X<x_2) = \int_{x_1}^{x_2} pdf(x)dx
+    \]
+\end{definition}
+
+\begin{definition}
+    The part of the density/mass function that depends on the variable is the
+    \textbf{kernel}.
+\end{definition}
+
+\begin{ex}
+    \textbf{What is the kernel} of a gamma random variable $X$? Recall the PDF
+    of a gamma distribution:
+    \[
+        \mathbb{P}\left(x \;\middle|\; \alpha, \beta\right) = \frac{
+        \beta^{\alpha}}{\Gamma(\alpha)}x^{\alpha-1}e^{-\beta x}
+    \]
+    \vspace{10px}
+    
+    Locating all of the $x$'s in the formula we arrive at the kernel:
+    \[
+        \boxed{x^{\alpha-1}e^{-\beta x}} 
+    \]
+\end{ex}
+
+\begin{definition}
+     For a random variable $X$, the $n$th \textbf{moment} is defined as
+     $ \mathbb{E}(X^{n})$. The \textit{variance} of a random variable (defined as
+     the \textit{second central moment}) is defined:
+     \[
+         \mathbb{E}(X- \mathbb{E}(X))^{2}
+     \]
+     or equivalently,
+     \[
+         \mathbb{E}(X^{2}) - \mathbb{E}(X)^{2}
+     \]
+     More generally, the \textbf{covariance} between two random variables $X$ and
+     $Y$ is defined:
+     \[
+         \mathbb{E}[(X - \mathbb{E}[X])(Y - \mathbb{E}[Y]]
+     \]
+\end{definition}
+
+\pagebreak
+\section{Exchangability}
+\subsection{General Social Survey, 1998 example}
+
+In 1998, GSS interviewed 1,272 people to see if they were "generally happy." Let
+\[
+    Y := 
+    \begin{cases}
+        1, & \text{if }\text{generally happy} \\
+        0, & \text{otherwise}
+    \end{cases}
+\]
+Consider 5 randomly selected respones. Some configurations are:
+
+$\mathbb{P}(1,0,0,1,0)$ or $\mathbb{P}(0,0,0,1,1)$.
+
+\begin{definition}
+    \textbf{Exchageability} occurs when any permutation of multiple random 
+    variables yields the same results. That is,
+    \[
+        \mathbb{P}(Y_1, \cdots ,Y_n) = \mathbb{P}(Y_{\pi 1}, \cdots , Y_{\pi n})
+    \]
+    for all permutations $\pi$.
+\end{definition}
+
+Suppose $\theta$ is the proportion of the 1,272 participants that answer yes 
+$(Y :=1)$. We can say that $Y_i$'s are \textit{conditionally independent} since
+$5 << 1272$. We model this as follows:
+
+\begin{definition}
+    The \textbf{likelihood} (also called a \textit{data generative model}), is
+    used to model our belief in how the data are generated.
+\end{definition}
+
+
+\end{document}

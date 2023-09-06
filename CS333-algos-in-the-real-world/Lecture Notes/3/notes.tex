@@ -1,0 +1,175 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 3 - Research Projects and How to Research}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Project Overview}
+
+We will be choosing a real-world algorithmic system, researching how it work,
+developing a working example, and take a position on the societal impacts of that
+algorithmic system. The requirement to choose \textit{any} algorithmic system,
+but it has to have a societal impact component. 
+\begin{note}
+    Examples of algorithmic systems are YouTube recommendation systems, 
+    self-driving cars, social media, and algorithmic gerrymandering/district
+    drawing.
+\end{note}
+
+\subsection{Requirements}
+
+The first component of the project is an individual proposal. We will use those 
+proposals to find relevant group members, with whom we will submit a group 
+proposal some time later. Proposals will identify which algorithmic systems will
+be studied, choose a research question, and an annotated bibliography.
+\begin{note}
+    Groups will consist of four members.
+\end{note}
+
+\subsection{Technical demo}
+
+This will be a working software artifact related to the chosen algorithmic system.
+Any external libraries, APIs, packages, frameworks, etc. are allowed. Ideally,
+this will be a piece of software that is public-facing and that you are proud to
+show to peers, family, or potential employers. Substantial algorithmic components
+must be implemented, however. Masking API calls behind an interface alone does 
+not suffice. This project must be hosted using Git (Gitlab \textit{or} GitHub).
+
+\begin{note}
+    There will be a 10-12 minute presentation to the class at the end of the
+    semester.
+\end{note}
+
+\subsection{Project site}
+
+The final project website must include all of the following:
+\begin{enumerate}
+    \item An overview/landing page introducing the system to the user.
+    \item A \textbf{how it works} page that explains the system underlying the
+        website.
+    \item A \textbf{technical demo} page that highlights the technical demo
+        listed above.
+    \item A \textbf{societal implications} page. Group members need not agree on
+        the societal implications of the system, so each member should provide a
+        separate reflection on the topic.
+\end{enumerate}
+
+\pagebreak
+\section{Researching}
+\subsection{What do researchers do?}
+First, researchers must \textit{learn}. Diving into literature and finding the
+current state of the art is a major component of research. Once a researcher is
+comfortable in their space, they problematize.
+\begin{definition}
+    \textbf{Problematizing} is the act of turning forming a concrete problem which
+    could be addressed with research.
+\end{definition}
+After problematizing, researchers theorize possible ways to attack the problem,
+test those theories, and communicate their results.
+
+\subsection{Posing a research question}
+Research questions should be \textit{specific} (i.e. not "How does this 
+algorithmic system work?"), \textit{testable}, \textit{novel}, 
+\textit{substantial}, and \textit{relevant} to algorithms and algorithmic
+systems in the real world.
+
+\subsection{Searching literature and finding good sources}
+In brief, observe that the citation network of a body of research is a 
+\textit{directed graph}. Once a few "seed set" of papers are found, citations can
+help track the movement of the body of research forward and backward in time. If a
+paper is well-cited, that can be a good sign, but that can be difficult to 
+evaluate.
+
+A source is \textbf{credible} on a topic if the authors are experienced and
+recognized experts and the source gives a nontrivial depth of exposition. Credible
+sources are (usually) peer-reviewed publications in top journals or conferences,
+tech reports, blogs, books, podcasts, etc. from recognized industry experts.
+
+\begin{note}
+    Duke libraries has access to major research databases. IEEE Explore digital
+    libraries and ACM digital libraries are major professional societies for
+    computer scientists. Others include AAAI (for AI) and arXiv (these are
+    pre-print [i.e. not peer reviewed])
+
+    Some publications that have a stronger societal focus include SIGCHI, 
+    ACM FAccT, AI Ethics and Society Conference, and KDD.
+
+    Some technical publications in AI and ML include AAAI, IJCAI, ICML, NeurIPS,
+    CVPR, and ACL.
+\end{note}
+
+\subsection{How to read a paper}
+Especially early in the research process, it is better to shallowly read several
+pepers than to deeply read one, especially with how difficult and dense research
+can be. The \textit{abstract}, the \textit{intro}, and the \textit{main results}
+areas can be helpful here. If you run into a term you don't know, highlight it in
+some way and move on.
+
+After skimming, it may be wise to take 1-2 hours to read deeper and uncover
+whether or not that work will be relevant to your own work. If it will be, then
+deep reading and understanding of technical details becomes necessary.
+
+\end{document}
