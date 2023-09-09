@@ -1,0 +1,278 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Homework 1}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Question 1}
+\begin{ex}
+    Let $X_i \in X$ for all $i \in \{1,2, \cdots\}$ and suppose our belief model
+    for $\mathbf{X} = \{X_1, \cdots , X_n\}$ is exchangeable for all $n$. 
+    \textbf{Show}, using de Finetti's Theorem, that for all $i \ne j$:
+    \begin{align*}
+        & Cov(X_i,X_j) \ge 0 \text{ and}\\
+        & Corr(X_i, X_j) \ge 0
+    \end{align*}
+\end{ex}
+
+From de Finetti's Theorem, we know that $X_1, \cdots X_n | \theta$ are 
+\textit{iid} random variables given a parameter $\theta$. Therefore, we can 
+establish a random variable $Y$ such that $X_i \stackrel{d}{=} Y$ for all $i$.
+Thus, 
+\[
+    Cov(X_i, X_j) = Cov(Y,Y).
+\]
+Since the covariance of any random variable with itself is just the variance of
+that random  variable, it must be non-negative, as variance is always
+non-negative. Therefore,
+\[
+    \boxed{Cov(X_i,X_j) \ge 0} 
+\]
+Continuing on to correlation, we recall the following formula:
+\[
+    Corr(X_i, X_j) = \frac{Cov(X_i, X_j)}{\sqrt{Var(X_i)Var(X_j)}}
+\]
+We have already established that the numerator is non-negative, so for
+$Corr(X_i,X_j)$ to also be non-negative, we must show that
+$\sqrt{Var(X_i)Var(X_j)}$ is positive. This is plainly true since variance is
+calculated using the sum of square values (non-negative by definition). Thus:
+\[
+    \boxed{Corr(X_i,X_j) \ge 0} 
+\]
+\pagebreak
+\section{Question 2}
+\begin{ex}
+    Let $Y_1$ and $Y_2$ be two independent random variables such that
+    $ \mathbb{E}(Y_i) = \mu_i$ and $Var(Y_i)=\sigma_i^{2}$. Using the definition
+    of expectation and variance, \textbf{compute the following quantities}, where
+    $a_1$ and $a_2$ are given constants.
+    \begin{align*}
+        & \text{a) } \mathbb{E}(a_1Y_1 + a_2Y_2) \text{, } Var(a_1Y_1 + a_2Y_2);\\
+        & \text{b) } \mathbb{E}(a_1Y_1 - a_2Y_2) \text{, } Var(a_1Y_1 - a_2Y_2)
+    \end{align*}
+\end{ex}
+
+\textbf{a)} Since $Y_1$ and $Y_2$ are stated to be independent, we know that
+$ \mathbb{E}(Y_1 + Y_2) = \mathbb{E}(Y_1) + \mathbb{E}(Y_2)$. We also know that
+$ \mathbb{E}(aY) = a \mathbb{E}(Y)$. Thus
+\begin{align*}
+    \mathbb{E}(a_1Y_1 + a_2Y_2) &= \mathbb{E}(a_1Y_1) + \mathbb{E}(a_2Y_2) \\
+                               &= a_1 \mathbb{E}(Y_1) + a_2 \mathbb{E}(Y_2) \\
+    \Aboxed{\mathbb{E}(a_1Y_1 + a_2Y_2) &= a_1\mu_1 + a_2\mu_2}.
+\end{align*}
+The same reasoning holds for the variance of the sum of two independent random
+variables:
+\begin{align*}
+    Var(a_1Y_1 + a_2Y_2) &= Var(a_1Y_1) + Var(a_2Y_2) \\
+                         &= a_1Var(Y_1) + a_2Var(a_2Y_2) \\
+    \Aboxed{Var(a_1Y_1 + a_2Y_2) &= a_1\sigma_1^{2} + a_2\sigma_2^{2}}.
+\end{align*}
+
+\textbf{b)} The logic for part \textbf{a} applies here, even when $a_2 < 0$. Thus,
+\begin{align*}
+    \mathbb{E}(a_1Y_1 - a_2Y_2) &= \mathbb{E}(a_1Y_1) - \mathbb{E}(a_2Y_2) \\
+                               &= a_1 \mathbb{E}(Y_1) - a_2 \mathbb{E}(Y_2) \\
+    \Aboxed{\mathbb{E}(a_1Y_1 - a_2Y_2) &= a_1\mu_1 - a_2\mu_2},
+\end{align*}
+and,
+
+\begin{align*}
+    Var(a_1Y_1 - a_2Y_2) &= Var(a_1Y_1) - Var(a_2Y_2) \\
+                         &= a_1Var(Y_1) - a_2Var(a_2Y_2) \\
+    \Aboxed{Var(a_1Y_1 - a_2Y_2) &= a_1\sigma_1^{2} - a_2\sigma_2^{2}}.
+\end{align*}
+
+\pagebreak
+\section{Question 3}
+\begin{ex}
+    Let $X,Y,Z$ be random variables with joint density (discrete or continuous)
+    $p(x,y,z) \propto f(x,z)g(y,z)h(z)$. Show that:
+    \begin{align*}
+        & \text{a) } p(x|y,z) \propto f(x,z) \text{, i.e. } p(x|y,z) \text{ is
+        a function of $x$ and $z$}. \\
+        & \text{b) } p(y|x,z) \propto g(y,z) \text{, i.e. } p(y|x,z) \text{ is
+        a function of $y$ and $z$}. \\
+        & \text{c) $X$ and $Y$ are conditionally independent given $Z$}.
+    \end{align*}
+\end{ex}
+
+\textbf{a)} We are given the joint density function $p(x,y,z)$. Using the definition of conditional density we arrive at the following:
+\begin{align*}
+    p(x|y,z) &= \frac{\mathbb{P}(x \cap y \cap z)}{\mathbb{P}(y \cap z)} \\
+             &= \frac{p(x,y,z)}{p(y,z)} \\
+             &\propto \frac{f(x,z)g(y,z)h(z)}{\int f(x,z)g(y,z)h(z)dx}\\
+             &\propto \frac{f(x,z)g(y,z)h(z)}{g(y,z)h(z)\int f(x)dx}\\
+    \Aboxed{&\propto \frac{f(x,z)}{\int f(x,z)dx}} 
+\end{align*}
+
+thus we see that $p(x|y,z)$ is only dependent on $x$ and $z$.
+
+\textbf{b)} Similar reasoning to part \textbf{a} applies here:
+\begin{align*}
+    p(y|x,z) &= \frac{\mathbb{P}(x \cap y \cap z)}{\mathbb{P}(x \cap z)} \\
+             &= \frac{p(x,y,z)}{p(x,z)} \\
+             &\propto \frac{f(x,y)g(y,z)h(z)}{f(x,y)h(z)\int g(y,z)dy} \\
+     \Aboxed{&\propto \frac{g(y,z)}{\int g(y,z)dy}}
+\end{align*}
+
+\textbf{c)} Conditional independence holds if $p(x|y,z) = p(x|z)$
+\begin{align*}
+    p(x|z) &= \frac{p(x,z)}{p(z)}\\
+           &\propto \frac{\int p(x,y,z)dy}{\int \int p(x,y,z)dydx}\\
+           &\propto \frac{(\int g(y,z)dy)h(z)f(x,z)}{(\int g(y,z)dy)
+           h(z)(\int f(x,z)dx)} \\
+           &\propto \frac{f(x,z)}{\int f(x,z)dx}.
+\end{align*}
+
+In part \textbf{b}, we established that this is equivalent to $p(x|y,z)$. Thus
+we see that $X$ and $Y$ are conditionally independent given $Z$, since
+\[
+    \boxed{p(x|y,z) \propto p(x|z)} 
+\]
+
+\pagebreak
+\section{Question 4}
+\begin{ex}
+    Suppose events $A$ and $B$ are conditionally independent given $C$, which is
+    written $A \perp B | C$. \textbf{Show} that this implies that $A^\complement 
+    \perp B |C$, $A \perp B^\complement | C$, and $A^\complement \perp 
+    B^\complement | C$, where $A^\complement $ means "not $A$". \textbf{Find an
+    example} where $A \perp B | C$ holds but $A \perp B | C^\complement$ does not
+    hold.
+\end{ex}
+First, we demonstrate $A^\complement \perp B|C$. Recall that this is
+true if 
+\[
+\mathbb{P}(A^\complement \cap B |C) = \mathbb{P}(A^\complement |C)
+\mathbb{P}(B|C)
+\]
+\begin{align*}
+    \mathbb{P}(A^\complement \cap B|C) &= \mathbb{P}(B|C) - 
+    \mathbb{P}(A \cap B|C)\\
+                                       &= \mathbb{P}(B|C)-\mathbb{P}(A|C)
+                                       \mathbb{P}(B|C) \\
+                                       &= \mathbb{P}(B|C)(1-\mathbb{P}(
+                                       A|C)) \\
+                                       &= \mathbb{P}(B|C)\mathbb{P}(
+                                       A^\complement |C) \\
+    \Aboxed{A^\complement &\perp B|C} 
+\end{align*}
+
+Next, $A \perp B^\complement$:
+\begin{align*}
+    \mathbb{P}(A \cap B^\complement |C) &= \mathbb{P}(A|C)-\mathbb{P}(A\cap B|C)\\
+                                        &= \mathbb{P}(A|C)-\mathbb{P}(A|C)
+                                        \mathbb{P}(B|C) \\
+                                        &= \mathbb{P}(A|C)(1-\mathbb{P}(B|C))\\
+                                        &= \mathbb{P}(A|C)\mathbb{P}(
+                                        B^\complement |C)\\
+    \Aboxed{A &\perp B^\complement |C} 
+\end{align*}
+
+and finally, $A^\complement \perp B^\complement |C$:
+\begin{align*}
+    \mathbb{P}(A \cap B|C) &= \mathbb{P}(A|C)\mathbb{P}(B|C)\\
+                           &= (1-\mathbb{P}(A^\complement |C))(1-\mathbb{P}(
+                           B^\complement |C)\\
+                           &= 1 - \mathbb{P}(A^\complement |C)-\mathbb{P}(
+                           B^\complement |C)+\mathbb{P}(A^\complement |C)
+                           \mathbb{P}(B^\complement |C)
+\end{align*}
+
+Recall the following:
+\begin{align*}
+    \mathbb{P}(A^\complement |C) &= \mathbb{P}(A^\complement \cap B|C) +
+    \mathbb{P}(A^\complement \cap B^\complement |C) \\
+    \mathbb{P}(B^\complement |C) &= \mathbb{P}(B^\complement \cap A|C) +
+    \mathbb{P}(B^\complement \cap A^\complement |C)
+\end{align*}
+
+Substituting the above into our work and continuing:
+\begin{align*}
+    \mathbb{P}(A \cap B|C) + \mathbb{P}(A^\complement \cap B|C) + \mathbb{P}(
+    B^\complement \cap A|C) + 2\mathbb{P}(A^\complement \cap B^\complement |C) &=
+    1+\mathbb{P}(A^\complement |C)\mathbb{P}(B^\complement |C)
+\end{align*}
+
+Subtracting 1 from both sides (the left-hand side using the law of total 
+probability), we arrive at a solution:
+\begin{align*}
+    \mathbb{P}(A^\complement \cap B^\complement |C) &= \mathbb{P}(A^\complement
+    |C)\mathbb{P}(B^\complement |C) \\
+    \Aboxed{A^\complement &\perp B^\complement |C} 
+\end{align*}
+
+This does not mean that $A\perp B|C^\complement $. For example, take the following
+events:
+\begin{itemize}
+    \item $A$ : a student regularly studies
+    \item $B$ : a student has good grades
+    \item  $C$ : studying does not causes good grades, and good grades 
+        do not motivate students to study more
+\end{itemize}
+Here, if $C$ is true, then $A \perp B$. But if $C$ were true, then $A$ and $B$ 
+have a dependent relationship.
+
+\end{document}

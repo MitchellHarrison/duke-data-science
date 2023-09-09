@@ -1,0 +1,158 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 4 - Introductin to Machine Learning, pt. 2}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Geometric Concepts}
+\subsection{Classification and grometry}
+A classifier partitions $X \subset \mathbb{R}^{d}$ into sets, one per label $Y$.
+Simple partitions include logistic regression classifiers and linear support 
+vector machines. More complex partitions include nearest-neighbor classifier,
+kernel support vector machines, decision trees, and neural networks. These
+partitions effectively "split" the sample space into regions using the given 
+data, and new data points are given classifications based on the region into
+which these points fall.
+
+However, note that complex is not always better, and our intuition often fails
+when we approach dimensions $d>3$.
+
+\subsection{Score-based classifiers}
+Let $s$ be a score assigned by some function to each possible data point in the
+sample space. We can define regions in $ \mathbb{R}^{d}$ where if $s>0$, one
+classification is given, if $s<0$ another is given, and $s=0 $ defines the
+\textbf{decision boundaries}.
+
+If we let the score function be $s(x)$, and let it classify data into two 
+categories, $R$ and $C$. These possible values correspond to two sets: 
+$S \subseteq X$ and $C \subseteq \frac{X}{A}$. We hope to estimate something like
+$s(x) = \mathbb{P}(x \in S)$ given a threshold that we set. Scores are convenient
+to work with even without probabilities, because they are easy to work with. We
+implement a classifier $h$ by building a regressor $s$ (e.g. logistic-regression
+classifiers).
+
+\subsection{Linearly separable training sets}
+\begin{definition}
+    A \textbf{hyperplane} in $ \mathbb{R}^{d}$ is any solution to an affine 
+    function in that dimensionality. In $ \mathbb{R}^{2}$, for example, a
+    hyperplane is a line.
+\end{definition}
+
+Some line (a hyperplane in $ \mathbb{R}^{d}$) separates $C$ and $S$. Using 
+hyperplanes, we require a much smaller $ \mathcal{H}$. If a dataset it cleanly
+able to be split into two categories with a hyperplane, we say that the dataset is
+\textit{linearly separable}. Linear separability is a property of the data
+\textit{given a specific representation}. For example, data on a cartesian 
+coordinate plane may be linearly separable, but if the same data is put onto a
+polar coordinate system, there may not be an obvious line to separate the data
+into classification regions.
+
+\pagebreak
+\section{Nearest Neighbors Predictors}
+Nearest neighbors (NN) is very simple, but is also unusual. NN has no training
+time, but the inference is very slow. Interestingly, $Y$ (the labels of a
+training set) can be \textit{anything}. There is also almost no difference 
+between regression and classification, but the hypothesis space $ \mathcal{H}$ is
+hard to define.
+
+\subsection{How it works}
+Given $T = \{(x_{1}, y_{1}), \cdots , (x_{N}, y_{N})\}$, we simply store that
+$T$ in memory during "training" time. We need a distance in the data space $X$,
+and we normally take $\Delta(x,x') = ||x-x'||^{2}$. Then, $h(x) = y_{v(x)}$ where
+$v(x) \in argmin_{n=1, \cdots N}\Delta(x,x_{n})$. We return the value $y_{n}$ for
+the training point $x_{n}$ that is nearest to $x$. This is nearest neighbor
+prediction.
+
+\begin{note}
+    The \textit{min} gives the shortest distance between $x$ and $x_{n}$. 
+    \textbf{Argmin} does not return the shortest distance, but the value for $n$
+    that gives that shortest distance.
+\end{note}
+
+To find $v(x)$, we iterate through all points in the dataset and calculate the
+euclidian distance from a new point to each of those points to find the 
+\texttt{argmin}. This runs in $O(Nd)$ complexity where $x \in \mathbb{R}^{d}$. We
+cannot do better than this runtime if we want to find the \textit{exact} nearest
+neighbor. We \textit{can} do better, however, if we accept the following:
+\[
+    \Delta(x,x_{y(x)}) < (1+\epsilon)\Delta(x, x_{v^{*}(x)}).
+\]
+Here, $\epsilon >0$, and the closer to 0 that we assign $\epsilon$, the more we
+pay for that in runtime. We see $v^{*}(x)$, which is the covector for $v(x)$.
+This is \textit{approximate nearest neighbor}.
+
+\subsection{The Voronoi diagram}
+\begin{definition}
+    A \textbf{Voronoi diagram} visualizes regions around data points to draw
+    boundaries where, should a new data point fall in that region, the nearest
+    neighbor in constant. Colors may be added to also visualize which 
+    classification each region maps onto.
+
+    Note that these are only conceptual, or for dimensions $d=2$ or $d=3$.
+\end{definition}
+
+
+\end{document}

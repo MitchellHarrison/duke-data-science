@@ -1,0 +1,173 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 4 - Single Parameter Estimation pt. 2}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{The Poisson Model}
+Recall that a Poisson model is a discrete distribution such that:
+\[
+    \mathbb{P}(Y=y|\theta) = \frac{\theta^{y}e^{-\theta}}{y!} \text{,  where } y
+    \in \{0,1,2, \cdots \}
+\]
+Here, $\theta$ is the average rate of occurrence over a time or space interval.
+Also recall that $ \mathbb{E}(Y) = Var(Y) = \theta$.
+\begin{ex}
+    Say we take a survey of ten Harris Teeter shoppers and ask how many children
+    each of them have. Let $\{Y_{1}, \cdots , Y_{10}\}$ be the response of each
+    participant. We want to \textbf{find the joint likelihood}. 
+
+    First, we need a \textit{joint likelihood} (i.e. probability of all
+    observed data). Mathematically:
+    \[
+        \mathbb{P}(y|\theta) \text{,  where } y = \{y_{1}, \cdots ,y_{n}\}
+    \]
+    Using conditioning probability:
+    \[
+        \mathbb{P}(y_{1}, \cdots , y_{n}|\theta) = \mathbb{P}(y_{1} | y_{2},
+        \cdots y_{n}|\theta)\mathbb{P}(y_{2}, \cdots ,y_{n}|\theta)
+    \]
+    Continuing expanding using conditional probability, we arrive at the
+    following, given conditional independence:
+    \[
+       \mathbb{P}(y_{1}, \cdots , y_{n}) = \mathbb{P}(y_{1}|\theta)
+        \mathbb{P}(y_{2}|\theta) \cdots \mathbb{P}(y_{3}|\theta)
+    \]
+    Or, more tersely, our \textit{joint likelihood} is:
+    \[
+        \prod_{i=1}^{n}\mathbb{P}(y_{i}|\theta)
+    \]
+    We know that our posterior is proportional to the joint likelihood and the
+    probability that $\theta$ is a given value. Mathematically,
+    \[
+        \mathbb{P}(\theta|y) \propto \mathbb{P}(y|\theta)\mathbb{P}(\theta).
+    \]
+    We can write out our PDF (given by the use of a Poisson model) to simplify
+    the joint distribution. This gives rise to the \textbf{data generative
+    process:}
+    \[
+        \prod_{i=1}^{n}\frac{\theta^{y_{i}}e^{-\theta}}{y_{i}!} =
+        \boxed{\frac{\theta^{\sum y_{i}}e^{-n\theta}}{ \prod_{i=1}^{n}y_{i}!}} 
+    \]
+\end{ex}
+
+In the above example, and in all of Bayesian statistics, we choose
+$\mathbb{P}(\theta)$ to be conjugate to the likelihood for ease of computation. 
+We search through known distributions to find distributions that are similar to
+our data generative process. This loses precision, but substantially improves
+computation time. In the previous example, the closest known distribution is the
+\textit{gamma distribution}.
+
+\subsection{Checking conjugacy}
+In the previous example, we found that the closest known distribution to our data
+generative model is a \textit{gamma distribution}. We know:
+\begin{align*}
+    \mathbb{P}(\theta|y) &\propto \mathbb{P}(y|\theta)\mathbb{P}(\theta)\\
+                         &\propto \theta^{\sum y_{i}}e^{-n\theta}\theta^{a-1}
+                         e^{-b\theta}\\
+                         &\propto \theta^{\sum y_{i}+a-1}
+\end{align*}
+
+To summarize the steps we've taken:
+\begin{enumerate}
+    \item Choose the data generative process that models the data.
+    \item Choose prior on parameter(s) of the likelihood.
+    \item Write down our posterior $\mathbb{P}(\theta|y)$.
+\end{enumerate}
+
+Above, we saw that with a prior being gamma (i.e. $\theta \sim gamma(a,b)$ and a
+Poisson likelihood (i.e. $y|\theta \sim Poisson(\theta)$, we give rise to a
+gamma posterior $\mathbb{P}(\theta|y) = Gamma(\alpha,\beta)$.
+
+\pagebreak
+\section{Prior Data}
+\begin{note}
+    The posterior mean is the weighted mean of the prior mean $\mu_{p}$, and the 
+    sample mean $\mu_{s}$. For a coin flip where $\theta \in [0,1]$:
+    \[
+        \text{posterior mean} = \theta\left(\frac{a}{a+b}\right) + (1-\theta)
+        \left(\frac{y}{n}\right)
+    \]
+    Here, $\theta = \frac{a+b}{a+b+n}$ and $1-\theta = $
+
+    \textbf{TODO: FILL FROM LECTURE RECORDING}
+\end{note}
+
+\pagebreak
+\section{Posterior Summaries and Reliability}
+\subsection{Laplace approximation}
+Often, taking the mean of a posterior distribution gives rise to a highly unlikely
+prediction, especially with bimodial posterior distributions. One way to select
+a $\theta$ in that case is to use Laplace approximation, which uses the \textit{
+posterior mode}.
+
+\begin{definition}
+    The \textbf{posterior mode}, sometimes called the "MAP" (for \textit{
+    maximum a posteriori}, is the highest peak of the posterior distribution.
+\end{definition}
+
+
+\end{document}
