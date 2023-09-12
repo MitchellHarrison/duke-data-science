@@ -1,0 +1,213 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 4 - PageRank and Web Search}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{PageRank}
+
+At its best, a search engine introduces you to truth, or the nearest thing 
+possible. At its worst, however, it \textit{dictates} the truth for you. 
+\textbf{PageRank} is a system that helps users parse the web. Even in the 1990s, 
+the scale of the web made this a highly difficult challenge. The first challenge
+for web search developers was \textit{what makes a page "important"}? The earliest
+attempts involved pure text matching, ignoring words like "the" and "an" to find
+the more substantive words to match to a page. This was a highly imperfect 
+system and was prone to error by pages that just shoved as many words as possible
+in their page. 
+
+In came PageRank, developed by Larry Page (who would found Google). His 
+\textit{minimal viable PageRank-based Web Search Engine} was released while he was
+a graduate student at Stanford. It focussed, for the first time, on finding
+"important" pages over pure text matching.
+
+\subsection{Directed graphs}
+PageRank considers the web as a directed graph. Each page represents a node and
+each edge represents a hyperlink that sends a user from one page to the next.
+PageRank considered each edge to a node as a "vote" for that page's importance. If
+many websites and pages linked to the same page from around the web was deemed
+more important as other pages.
+
+\subsection{Graph centrality}
+
+\begin{definition}
+    \textbf{Graph centrality} is a category of problems that explores which nodes
+    in a graph are most-pointed to (i.e. "central"). This is useful for web 
+    search, but also things like social network analysis.
+\end{definition}
+
+There are several ways to formalize graph centrality:
+\begin{enumerate}
+    \item \textbf{Attempt 1: }Measure the \textit{in-degree} (number of incoming 
+        directed edges) of every node. The problem with this method is that a
+        website that has a homepage that every page links to would be counted as
+        far more important than it ought to be.
+    \item \textbf{Attempt 2:} Say that a node is "central" in so far as we are 
+        likely to arrive at the node while randomly traversing the graph. This is 
+        a \textbf{ranodm walk}.
+\end{enumerate}
+
+\subsection{Random walk}
+\begin{definition}
+    A \textbf{random walk} is defined as the following process:
+    \begin{enumerate}
+        \item Start at a random vertex.
+        \item For $t$ from 1 to $T$ steps, choose an outgoing edge uniformly at
+            random and follow it
+        \item Let $\pi_{i}^{t}$ be the probability that we are at node $i$ at 
+            time $t$. Then the centrality of the node $i$ is:
+            \[
+                \lim_{t \to \infty} \pi_{i}^{t}
+            \]
+    \end{enumerate}
+\end{definition}
+
+\begin{note}
+Note that PageRank did not use a random walk in this simple sense, but a slight
+revision that involves a slight probability that you jump to a random node, so 
+no page has probability zero, even if it has no pages linking to it.
+\end{note}
+
+We can write transition probabilities in mathematical notation. Note that
+$\pi^{t+1}$ only depends on $\pi^{t}$. In particular, let $d_{i}$ denote the
+outgoint degree of vertex $i$. Then,
+\[
+    \vec\pi_{j}^{t+1} = \sum_{i:(i,j)\in E}^{}\frac{\vec\pi_{i}^{t}}{d_{i}}.
+\]
+For convenience, let $P$ be the transition matrix defined below. For now, we may
+assume that $d_{i} \ge 1$ for all $i$.
+\[
+P_{ij} =
+\begin{cases}
+    \frac{1}{d_{i}} & A_{ij} = 1 \\
+    0 & A_{ij} = 0
+\end{cases}
+\]
+\subsection{Markov Chain}
+In a Markov Chain, each row represents a conditional probability that we can 
+interpret $P_{ij}$ as the probability that we move to $j$ given that we are at
+$i$. We can rewrite the updates in terms of the transition matrix:
+\[
+    \vec\pi^{t+1} = \vec\pi^{t}P
+\]
+Note that $\pi^{t+1}$ is independent of the history, conditional on $\pi^{t}$.
+That is,
+\[
+    \left( \vec\pi^{t+1} \middle| \vec\pi^{1}, \vec\pi^{2}, 
+    \cdots ,\vec\pi^{t}\right) =
+    \left(\vec\pi^{t+1} \middle| \vec\pi^{t}\right)
+\]
+Thus, \textit{a random walk is a Markov Chain}. 
+\begin{definition}
+    The \textbf{stationary distribution} of the Markov Chain is defined 
+    mathemathically as
+    \[
+    \lim_{t \to \infty} \vec \pi^{t}.
+    \]
+    This may not exist in a cyclic graph, which makes this an imperfect system
+    because centrality would be different depending on when you stopped running
+    the algorithm arbitrarily.
+\end{definition}
+
+Some issues face ranking using a stationary distribution:
+\begin{enumerate}
+    \item Does the limit exist? A cyclic graph may not have a limit, which means
+        the algorithm would rank arbitrarily based on when you decided to stop
+        running the algorithm.
+    \item Does the limit depend on the starting state $\vec \pi^{1}$? If so,
+        rank would be inconsistent as starting points changed.
+    \item Can we effeciently compute the limit? If not, the algorithm isn't a
+        useable one anyway.
+\end{enumerate}
+
+\subsection{Power iteration}
+\begin{definition}
+    \textbf{Power iteration} is one way that we can compute how long it would take
+    to find the stationary distribution. The steps are as follows:
+    \begin{enumerate}
+        \item Initialize $\vec \pi^{1}$ to the uniform distribution.
+        \item Let $\delta$ be a convergence parameter where we stop calculating
+            if the difference between two iterates is less than $\delta$.
+        \item Let $t=1$.
+        \item Do:
+            \begin{align*}
+                &\vec \pi^{t+1} - \vec \pi^{t}P \\
+                & t += 1
+            \end{align*}
+        while:
+        \[
+            ||\vec \pi^{t} - \vec \pi^{t-1}|| > \delta
+        \]
+    \end{enumerate}
+\end{definition}
+Note that power iteration runs in quadratic time, but the math is \textit{highly}
+parallelizable. Computing the same limit using matrix decomposition will work,
+but runs in \textit{cubic} time, which is utterly un-useable at the scale that
+web search opperates. Also, because the vast majority of pages do not cite the
+vast majority of others, the matrix $P$ is extremely sparse and makes power
+iteration run much faster than quadratic time in practice.
+
+\end{document}

@@ -3,3 +3,4 @@
 !*.md
 !*.qmd
 !*.R
+.Rproj.user
