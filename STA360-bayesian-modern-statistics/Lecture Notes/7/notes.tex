@@ -1,0 +1,150 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 7 - Monte Carlo Integration}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Monte Carlo}
+\subsection{MC Error}
+
+\textbf{Recall} that expected values are integrals, and integrals are expected
+values. Since the central limit theorem (CLT) deals with expected calues...
+
+\textbf{Recall} that CLT states that if $\theta|\vec y$ iid with mean $\theta$ and
+finite variance $\sigma^{2}$, for $i \in \{1, \cdots , N\}$, then the sample
+mean 
+\[
+\bar \theta \sim N\left(\theta, \frac{\sigma^{2}}{N}\right).
+\]
+So, to estimate $\theta$, we can generate $\bar \theta$ by Monte Carlo simulation
+and report a confidence interval using quantiles of the normal given in the 
+above conjunction with the \textit{Monte Carlo standard error} 
+$\frac{\hat \sigma}{\sqrt{N}}$ (the only difference from normal standard error
+notation is the hat over $\sigma$). This means that we get convergence at the rate
+\[
+O\left(\frac{1}{\sqrt{N}}\right),
+\]
+regardless of the dimension of the integral!
+
+\begin{definition}
+    The \textbf{standard error} is a special term for the \textit{standard
+    deviation} of the \textit{sample mean}.
+\end{definition}
+
+\begin{note}
+    Recall that for a normal distribution, $ \mathbb{E} = \theta$ and
+    $Var = \sigma^{2}/n$.
+\end{note}
+
+\subsection{MC Prediction}
+We can use Monte Carlo to sample new observations, $\vec y$, from the 
+\textbf{prior predictive distribution}
+\[
+p(\vec y) = \int \mathbb{P}\left(\vec y \;\middle|\; \theta\right) p(\theta)
+d \theta,
+\]
+where we proceed by following the iterative procedure below:
+\begin{enumerate}
+    \item sample $\theta_{i}$ from the prior $p(\theta)$
+    \item sample $\tilde y$ from $p(\tilde y | \theta_{i})$
+    \item repeat steps 1 and 2
+\end{enumerate}
+\begin{note}
+    See lecture recording for an R code example of this algorithm.
+\end{note}
+
+\subsection{Posterior predictive model checking}
+\begin{ex}
+    \textbf{Is our Poisson model flawed?} We are examining the number of 
+    children $Y_{i}$ belonging to $n=111$, 40-year-old women surveyed in 1990
+    or later without a bachellor's degree. These data come from the General
+    Social Survey. Suppose
+    \begin{align*}
+        &Y_{i} \sim Poisson(\theta)\\
+        &\theta \sim  gamma(2, 1)
+    \end{align*}
+    \textit{See the course website for plots showing the predictive and 
+    empirical data.}
+
+    To investigate whether or not a model is "flawed," we can use a similar
+    idea to hypothesis testing. Let $y$ be a vector of length $n=111$. Let
+    $t(y)$ be the ratio of 2 children to 1 children. For our observed data (per
+    the plot on the course website), this test statistic $t(y_{obs}) = 38/19=2$.
+    \textbf{What is the tail probability} of $p(t(\tilde Y) \ge t(y_{obs}))$
+    under the posterior predictive distribution?
+
+    To find this, we will draw $n=111$ samples from $p(\tilde y|\vec y)$, 
+    then compute
+    \[
+    t(y) = \frac{sum(y ==2)}{sum(y==1)}.
+    \]
+    We repeat this computation many times to arrive at a distribution of the 
+    ratios of 2:1 children, which we can find the region that contains 95\% of
+    the data (or any other arbitrary percentile).
+\end{ex}
+
+\end{document}

@@ -1,0 +1,187 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 6 - Local, Unconstrained Function Optimization}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Motivation and Scope}
+
+Most machine learing problems are solved by optimization. \textit{Solving} the
+system of equations $e(z) = 0$ can be viewed as
+\[
+\hat z = \in argmin_{z}||e(z)||,
+\]
+which minimizes the empirical risk function $e(z)$. \textbf{Risk} is a measure of
+the empirical loss, from the function $\ell(y_{n},y)$. Note that the loss
+function is only a function of $y$, not $x$.
+
+Suppose you are given a loss function and the \textit{parametric predictor 
+function} $h(x;v) : \mathbb{R}^{d}\times \mathbb{R}^{m} \rightarrow Y$. If that
+system of equations is non-linear, finding a solution using linear algebra or
+calculus (gradients and derivatives) may be impossible. The was we solve general
+systems, not just linear systems, is \textbf{optimization}. Not all systems are
+solveable (e.g. more equation than unknowns), but the above formula will find the
+nearest solution possible since it minimizes the norm of the given function. This
+is the \textit{least squares solution.} 
+
+A situtation may also occur in which a
+solution exists, but we don't know how to find it. \textbf{Global minima} are
+impossible to find, but there are likely several \textbf{local minima}, from which
+we have several ways of selecting the best.
+
+\pagebreak
+\section{Local Minimization}
+We will only study local minima, because they are the only minima that we can
+find in practice. We will use the following function:
+\[
+    z = argmin_{z \in ?}f(z).
+\]
+All we know about $f$ is that it is a "black box." For many problems, $f$ has
+many local minima. To find a local minima, we start somewhere $(z_{o})$ and take
+steps "down:"
+\[
+    f(z_{k+1}) < f(z_{k}).
+\]
+When we arrive at a local minimum, we declare success. Of course, we would
+prefer to have arrived at the global minimum, but all we can guarantee are
+local minima. For some problems, $f$ has a unique minimum (or at least a single
+connected set of minima).
+
+Note that if a function is completely arbitrary, there is no way to make an 
+educated step from $z_{k}$ to $z_{k+1}$. We do need \textit{some} information
+about the function. Specifically, we need the \textit{gradient} of the function,
+which means we need it to have first derivatives over all variables. We will use
+the gradient to find the optimal direction of traversal over a function from
+$z_{k}$ to $z_{k+1}$.
+
+\subsection{The Gradient}
+\begin{definition}
+    The \textbf{gradient} of a function is a vector in which each entry is the
+    first partial derivative over each coefficient. The gradient uses notation:
+    \[
+        \nabla f(z)
+    \]
+\end{definition}
+
+If $\nabla f(z)$ exists everywhere, the condition $\nabla f(z) = 0$ is necessary 
+and sufficient for a stationary point. This is only \textit{necessary} for
+finding a minimum.
+
+If the gradient exists, then we can use first-order \textit{Taylor expansion}:
+\[
+    f(z) \approx g_{1}(z) = f(z_{0}) + \left[\nabla f(z_{0})\right]^{T}(z-z_{0}).
+\]
+This approximates $f(z)$ near $z_{0}$ with a (hyper)plane through $z_{0}$. Note
+that the gradient $\nabla f(z_{0})$ points to the direction of steepest
+\textit{increase} of $f$ at $z_{0}$. If we want to find $z_{1}$, where
+$f(z_{1}) < f(z_{0})$, going along $-\nabla f(z_{0})$ seems promising. This is
+the general idea of \textbf{gradient descent}.
+
+\pagebreak
+\subsection{The Hessian}
+
+\begin{definition}
+    The \textbf{Hessian matrix} is a $k\times k$ matrix in $ \mathbb{R}^{k}$,
+    where each entry represents a second partial derivative for every possible
+    combination of variables. The diagonal entries are the second derivative 
+    over the same variable twice.
+\end{definition}
+
+Hessian matrices are less common than the gradient in machine learning, but is
+useful for telling us if we have a lucky case where the function decreases 
+everywhere from where we are. Hessian matrices are \textit{symmetric}, which means
+it has entirely real eigenvalues.
+
+The Hessian helps us study convexity, but it is a blunt instrument. For example,
+a function that is convex but has a single point that is non-differentiable 
+means that the Hessian doesn't exist, but there is still a minimum. Ideally, we
+start by asking whether or not the function is convex \textit{everywhere}, and
+then we can start working on finding whether it is convex at a specific point.
+
+For all $z$ and $z'$ in the (open) domain of $f$ and for all $u \in (0,1)$,
+\[
+    f(uz + (1-u)z') < uf(z) + (1-u)f(z').
+\]
+This gives the line segment between points $z$ and $z'$. If $u$ could take 
+\textit{any} value (not just $\in (0,1)$), you arrive at the line passing through
+those two points. If this is true everywhere in the function, then it is
+strongly convex everywhere. If a point in the function \textit{touches} but not
+\textit{pass over} the line segment, it is weakly convex.
+
+\begin{note}
+    If we have \textit{weak} complexity, replace $"<"$ with $"\le"$.
+\end{note}
+
+Convexity \textit{can} be checked with the Hessian matrix, but only if the
+function is fully twice-differentiable, and it is positively semidefinite, which
+is to say that
+\[
+    v^{T}H(z)v > 0 \text{ for all } v \in \mathbb{R}^{m}.
+\]
+This is the definition of \textbf{positive semidefiniteness}.
+
+\end{document}

@@ -1,0 +1,184 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 5 - PageRank (cont'd) and Algorithms of Oppression}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{PageRank (cont'd)}
+
+\subsection{Power iteration (cont'd)}
+Recall that the page rank was an eigenvector of a particular eigenvalue that
+instead of using matrix math to find such an eigenvector, we use \textit{power
+iteration}. Recall that this process takes theoretically $O(n^{2})$ time, but 
+because the matrix of all hyperlinks is so sparse, that it performs much better
+than that in practice.
+
+\begin{definition}
+In general, the convergence rate is determined by the \textbf{spectral gap}. If $\lambda_{1} = 1$ is the largest eigenvalue of $P^{T}$ and $\lambda_{2}$ is the
+second largest eigenvalue of $P^{T}$, then the spectral gap is $\lambda_{1} -
+\lambda_{2}$.
+\end{definition}
+
+The spectral gap is in turn related to the conductance of the underlying graph.
+
+\begin{definition}
+    A \textbf{cut} is a subset of vertices in a graph.
+\end{definition}
+
+\begin{definition}
+    Let $S \in V$ be a cut in $G = (V,E)$. The \textbf{conductance} of the cut is:
+    \[
+        \phi (S) = \frac{|\{(i,j) \in  E: i \in S, j \notin S\}|}{
+        min(\sum_{i \in S}d_{i}, \sum_{i \notin S}d_{i})}.
+    \]
+    This gives a quantitative measure of the ease of which one can leave a
+    particular cut when traversing the graph.
+\end{definition}
+
+Intuitively, the lower conductance graphs have bottlenecks, and it may take a
+longer time for the random walk to traverse the cut. By contrase, power iteration
+converges rapidly on graphs with high conductance. We can guarantee convergence 
+(to within some error term, one needs the following number of iterations:
+\[
+    O\left(\frac{log(n)}{\phi^{2}}\right),
+\]
+where $\phi $ is the \textit{conductance} of a cut.
+
+\subsection{PageRank random walk}
+To ensure rapid convergence, pagerank modifies the random walk to have nonzero
+(~15\%) probability of jumping to a random node. In particular,
+\begin{enumerate}
+    \item Start at a random vertex.
+    \item For $t$ from 1 to $T$ steps, if the current page has no links, choose
+        a page uniformly at random. If it \textit{does} have links, with 
+        probability 0.15, choose a page uniformly at random anyway. With the
+        remaining 0.85 probability, choose a link from the current page
+        uniformly at random.
+\end{enumerate}
+This method helps ensure rapid convergence because there will always be a random
+chance of jumping across any edges that are otherwise nearly impossible to reach
+with a random walk.
+
+Thus, if we there are $n$ web pages in total, the transition matrix for this
+random walk is given by
+\[
+P_{ij} =
+\begin{cases}
+    \frac{0.85A_{ij}}{d_{i}}+\frac{0.15}{n} & Function 1 \\
+    Case 2 & Function 2
+\end{cases}
+\]
+\textbf{TODO: FILL THIS OUT FROM LECTURE RECORDING}
+
+This matrix is less sparse than a completely random walk, but computation is still
+relatively efficient when performing power iteration because of how gracefully
+logarithms scale.
+
+\pagebreak
+\section{Web Search Beyond PageRank}
+
+\subsection{Problems in algorithmic web search}
+The first task in performing web search is to \textit{interpreting the meaning of
+your query}. This step corrects for things like checking spelling and grammar.
+Then, given a partial query, \textit{autocomplete} recommends commonly-used 
+queries to close the "distance" between a user's query and past ones. 
+
+Once a search is complete, a "freshness algorithm" to check for recent news 
+about that query (e.g. searching for a game score gives the most recent one, not
+the most cited one, which would likely be older). It then matches keywords on
+webpage content and puts more emphasis on things like headers in HTML.
+
+Before any of these searches can be conducted, \textit{web crawling} has to
+continuously happen to properly index the dynamic graph of web pages online.
+
+Beyond pure keyword matching to determine relevance, \textit{machine learning} is
+used to predict whether or not a specific user will actually click on a link 
+provided by a search. Note that this is a \textit{distinct} process from 
+traditional PageRank, where instead of number of citation, the user's preference
+means that they might get the results they \textit{want}, but not the ones that
+are necessarily the ones that are most helpful for the original reason that a 
+user searched the web.
+
+\subsection{Quality of content}
+Google still sites PageRank (network centrality) as a starting point for search
+results. They also concede that quality control for PageRank doesn't work well.
+But they also take page usability (style guidelines, load times, etc.) into
+account when ranking results. As mentioned, user location and recent searches are
+accounted for as well.
+
+\pagebreak
+\section{Algorithms of Oppression}
+Search algorithms are the vehicle by which most of us use the web, and thereby
+access information. They dictate which businesses we frequent, what we learn, 
+what news we get, and more.
+
+\begin{note}
+    The course Sakai site has the introductory chapter for \textit{Algorithms of
+    Oppression}. The Duke library has physical copies and an eBook available as
+    well.
+\end{note}
+
+\end{document}

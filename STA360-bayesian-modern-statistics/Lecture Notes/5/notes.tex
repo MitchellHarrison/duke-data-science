@@ -1,0 +1,247 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 5 - Posteriors, Families, and Predictions}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Summarizing the Posterior}
+
+\subsection{Laplace approximation}
+\begin{definition}
+    The \textbf{Laplace approximation} fits a Gaussian distribution to the mode of
+    the posterior $p(\theta|y)$.
+\end{definition}
+
+We begin with a continuous $p(\theta|y)$. The posterior mode $\hat \theta$ is 
+given by the derivative of the log posterior
+\[
+    \frac{d}{d\theta} log\left(p(\theta|y)\right) = 0.
+\]
+If this is locally concave (and is thereby a local maximum), then
+\[
+    \frac{d^{2}}{d \theta} log\left(p(\theta|y)\right) < 0.
+\]
+To approximate a function near a point, we perform a \textit{Taylor Series}
+expansion. Let $L(\theta) = log\left(p(\theta|y)\right)$.
+\[
+    L(\theta) \approx L(\hat \theta) + \frac{d}{d \theta}L(\theta) |_{\hat
+    \theta}(\theta - \hat \theta) +\frac{\frac{d^{2}}{d \theta^{2}}
+    L(\theta) (\theta - \hat \theta)^{2}}{2!} 
+\]
+So,
+\[
+    p(\theta|y) = exp\{L(\theta)\} \approx exp\{A\}exp\left\{\frac{1}{2}
+    \frac{d^{2}L(\theta)}{d \theta^{2}}|_{\hat \theta}(\theta - \hat
+    \theta)^{2}\right\}
+\]
+For a Gaussian with mean $\hat \theta$, 
+\[
+\sigma^{2} = \frac{-1}{L''(\hat \theta)},
+\]
+since $L''(\hat \theta) < 0$ because a local maximum always has a negative
+second derivative, then our variance is positive, as is required.
+
+\begin{ex}
+    Take a binomial coin flip with $p(\theta) = 1$:
+    \begin{align*}
+        p(\theta|y) &\propto \theta^{y(1-\theta)^{n-y}}\\
+        L(\theta) &= c + ylog(\theta) + (n-y)log(1-\theta)\\
+        L'(\theta) &= \frac{y}{\theta} - \frac{n-y}{1- \theta}\\
+        L''(\theta) &= \frac{-y}{\theta^{2}} - \frac{n-y}{(1-\theta)^{2}}
+    \end{align*}
+    Thus,
+    \[
+    \boxed{p(\theta|y) \approx \mathcal{N}\left(\hat\theta, 
+        \frac{\hat \theta(1-\hat\theta)}{N}\right)} 
+    \]
+    using $y = \hat \theta n$ and $y/n = \theta$. This is the \textbf{Laplace
+    approximation} specifically for the binomial coin flip in this example.
+\end{ex}
+
+Summarizing a posterior using a Gaussian fails for multimodal posterior 
+distributions, or any distribution where the area around the mode is not smooth.
+There are other ways to summarize a posterior. One such way is with a Bayesian
+\textit{confidence region}.
+
+\pagebreak
+\section{Confidence Regions}
+
+\begin{definition}
+After observing the data $Y=y$, 
+\[
+    p\left(\ell(y) < \theta < u(y) | y\right) = 1 - \alpha,
+\]
+where $\ell$ is the lower bound and $u$ is the upper bound. This \textit{is} a
+probability statement about $\theta$. We are saying that "$\theta$ is in an
+interval with probability $1-\alpha$. This is a \textbf{confidence region}. These
+are sometimes called confidence intervals, not to be confused with the frequentist
+definition of confidence intervals.
+\end{definition}
+
+\begin{ex}
+    We are given a beta-binomial posterior
+    \[
+    \theta|y \sim beta(y+a, n-y+b).
+    \]
+    To find a confindence region, we want to "cut the tails off" of the 
+    distribution and find quartiles. We do this in R using the \texttt{qbeta} 
+    function \texttt{qbeta(c(0.025, 0.975), a+y, n-y+b)} to get a 95\% 
+    Bayesian confidence interval.
+\end{ex}
+
+\subsection{High posterior density (HPD) region}
+
+High posterior density (HPD) regions have the same interpretation as other
+confidence regions,
+\[
+    p(\theta \in  s(y)|y) = 1-\alpha.
+\]
+Note that $s(y)$ need not be an interval. Say we have a bimodal posterior
+distribution. If we took a horizontal line and lowered it onto the distribution
+plot until the total area above that line and below the shaded regions drawn
+by that line was $\alpha$ (where $\alpha$ is the desired amount of
+confidence [e.g. 0.95]), we would arrive at the high posterior density regions.
+This often gives multiple regions $s_{1}(y)$ and $s_{2}(y)$, where our final 
+HPD region $s(y) = s_{1}(y) \cup s_{2}(y)$. Generally, we arrive at a function
+that is normally solved by hand in practice:
+\[
+    \int_{-\infty}^{\infty}p(\theta|x) \mathbbm{1}_{\{p(\theta) \ge c\}d \theta} 
+    = 1-\alpha,
+\]
+where we don't know $c$.
+
+\begin{note}
+    It's good practice to report \textit{both} a point estimate (e.g. posterior
+    mean, posterior mode, etc.) together with a measure of reliability (e.g.
+    confidence interval, HPD regions, standard deviation $\hat\sigma$ from a 
+    Laplace approximation).
+\end{note}
+
+\pagebreak
+\section{Exponential Families}
+Some examples of exponential families include a binomial with a fixed $n$, 
+Poisson, beta, gamma, and normal distributions. All of these come from the same
+class of distributions.
+
+\begin{definition}
+    A single-parameter \textbf{exponential family} is any that has a density
+    \[
+        p(y|\theta) = h(y)c(\phi )exp\{\theta t(y)\}
+    \]
+    where $h(y)$ is a function of the data, $c(\phi )$ is a function of the
+    parameters, and an exponential function combines the two. In general,
+    $\phi = g(\theta)$, which is a function of the "traditional" parameters. We 
+    call $t(y)$ a \textbf{sufficient statistic} because no other statistic can
+    provide additional information about the parameter.
+\end{definition}
+
+To show that $t(y)$ is a sufficient statistic, recall that
+\[
+    L(\phi ) = log(h(y)) + log(c(\theta)) + \phi t(y).
+\]
+So when finding the MLE or MAP $\hat \theta$, the constant $h(y)$ is irrelevant.
+Thus, $\phi t(y)$ is the only term that gives information about the parameter, 
+hence it is a sufficient statistic.
+
+Suppose $p(\theta|n_{0}t_{0}) = k(n_{o}, t_{0})c(\theta)^{n_{0}}exp\{n_{0}t_{0}
+\phi\}$. Let $y = \{y_{1}, \cdots , y_{n}\}$.
+\begin{align*}
+    p(\theta|y) &\propto p(y|\theta)p(\phi |n_{0}t_{0}) \\
+                &\propto \prod_{i=1}^{n}c(\theta)exp\{\phi t(y)\} \cdot 
+                c(\theta) ^{n_{0}}exp\{n_{0}t_{0}\theta\} \\
+                &\propto c(\theta)^{n+n_{0}}exp\{\theta \cdot \left(
+                    \sum_{i=1}^{n}t(y_{i})+n_{0}t_{0}\right)\} \\
+                &\propto p\left(\theta | n+n_{0}, \frac{
+                    \sum_{i=1}^{n}t(y_{i}) + n_{0}t_{0}}{n+n_{0}}\right)
+\end{align*}
+
+We've gone from prior $p(\theta|n_{0}, t_{0}$ to posterior $p(\theta|y)$ where
+$p(\theta|y)$ and $p(\theta|n_{0},t_{0})$ have the same form. \textit{This is
+conjugacy!}
+
+\begin{note}
+    Note that in the above proof, $n_{0}$ is the prior sample size and $t_{0}$ is
+    the prior mean.
+\end{note}
+
+\begin{ex}
+    Let $Y \sim binomial(\theta)$. We know our likelihood
+    \[
+        p(y|\theta) = \theta^{y}(1-\theta)^{1-y} \rightarrow \left(
+            \frac{\theta}{1-\theta}\right)^{y}(1-\theta)
+    \]
+    I need $p(y|\theta)$ to look like $h(y)c(\theta)e^{\phi t(y)}$. But $p(y|
+    \theta)$ has no exponential term, so we need to exponentiate. \textit{This
+    example will continue next lecture due to time.} We will arrive at:
+    \begin{align*}
+        t(y) &= y \\
+        \phi &= log\left(\frac{\theta}{1-\theta}\right)\\
+        c(\theta) &= (1 + e^{\theta})^{-1}
+    \end{align*}
+\end{ex}
+
+
+\end{document}

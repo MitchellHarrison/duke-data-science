@@ -1,0 +1,222 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 6 - Prediction and Intro to Monte Carlo}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review - Exponential Families}
+
+If our likelihood (or \textit{data generative process}) can be written in the
+form 
+\[
+    p(y|\theta) = h(y)c(\phi )exp\{\phi t(y)\},
+\]
+where $\phi $ is a parameter, then we can say that they belong to the same family.
+\textit{If we can write our likelihood in this we, we have an exponential family.}
+
+If we have likelihood in the same family, then the prior will be in the form
+\[
+    p(\phi |n_{0},t_{0}) = k(n_{0},t_{0})c(\phi )^{n_{0}}exp\{n_{o}t_{o}\phi \}.
+\]
+\begin{note}
+Note that $\phi $ is not necessarily the underlying parameter $\theta$ that we
+care about.
+\end{note}
+
+\pagebreak
+\section{Prediction}
+
+Let $\vec y = \{y_{1}, \cdots , y_{n}\}$ be $n$ outcomes from a population. Let
+$\tilde Y$ be an additional outcome from the same population. We want to do our
+best to predict $\tilde Y$. For this, we use the \textbf{posterior predictive
+distribution} $p(\tilde y | \vec y)$. We are normally in the space of a likelihood
+$p(y|\theta)$. In theory, data $(\vec y)$ tells us about our parameter $(\theta)$,
+which tells us about our data generative model $p(y|\theta)$. 
+
+\begin{align*}
+    p(\tilde y | \vec y) &= \int p(\tilde y, \theta|\vec y)d \theta \\
+                         &= \int p(\tilde y|\theta,\vec y)p(\theta|\vec y)
+                         d\theta \\
+                         &= \int p(\tilde y|\theta)p(\theta|\vec y)d \theta \\
+\end{align*}
+
+\begin{ex}
+    Suppose $X_{i} = 1$ if the $i$th person is happy, else $X_{i}=0$. Let
+    $Y = \sum_{i=1}^{n}X_{i}$, where $n$ is the number of people sampled. Let
+    $Y_{i}|\theta \sim  binomial(\theta)$ for some fixed $n$ and 
+    $\theta \sim  uniform(0,1)$.
+
+    Say we sample $n=10$ people. Of those $y=6$ are happy. If we sample another
+    $n=10$, \textbf{what is the probability} that $\tilde y$ are happy? 
+    \vspace{10px}
+    
+    We fundamentally want the posterior predictive distribution $p(\tilde y |y)$.
+
+    \begin{align*}
+        \int p(\tilde y|\theta)p(\theta|y)d \theta &= 
+        \binom{n}{\tilde y}(\theta)^{\tilde y}(1-\theta)^{n-\tilde y} \cdot
+        \frac{1}{B(y+1, n-y+1)}\theta^{y}(1-\theta)^{n-y}d \theta \\
+                                                   &= \binom{n}{\tilde y}
+                                                   \frac{B(\tilde y + y + 1,
+                                                   2n - y - \tilde y + 1}{
+                                                   B(y+1, n-y+1)}
+    \end{align*}
+    
+    Recall that $B()$ is the \textit{beta function}. Plugging into this beta
+    function, we can plot the distribution of the posterior predictive 
+    probability.
+\end{ex}
+
+\pagebreak
+\section{Monte Carlo}
+\subsection{Motivation}
+
+A survey gathered data on the number of children to women of two categories:
+those with and without a bachellor's degree. Let $Y_{ik}$ be the number of 
+children of the $i$th woman in group $k$. These are modelled as
+\begin{align*}
+    &Y_{11}, \cdots Y_{n_{1}1} \sim Poisson(\theta_{1}) \\
+    &Y_{12}, \cdots Y_{n_{2}2} \sim Poisson(\theta_{2}).
+\end{align*}
+
+Our priors are
+\begin{align*}
+    &\theta_{1} \sim gamma(2,1) \\
+    &\theta_{2} \sim gamma(2,1).
+\end{align*}
+
+We have data
+\begin{align*}
+    &n_{1}=111, \bar y_{1}=1.95, \sum_{y_{i1}}=217 \\
+    &n_{2}=44, \bar y_{2}=1.5, \sum_{y_{i2}}=66,
+\end{align*}
+
+and posteriors
+\begin{align*}
+    &\theta_{1}|\vec y_{1} \sim gamma(219,212) \\
+    &\theta_{2}|\vec y_{2} \sim gamma(68,45)
+\end{align*}
+
+We already know how to calculate posterior mean $ \mathbb{E}(\theta|y) = 
+\frac{\alpha}{\beta}$, posterior density (\texttt{dgamma} R function), and 
+posterior quantities and confidence intervals (\texttt{qgamma} R function).
+
+\subsection{Intro to Monte Carlo}
+\begin{definition}
+    \textbf{Monte Carlo Integration} is a way to approximate integrals that scales
+    much better to higher dimensions that computationally solving 
+    high-dimensional regions.
+\end{definition}
+ 
+The key idea of Monte Carlo is that we obtain independent samples from the
+posterior,
+\[
+\theta^{(1)}, \cdots , \theta^{(n)} \overset{\mathrm{iid}}{\sim} p(\theta|\vec y).
+\]
+Recall that 
+\[
+\mathbb{E}(g(\theta|y)) \int_{\theta}g(\theta)f_{\theta}(\theta|y)d \theta
+\approx \frac{1}{N}\sum_{i=1}^{N}g(\theta^{(i)}),
+\]
+where $f(x)$ is the PDF of a random variable $X$.
+
+\begin{note}
+    We are discovering here that \textit{integrals are expectations} and 
+    \textit{expectations are integrals}.
+\end{note}
+
+\subsection{Change of variable}
+
+We aim to change variables
+\begin{align*}
+    &\theta \rightarrow \gamma \\
+    & p(\theta) \rightarrow p(\gamma).
+\end{align*}
+
+If we can write $\gamma = f(\theta)$, then we want the following to hold:
+\[
+p(\theta^{*}- \epsilon < \theta < \theta + \epsilon) \approx p(\theta = 
+\theta^{*}).
+\]
+This will become
+\[
+    p(\gamma^{*} - \epsilon < f(\theta) < \gamma + \epsilon)
+\]
+or
+\[
+    p(\gamma = \gamma^{*}).
+\]
+For this, we use the \textbf{change of variables formula}
+
+\begin{align*}
+    \delta\theta p(\theta) &= \delta\gamma p(\gamma) \\
+    \frac{d \theta}{d\gamma}p(\theta) = p(\gamma),
+\end{align*}
+
+where $\gamma = log(\theta)$ and $\theta = e^{\gamma}$.
+
+\end{document}

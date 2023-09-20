@@ -1,0 +1,104 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 5 - Nearest Neighbor Predictors}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+
+\section{Nearest Neighbor Fitting}
+
+\subsection{Vornoy considerations}
+
+Recall that a Vornoy diagram graphically shows the nearest classification of
+each data point in a scatterplot. However, a perfect Vornoy diagram has each
+data point in a region of its own classification (color). But this is the
+definition of overfitting. We could plot multiple Vornoy plots with different
+samplings of our data and show that we arrive at extremely different Vornoy 
+diagrams because of this overfitting.
+
+\subsection{$k$ Nearest Neighbors}
+
+$k$ nearest neighbors involves retrieving the $k$ nearest neighbors
+$x_{1}, \cdots , x_{k}$ of $x$. We then return a summary of the corresponding
+$y_{1}, \cdots y_{k}$. In a classification problem, we can just return the 
+classification of each neighbor that occurs the greatest number of times. In a
+regression problem, we can return the median, mean, or some other summary
+statistic.
+
+$k$ nearest neighbors helps smooth the edges of a normal Vornoy diagram. With
+random sampling of a dataset, the resulting diagrams are much less different than
+one another. Importantly, a smaller $k$ results in a smaller empirical risk, but
+has a higher risk of overfitting. The smallest possible $k$ is $k=1$, which 
+results in a standard nearest neighbor, where each data point is in a region of
+its own classification.
+
+\begin{note}
+    The resulting plot from $k$ nearest neighbors is strictly \textit{not} a
+    Vornoy diagram, since a Vornoy diagram strictly has each point in a region of
+    its own classification (i.e. "perfectly" fit).
+\end{note}
+
+\end{document}
