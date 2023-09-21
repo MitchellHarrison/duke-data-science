@@ -1,0 +1,213 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 8 - The Normal Model}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Background}
+Let $Y$ be normally distributed with mean $\theta$ and variance $\sigma^{2}$.
+Mathematically,
+\[
+Y|\theta,\sigma^{2} \sim N(\theta,\sigma^{2}).
+\]
+The density
+\begin{align*}
+    p(y|\theta,\sigma^{2})  &= (2\pi\sigma^{2})^{-1/2}e^{\frac{1}{2\pi^{2}}
+    (x - \theta)^{2}}\\
+        y &\in \mathbb{R}\\
+        \theta &\in  \mathbb{R}\\
+        \sigma &\in \mathbb{R}^{+}
+\end{align*}
+
+Here, $\theta$ is called the \textbf{location} parameter and $\sigma$ is called
+the \textbf{scale} parameter.
+
+\begin{definition}
+    Notice that every time $\sigma^{2}$ appears in the density, it is inverted. 
+    For this reason, it has a special name: \textbf{precision}. Mathematically,
+    we will call this precision
+    \[
+    \lambda^{2} = \frac{1}{\sigma^{2}}.
+    \]
+    Intuitively, precision tells us how close $y$ is to the mean $\theta$. Large
+    precision means small variance, which means it is closer to $\theta$.
+\end{definition}
+
+\pagebreak
+\section{Bayesian Inference}
+In general, we wish to make inference about $\theta$ and $\sigma^{2}$ after
+observing some data $y_{1}, \cdots ,y_{n}$ and thus are interested in the
+posterior $p(\theta|\vec y)$. This is the standard task we have seen thus far,
+and requires us to specify a joint prior $p(\theta, \sigma^{2})$. Below, we will
+work to find a class of conjugate priors over $\theta$ and $\sigma^{2}$.
+
+We can break up the joint posterior into two pieces from the axioms of 
+probability:
+\[
+p(\theta,\sigma^{2}|y_{1}, \cdots y_{n}) = p\left(\theta
+\;\middle|\; \sigma^{2},y_{1}, \cdots , y_{n}\right) p(\sigma^{2}|y_{1}, \cdots ,
+y_{n})
+\]
+This suggests that we calculate the joint posterior by
+\begin{enumerate}
+    \item first finding the full conditional of $\theta:p(\theta|\sigma^{2}, 
+        \vec y)$
+    \item and then following the marginal posterior of $\sigma^{2}:p(\sigma^{2}
+        |\vec y)$,
+\end{enumerate}
+where $\vec y = y_{1}, \cdots , y_{n}$.
+
+\subsection{The full conditional of $\theta$}
+By Bayes' theorem,
+\[
+\mathbb{P}\left(\theta \;\middle|\; \sigma^{2},\vec y\right) \propto 
+\mathbb{P}\left(\vec y  \;\middle|\; \theta, \sigma^{2}\right) 
+\mathbb{P}\left(\theta \;\middle|\; \sigma^{2}\right) 
+\]
+To arrive at the full conditional of posterior $\theta$, we must first specify
+a prior on $\theta$. 
+\begin{ex}
+    Considering we have a normal likelihood, \textbf{what is a conjugate class}
+    of densities for $\theta$?
+
+    \vspace{10px}
+    Answer:
+    \[
+        \theta|\sigma^{2} \sim N(\mu_{0},\tau_{0}^{2})
+    \]
+    for some $\mu_{0} \in \mathbb{R}$ and $\tau_{0}^{2} \in \mathbb{R}^{+}$.   
+\end{ex}
+
+With the conjugate prior, our full conditional posterior $\{\theta|\sigma_{2},
+\vec y\} \sim N(\mu_{n}, \tau_{n}^{2})$ where
+\begin{align*}
+    \mu_{n} &= \frac{\frac{1}{\tau_{0}^{2}}+\frac{n}{\sigma^{2}}\bar y}{
+    \frac{1}{\tau_{0}^{2}} + \frac{n}{\sigma^{2}}}\\
+        \tau_{n}^{2} &= \frac{1}{\frac{1}{\tau_{0}^{2}} + \frac{n}{\sigma^{2}}}
+\end{align*}
+
+To show the full conditional posterior of $\theta$:
+\begin{align*}
+    p(\theta|\sigma^{2}, \vec y) &\propto \text{likelihood ... prior}\\
+                                 &\propto exp\{\frac{-1}{2\sigma^{2}
+                                 \sum_{i=1}^{n}(y_{i}-\theta)^{2}}\} \cdot
+                                 exp\{\frac{-1}{2\tau_{0}^{2}}(\theta-\mu_{0}^{2}
+                                 \}\\
+                                 &\propto exp\{\frac{1}{2}\{
+                                 \frac{1}{\sigma^{2}}\left[
+                                     \sum y_{i}^{2}-2\theta \sum y_{i}+n\theta^{2}
+                                 \right] + \frac{1}{\tau_{0}^{2}}\left[\theta^{2}
+                         - 2 \mu_{0}\theta + \mu_{0}^{2}\right]\}\}
+\end{align*}
+
+We want $\{\cdot\}$ to look like $\frac{1}{\sigma^{2}n}(\theta-\mu_{n})^{2}$ so I
+can say $\theta|\sigma^{2}, \vec y \sim N( \text{mean, variance})$, so I need a
+quadratic:
+
+\begin{align*}
+    &a\theta^{2}-2b\theta+c\\
+    &a = \left(\frac{1}{\tau^{2}_{0}}+\frac{n}{\sigma^{2}}\right)\\
+    &b = \left(\frac{\sum y_{i}}{\sigma^{2}} + \frac{\mu_{0}}{\tau_{0}^{2}}\right)
+\end{align*}
+
+Putting it all together, we arrive:
+\[
+    p(\theta|\sigma^{2},y) \propto exp\{\frac{-1}{2}(a\sigma^{2}-2b\theta+c)\}
+\]
+Where
+\begin{align*}
+    \sigma^{2} &= \frac{1}{a}\\
+    \mu_{n} &= \frac{b}{a}.
+\end{align*}
+
+\pagebreak
+\section{Intuitive posterior parameters}
+If we consider the posterior precision $\lambda_{n}^{2}\equiv \frac{1}{\tau_{0}
+^2}$, we can re-arrange the terms above to illuminate how posterior information =
+prior information + data information;
+\[
+\lambda_{n}^{2}=\lambda_{0}^{2} + n\lambda^{2}
+\]
+where,
+\begin{align*}
+    \lambda_{n}^{2} &: \text{posterior precision}\\
+    \lambda_{0}^{2} &: \text{prior precision}\\
+    \lambda_{2} &: \text{sampling precision}
+\end{align*}
+\[
+\mu_{n} = \frac{\lambda_{0}^{2}}{\lambda_{0}^{2}+n\lambda^{2}}\mu_{0} +
+\frac{n\lambda^{2}}{\lambda_{0}^{2} + n\lambda^{2}}\bar y.
+\]
+i.e. the posterior mean is the weighted average of prior and sample mean, where
+the weights are the relative contribution of each precision! We can re-define
+$\lambda_{0}^{2}=k_{0}\lambda^{2}$ (or equivalently $\tau_{0}^{2}=
+\frac{\sigma^{2}}{k_{0}}$ and obtain:
+\[
+    \mu_{n} = \frac{k_{0}}{k_{0} + n}\mu_{0}+\frac{n}{k_{0}+n}\bar y
+\]
+
+\end{document}
