@@ -1,0 +1,200 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 7 - Local, Unconstrained Function Optimization (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Convexity}
+\subsection{Local convexity}
+\begin{definition}
+    A function $f$ is (strongly or weakly) \textbf{convex} at $z_{0}$ if it is
+    (strongly or weakly) convex \textit{everywhere} in some open neighborhood of
+    $z_{0}$.
+\end{definition}
+
+For $f$ twice differentiable with continuous Hessian everywhere:
+\begin{itemize}
+    \item $H(z_{0})>0$ is \textit{sufficient} (not necessary) for strong
+        convexity at $z_{0}$.
+    \item $H(z_{0})\ge 0$ is \textit{necessary} (not sufficient) for weak 
+        convexity at $z_{0}$.
+\end{itemize}
+
+\subsection{Uses of convexity}
+If $\nabla f(z_{0}) = 0 $ and $f$ is (strongly or weakly) convex at $z_{0}$, then
+$z_{0}$ is a (strong or weak) minimum (as opposed to a maximum or saddle). If
+$f$ is globally convex, then the value of the minimum is unique and the points 
+where the minimum is achieved from a convex set. Faster optimization methods
+(Newton) can be used when $f : \mathbb{R}^{m}\rightarrow \mathbb{R}$ is convex
+and $m$ is not too large.
+
+\subsection{A template for local minimization}
+The following pseudocode gives a template for \textit{unconstrained
+minimization}:
+\begin{verbatim}
+z_0 (given)
+k = 0
+while z_k is not a minimum
+    compute step in direction p_k
+    compute descent rate alpha_k > 0
+    z_{k+1} = z_k + (alpha_k * p_k)
+    k += 1
+end
+\end{verbatim}
+
+For some methods (Newton) the \textit{step}
+\[
+    s_{k} = z_{k+1} - z_{k} = \alpha_{k}p_{k}
+\]
+is the result of a single computation. The \textit{step size} is 
+\[
+    ||\alpha_{k}p_{k}||.
+\]
+
+\subsection{Gradient descent}
+
+\begin{definition}
+    \textbf{Gradient descent} is a descent method in which the direction the 
+    function proceeds is
+    \[
+        p_{k} = -\nabla f(z_{k}).
+    \]
+    This works whenever the gradient is non-zero. If the gradient is zero, we
+    have reached a minima.
+\end{definition}
+
+Gradient descent reduces a problem to one dimension:
+\[
+h(\alpha) = f(z_{k} + \alpha p_{k}) 
+\]
+with $\alpha_{k}>0$. Here, if $\alpha = 0$, then $z = z_{k}$. We seek to find
+$\alpha = \alpha_{k} > 0$ such that
+\[
+    f(z_{k} + \alpha_{k}p_{k}) < f(z_{k}).
+\]
+But how do we find $\alpha_{k}$? This is the \textbf{descent rate}.
+
+\subsection{Descent rate}
+Step size $||-\alpha\nabla f(z_{k})||$ decreases because $\nabla(z_{k})
+\rightarrow 0$. However, if step size $\alpha$ is too small, progress can 
+become too slow and not efficient in practice. However, larger step sizes can lead
+to missing a possible minima.
+
+To schedule $\alpha$, we use the following steps:
+\begin{enumerate}
+    \item Start with $\alpha$ relatively large (say $\alpha = 10^{-3}$).
+    \item Decrease $\alpha$ over time
+    \item Determine decrease rate by trial and error (good asymptotic guarantees
+        with $\alpha_{k}\propto 1/(k+1)$).
+\end{enumerate}
+
+Sometimes, $z_{k}$ meanders around on shallow plateaus. If $\alpha$ is too small,
+but the direction is still promising, we can add \textbf{momentum}.
+\begin{definition}
+    \textbf{Momentum} helps traverse a function faster in areas of shallower
+    slope. It does so with the following:
+    \begin{align*}
+        v+0 &= 0\\
+        v_{k+1} &= \mu_{k}v_{k} - \alpha_{k}\nabla f(z_{k})\\
+        z_{k+1} &= z_{k} + v_{k+1}
+    \end{align*}
+\end{definition}
+
+\subsection{Line search}
+\begin{definition}
+    \textbf{Line search} finds a local minimum in the search direction $p_{k}$.
+    This is $h(\alpha) = f(z_{k} + \alpha p_{k})$, a one-dimensional problem.
+\end{definition}
+To conduct a line search, we establish a \textbf{bracketing triple}:
+\begin{align*}
+    &a<b<c\\
+    &h(a) \ge h(b)\\
+    &h(b)\le h(c)
+\end{align*}
+This bracketing triple necessarily contains a (local) minimum. There could be a
+single one or several of these minima. Since we are doing gradient descent, our
+function is continuous and differentiable. Which means for any three points, at
+some point the values of the function vary up and down, which means there is a
+minimum (or multiple). We shrink these bounds to help find that minimum. These
+shrinkages will never be trivially small. To split this bracketing triple, we
+
+\begin{enumerate}
+    \item split the bigger of $[a,b]$ and $[b,c]$ in half with a point $u$
+    \item Find a new, narrower bracketing triple involving $u$ and two out of
+        $a,b,c$.
+    \item Stop when the bracket is narrow enough (say, $10^{-6}$).
+\end{enumerate}
+
+After this series of steps, we have pinned down a minimum to within $10^{-6}$.
+
+\begin{note}
+    We know that the bracketing triple is not equal at all three points because
+    we are implementing gradient descent, which means we are already traversing
+    in a negative direction.
+\end{note}
+
+\end{document}
