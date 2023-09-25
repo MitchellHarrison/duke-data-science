@@ -1,0 +1,172 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 7 - E-Commerce and Cryptography (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Cryptography}
+
+\subsection{Simple Stream Ciphers}
+\textbf{Stream ciphers} exchange a small (e.g. 128-bit) truly random secret
+private key $S$ in advance. Parties agree on a common pseudorandom number 
+generator $PRNG$. To decrypt an encrypted message $M$, they generate $|M|$
+pseudorandom bits with $PRNG$ seeded by seed $S$. They then take the bitwise
+XOR to arrive at cipher text that can then be decrypted by the distant end.
+
+\subsection{Asymmetric/Public Key Cryptography}
+In \textit{private key cryptography}, parties must share their key in advance,
+sometimes by meeting physically to exchange them (e.g. paper tape). This isn't
+ideal for establishing internet communications.
+
+\begin{definition}
+    \textbf{Asymmetric/Public Key cryptography} uses different keys for
+    encryption and decryption. Each party has a secret private and public key,
+    so no keys need be exchanged.
+\end{definition}
+
+Public key cryptography is only used to establish a secret key with a distant end.
+That secret key is then used for \textit{symmetric cryptography} that is used for
+the remainder of the session established asymmetrically. The most common 
+asymmetric cryptography algorithm is \textit{RSA}.
+
+As a general sketch of asymmetric cryptography, let Alice and Bob have public keys
+$P_{A}$, $P_{B}$ and private keys $S_{A}$, $S_{B}$, which you should think of as
+sequences of 2,000 to 4,000 bits. \textit{Everyone} knows the public keys (just
+post them "in the clear"), but only Alice knows $S_{A}$, and only Bob knows
+$S_{B}$. We want to know two functions, both of which are easy to compute:
+$Encrypt(M,P)$ and $Decrypt(M,S)$.
+
+such that $Decrypt(Encrypt(M,P_{B}), S_{B}) == M$. If this formula is true, this
+established the \textit{correctness} of a public key cryptographic operation, but
+not necessarilt its security. To establish \textit{security} of public key
+encryption, a message must be impossible to recover a message without $S_{B}$.
+
+\begin{note}
+    When you want to excrypt a message, you use the public key \textit{of the
+    recipient} to do so. This means that a sender cannot decrypt the message that
+    they encrypt.
+
+    Decryption is performed with the \textit{private key} of the recipient.
+\end{note}
+
+\subsection{Digital signatures}
+
+Say Alice wants to prove to Bob that \textit{she} sent a message. We want two 
+functions, both of which are easy to compute: $Sign(M,S)$ and $Verify(M,P)$
+such that
+\[
+Verify(Sign(M,S_{A}), P_{A}) == M,
+\]
+where $M$ is the plain text of a sent message. 
+
+\subsection{Outline for RSA encryption/decryption}
+\begin{definition}
+    Two numbers are \textbf{relatively prime} if they share no common factors
+    between each other, even if neither are actually prime.
+\end{definition}
+
+The following is how Bob creates his cryptographic keys:
+\begin{enumerate}
+    \item Choose 2 large random prime numbers $p$ and $q$
+    \item The public key is $(N=pq,e)$ where $e$ is \textit{relatively prime} to
+        $(p-1)(q-1)$.
+    \item The private key is the inverse of $(e \text{ mod } (p-1)(q-1))$. Call it
+        $d$.
+\end{enumerate}
+Here, both $N$ and $e$ are public, which means they are available for anyone
+looking for them to see. Now, suppose Alice wants to send the message $M$ to Bob:
+
+\begin{enumerate}
+    \item She looks up his public key $(N,e)$ and sends $y = M^{e} \% N$.
+    \item Bob decodes the message by computing $(y^{d} \text{ mod } N)$.
+\end{enumerate}
+
+To see that this is correct, observe that the final result Bob sees is 
+\[
+    y^{d} \text{ mod } N = (M^{e} \text{ mod } N)^{d}.
+\]
+\begin{note}
+    Note that the last step relies on how the keys are generated.
+\end{note}
+
+This method (RSA) is \textit{not} information-theoretically secure. That is, it
+can be computed given infinite computing power. But it is \textbf{computationally
+secure}.
+
+\begin{definition}
+    \textbf{Computationally secure} cryptography \textit{is} possible to crack if
+    given infinite amounts of computing power, but using current computing 
+    (including super-computing) is intractable.
+
+    \begin{note}
+        Quantum computers are known to be vastly superior to classical computers
+        when factoring numbers, so traditional computationally secure methods will
+        not be in an era of quantum computing.
+    \end{note}
+\end{definition}
+
+\end{document}
