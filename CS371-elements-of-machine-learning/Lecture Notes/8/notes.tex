@@ -1,0 +1,122 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 8 - Local, Unconstrained Function Optimization (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Gradient Descent}
+
+\subsection{Terminating bracketing triples}
+To check if we are still making "significant progress," we check to see if
+$f(z_{k}-1) - f(z_{k})$ is strictly positive and to see if
+$||z_{k-1}-z_{k}||$ is large enough (which is use-case dependent). The second
+test is more strigent close to the minimum because $\nabla f(z)\approx0$. We
+stop when $||z_{k-1}-z_{k}||<\delta$.
+
+\subsection{Is gradient descent a good strategy?}
+In gradient descent, we are choosing the direction of fastest descent and we 
+choose an optimal descent rate by line search. This \textit{seems} like a solid
+strategy, but isn't always. For example, for a convex paraboloid, all smooth
+functions look similar close enough to the minimum $z^{*}$.
+
+In a convex paraboloid, many 90-degree turns slow down convergence. There are
+methods that take fewer iterations, but each iteration takes more time and
+space. To skate down these isocontours ("rings" surrounding the minimum that 
+form a convex paraboloid), we traverse orthogonally to an isocontour. Where our
+traversal path becomes tangent to another isocontour, we stop and begin 
+orthogonal traversal again. This repeats until arriving at a minimum.
+
+\begin{note}
+    In this course, we will stick to gradient descent, but it is important to
+    know its limitations and other strategy that can minimize the negatives of
+    gradient descent.
+\end{note}
+
+\begin{note}
+    See appendices in the notes for more efficient methods for problems in 
+    low-dimentional spaces.
+\end{note}
+
+\pagebreak
+
+\section{Stochastic gradient descent}
+\begin{definition}
+    A special case of gradient descent, \textbf{Stochastic Gradient Descent} 
+    (SGD), works for \textit{averages} of many terms $(N$ very large).
+    \[
+        f(z) = \frac{1}{N}\sum_{n=1}^{N}\phi _{n}(z)
+    \]
+\end{definition}
+
+We use SGD when computing $\nabla f(z_{k})$ is too expensive. We then partition
+$B = \{1, \cdots , N\}$ into $J$ random \textit{mini-batches} $B_{j}$, each of
+about equal size. These mini-batches are correct \textit{on average}.
+\[
+    f(z) \approx f_{j}(z) = \frac{1}{|B_{j}|}\sum_{n \in B_{j}}^{}\phi _{n}(z)
+    \rightarrow \nabla f(z) \approx \nabla f_{j}(z)
+\]
+\end{document}
