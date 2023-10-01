@@ -1,0 +1,145 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 10 - Linear Predictors (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Linear Predictors}
+
+Recall polynomial regression with $k=1$,
+\[
+y \approx h_{v}(x) = b + w^{T}x,
+\]
+for $x \in \mathbb{R}^{d}$. Let $v = [b,w] \in \mathbb{R}^{d+1}$ be a parameter
+vector $ \mathcal{H}$ isomorphic to $ \mathbb{R}^{m}$ with $m = d+1$. A "least
+squares" solution is $\ell(y,\hat y) = (y - \hat y)^{2}$. Let
+$\hat v = argmin_{v \in  \mathbb{R}^{m}}L_{T}(v)$. \textbf{Risk} is defined
+numerically as
+\[
+    L_{T}(v) = \frac{1}{N}\sum_{n=1}^{N}\ell(y_{n}, h_{v}(x_{n})).
+\]
+We know how to solve this.
+
+\subsection{Binary classification by logistic regression}
+Let $Y = \{c_{0}, c_{1}\}$. This is a binary classification case. We will do 
+multi-class classification later. The \textit{logistic-regression classifier} is a
+classifier! This is a linear classifier implemented through regression. The
+\textit{logistic} is a particular function. So why do we use a logistic function?
+
+\subsection{Score-based classifier}
+This of $c_{0}$ and $c_{1}$ as numbers: $Y = \{0,1\}$. We saw the idea of level
+sets where we regress a \textbf{score function} $s(x)$ such that $s(x)$ is large
+where $y=1$ and small where $y=0$. We then threshold $s$ to obtain a classifier:
+\[
+h(x) = 
+\begin{cases}
+    c_0 & s(x) \le \text{threshold} \\
+    c_{1} & \text{otherwise}
+\end{cases}
+\]
+
+Empirical loss in such a score function is the number of misclassified 
+observations out of the total (e.g. 5 misclassified out of 40 observations is
+$\frac{5}{40}$). We should also note that quadratic loss is \textit{not} what we
+care about for classification. All we care about is that the observations are 
+classified correctly (i.e. they are on the correct side of the hyperplane that
+linearly separates the classifications), not how far from that hyperplane those
+observations are. This causes issue when we fit an affine function using 
+quadratic loss like we do for linear regression. Points far from the hyperplane
+formed by the affined function skews that hyperplane's fit, even though that 
+point remains on the same side of that hyperplane. This negatively impacts the
+classification accuracy of a model with no gain.
+
+To solve this, we will use a step function, which will be less impacted by the
+cartesian distance
+\[
+    L_{T}(\tau) = \frac{1}{N}\sum_{n=1}^{N}y_{n}\ne h_{\tau}(x_{n}).
+\]
+Note that we cannot use gradient descent to fit this line because the gradient
+is frequently undefined for a given value of $\tau$. Instead, this problem can
+be solved with a combinatorial search. We can instead use a \textbf{soft step}
+function, where instead of a hard right-angle graph, we use a smooth curve that
+asymptotes to 0 at $-\infty$ and 1 at $\infty$. 
+
+\subsection{Soft-step function}
+With a soft-step function, distant points are no longer a big problem. If a 
+true step moves, the risk does not change until a data point changes its
+classification. If the logistic function moves $(f(x)\rightarrow f(x-s))$, the
+risk \textit{changes gradually}. It gives rise to a non-zero gradient almost
+everywhere. Thus, the optimization problem is no longer combinatorial: \textit{it
+is continuous}! For this, we use the \textbf{logistic function}
+
+\[
+    f(x) = \frac{1}{1+e^{-x}}.
+\]
+
+\begin{definition}
+    The distance from a given point to the logistic function represents a
+    different type of loss: the \textbf{cross-entropy loss}.
+\end{definition}
+
+\end{document}

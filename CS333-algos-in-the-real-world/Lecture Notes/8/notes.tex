@@ -1,0 +1,215 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 8 - Cryptography (cont'd) and Online Advertising}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Prime Numbers}
+
+\subsection{Generating large primes}
+The most effecient known algorithm for creating a large prime number is to 
+randomly generate a large number and check to see if it's prime. This is where
+random number generation becomes key. As stated before, built-in random number
+generation functions (e.g. \texttt{math.random()}) are insufficient for this
+random number.
+
+To check to see if a number is prime with 100\% certainty is computationally
+intractable. Instead, several numbers are selected at random number and the 
+pseudorandom number is checked for factorization with that number. If none are
+factors (using \textit{Fermat's Little Theorem} normally), we say that the large
+number is an \textbf{industry-grade prime}.
+
+\begin{definition}
+    \textbf{Lagrange's prime number theorem}. Let $\pi(N)$ be the number of primes
+    less than or equal to $N$.
+    \[
+    \lim_{N \to \infty} \frac{\pi(N)}{N/ln(N)} = 1
+    \]
+    Effectively, this states that roughly 2,000 numbers will need to be
+    generated before a prime (or at least an industry-grade prime) will be found.
+\end{definition}
+
+\subsection{Calculating a modular inverse}
+To get "the inverse of $e \text{ mod } (p-1)(q-1)$, and call it $d$," (per the
+last lecture notes) we use the \textbf{Extended Euclid Algorithm} (EEA), which 
+works as follows:
+
+\begin{enumerate}
+    \item Input $a \ge b \ge 0$
+    \item Output $x,y$ such that $ax + by = GCD(a,b)$
+    \item Base case: if $b = 0$, return $(1,0)$
+    \item $x,y = \mathbb{E}A(b,a \text{ mod }b)$ 
+    \item Return $(y, x - |a/b|y)$.
+\end{enumerate}
+
+To show that this modular inverse calculation works, let $\phi = (p-1)(q-1)$. Get 
+$x,y = EEA(\phi ,e)$. \textbf{Claim:} $y = \text{inverse of }e \text{ mod }\phi$.
+Proof:
+\begin{align*}
+    \phi x + ye &= GCD(\phi,e) \\
+                &= 1 - \phi x
+                &\rightarrow ye \text{ mod }\phi 
+\end{align*}
+
+But given this modular inverse, how do we look up a user's public key $(N,e)$ and
+send $y = M^{e} \text{ mod } N$. Say we want to compute $a^{d} \text{ mod }m$. 
+The "slow way" would simply be to multiply $a$ by itself $b$ times. But with 
+numbers this size, these multiplications are \textit{not} constant time on modern
+arithmetic machines. Instead, we use
+\[
+\left(\left(\left(a \cdot a\right) \text{ mod }m \cdot a\right) \text{ mod }m
+    \cdots a \right).
+\]
+We do this $b$ times. The slow way takes $O(2^{2(2^{n}})$, but the modulo way
+takes $O(2^{n}n^{2})$, which is still exponential, but much better. But there is
+a better algorithm that is cubic.
+
+If you use an $n$-bit key for RSA, sending an $m>n$-bit message takes $O(mn^{2})$
+time. Recall the message must be smaller than the key, so you break it into 
+chunks. For small constant $n$ (i.e. a 64-bit key) this is reasonably fast, but
+you need at least a 2000-bit key for good security in practice. This gives rise
+to a $2000^{2}$-factor slowdown compared to just sending the plain text.
+
+\subsection{HTTPS}
+Symmetric private key encryption schemes are generally much faster, closer to
+linear time in the length of the message. The problem was just how to communicate
+the shared private key. That's where RSA comes in. We use the slower RSA to 
+exchange these private keys, but can then use the faster symmetric encryption
+for the remaining communications. This is how HTTPS works.
+
+\pagebreak
+\section{Online Advertising}
+
+Google, Facebook, and effectively all other "free" services online are monetized
+with advertizing in the 90\% or above of total revenue range. This raises
+concerns about online advertisement and privacy.
+
+A user's information, browsing, and shopping habits are sold to companies that
+use that data to target advertisements. As recently as 2018, Verizon, AT\&T, and T
+Mobile pledged to stop selling phone location data to data brokers. Cookies have
+also been in the popular zeitgeist recently because of the requirements that
+websites ask permission to use cookies.
+
+\begin{definition}
+    \textbf{Cookies }are short little files that are (typically) stored on a
+    user's device to maintain status information (e.g. a "shopping cart"). 
+    Cookies are usually devided into \textit{functional }cookies and
+    \textit{third-party} cookies, the latter of which collects your use history,
+    typically for selling to advertisers/data brokers.
+\end{definition}
+
+\subsection{The theory of auctions}
+
+There are a few places a user could see an ad, some of which include banner ads or
+search result ads. Those ads are sold (typically) using auction in real-time as
+a page is loaded or search results are generated.
+
+Many advertisers could be interested in showing you an ad (although not 
+\textit{all}). Advertisers use your user data to decide if they are interested in
+showing you an add. For example, a Google search ad would look at your search 
+history.
+
+\subsubsection{First price sealed bid auctions}
+There are $n$ bidders interested in some item, say an ad slot. Each bidder $i$
+has a valuation $v_{i}$ for the item. Each bidder reports a bid $b_{i}$. Give the
+item to the bidder who reports the largest bid $b_{i}$ and charge $b_{i}$ dollars
+for it. This raises a problem, however.
+
+Suppose you know that you are likely to win. You have an incentive to 
+\textit{shave} your bid (report $b_{i} < v_{i}$) so that you pay less. This is to
+say that \textit{first price sealed bid auctions are not strategy-proof}.
+
+\subsubsection{Second price sealed bid auctions}
+The only change here from first price auctions is that instead of charging the
+winner $b_{i}$ dollars, you charge the amount that the \textit{second-highest}
+bidder bid. This prevents income loss from every bidder shaving their bids using
+first price auctions.
+
+\subsection{How the Google ads auction works}
+Interestingly, Google does \textit{not} charge per display of an ad. They charge
+per \textit{click} of the ad. You tell Google how much you are willing to pay for
+a \textit{click} of the ad. This is a \textbf{conversion}. Advertisers are not
+charged at all for the display of ads. This increases the amount that 
+advertisers are willing to spend for a Google search ad slot.
+
+On Google's end, they have to begin to try to figure out how likely a user is to
+click on an ad before they can provide a valuation for that ad slot. Machine
+learning is used for this, but we will discuss that further into the course.
+
+There are $n$ bidders intrested in purchasing various ads. Each has a total 
+budget $B_{i}$ that we cannot exceed. In each time step $t$ from 1 to $T$, we 
+have an ad to auction and each bidder $i$ reports a bid $b_{i}$ for the ad. 
+Suppose that for each ad, we just give it to the highest bidder and charge that
+bidder their bid. Because of budget constraints set by advertisers, this may not
+actually be an optimal solution.
+
+\begin{note}
+    Google advertisers can set a monthly/weekly/etc. budget that Google 
+    \textit{cannot} exceed per its own terms of service.
+\end{note}
+
+\end{document}

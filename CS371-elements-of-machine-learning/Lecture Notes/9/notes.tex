@@ -1,0 +1,134 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 9 - Stochastic Gradient Descent and Linear Predictors}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Stochastic Gradient Descent}
+
+SGD is used to make gradient descent less computationally expensive by using
+\textit{mini-batches} that are correct \textit{on average}. Much like political
+polls that don't look for the \textit{exact} average on a particular question, but
+a good estimate of that average, SGD does not look for the exactly correct result
+of gradient descent, but a good estimate of that correct solution. In each 
+example, batches are taken to simplify finding an output. In SGD, these 
+mini-batches are partitions of the total sample space (i.e. they don't overlap, 
+and together they make up the entire training space). Going through each 
+mini-batch one time is called an \textbf{epoch}. We take the gradient of each
+batch and average over that epoch. We repeat epochs until convergence.
+
+\begin{note}
+    With regular gradient descent, we get stuck in saddle points. SGD fixes this
+    because all you need is a single mini-batch to have a non-zero gradient and
+    descent will continue, escaping the saddle point.
+\end{note}
+
+\subsection{Batch size}
+For a given "budget" (e.g. GPU memory), SGD can traverse much farther than
+standard gradient descent. Small batch sizes require low storage but have higher
+gradient variance. Thus, we should make batches as large as possible as will fit
+in memory for minimal variance.
+
+\subsection{Troubles with SGD}
+SGD, like traditional gradient descent has two major pitfalls. First, we can
+never guarantee a minimum is a global minimum. Second, convergence rates are often
+slow, especially in formulas in high dimensions.
+
+\pagebreak
+\section{Linear Predictors}
+\begin{definition}
+    A \textbf{linear regressor} fits an affine function to the data such that
+    \[
+        y \approx h(x) = b + w^{T}x \text{ for } x \in \mathbb{R}^{d} \text{ and }
+        y \in \mathbb{R}
+    \]
+\end{definition}
+
+\begin{definition}
+    A \textbf{linear, binary classifier} separates the data in $X \subseteq 
+    \mathbb{R}^{d}$ corresponding to the two classes $Y = \{c_{0}, c_{1}\}$ with
+    a hyperplane.
+\end{definition}
+
+Actual data can be separated only if it is \textit{linearly separable}. 
+Multi-class linear classifiers separate any two classes with a hyperplane. The 
+resulting decision regions are convex and simply connected (polyhedra).
+
+\begin{note}
+    Linear separability is more likely in higher dimensions. Thus, while we will
+    run into the curse of dimensionality in such cases, high dimensionality is
+    not always a negative.
+\end{note}
+
+\subsection{Properties of linear predictors}
+Linear predictors have a very small $ \mathcal{H}$ with $d+1$ parameters. Thus,
+they resist overfitting. They are also trained by solving a convex optimization
+problem (global optimum). Linear predictors are very fast at inference time and
+training is not too slow. Finally, linear predictors work well if the data is
+linearly separable (or nearly so).
+
+\end{document}
