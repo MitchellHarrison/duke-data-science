@@ -1,0 +1,214 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 9 - Online Advertising (cont'd) and Compression}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Ad Auctioning}
+
+Recall that Google \textit{will not exceed} the budget set by an advertiser. This
+gives rise to different considerations for determining the algorithm used to 
+auction ad slots to advertisers. Also recall that, because ad slots are revealed
+over time, there will always be a gap in the maximum possible return on an ad 
+slot and the actual income achieved.
+
+\begin{definition}
+    The ratio between the actual objective achieved by an algorithm and the
+    best possible outcome that could be obtained (given that the algorithm had
+    complete knowledge of future events the \textbf{competitive ratio}. This term
+    is only used for \textit{online} algorithms, where full information is not
+    available at the time an algorithm is running, but is after the algorithm
+    completes.
+\end{definition}
+
+\subsection{Online algorithms}
+Suppose we want to maximize revenue over $T$ total advertisements, constrained by
+\begin{enumerate}
+    \item We don't know any of the ads or bids in future rounds
+    \item We can never charge more than an advertiser buds
+    \item We cannot exceed the total budget of any advertiser.
+\end{enumerate}
+
+\subsubsection{Online bipartite matching}
+Suppose every advertiser bids either \$0 or \$1 and has total budget of \$1. Then
+the online advertising problem is equivalent to online bipartite matching. At
+each step, some new vertex with some edges appear, and we can choose any one edge.
+Our goal is to maximize the total number of edges.
+
+In the offline version of this problem, we are given the entire graph and are 
+asked to complete the maximum matching. In the online version, nodes and edges
+are revealed over time, and decisions cannot be reversed once made.
+
+There is a naive algorithm for online bipartite matching. Suppose we just match a
+new vertex to the first available partner. \textbf{Claim:} the competitive ratio
+of this algorithm is $\frac{1}{2}$. Note that this will produce a maximal matching
+(one for which no edges can be added to the solution). Consider an edge in the 
+optimal offline solution: since we cannot add this edge, we must have included an
+edge with at least one of its endpoints. It takes at least $\frac{OPT}{2}$ 
+edges in our solution, where $OPT$ is the optimal number in the offline version.
+
+Keeping with this naive algorithm, we \textbf{claim} that there are instances 
+where the naive algorithm only achieves half the revenue of the optimal offline
+solution. In fact, the same argument holds for \textit{any} deterministic
+algorithm for the online bipartite matching problem. Instead, let $\sigma$ be a
+random ordering of the advertisers. When an ad appears, match it to the first
+available advertiser according to $\sigma$. Call this the \textit{ranking}
+algorithm. \textbf{Claim:} the competitive ration (in expectation) of the
+ranking algorithm is $1 - \frac{1}{e}\approx 0.63$ for large $n$. Proof of this is
+available in the course readings/notes.
+
+\subsubsection{Adwords problem}
+We have a set of $n$ advertisers and $m$ keywords. We also have a valuation 
+matrix $V$ such that $V_{ij}$ is the value of keyword $j$ for advertiser $i$. The
+online process proceeds in $T$ rounds total, where each round $t \le T$, we
+receive a single keyword and must decide which advertiser gets the ad and how much
+to charge them. Each advertiser $i$ has a budget $B_{i}$ such that we cannot 
+charge them more than $B_{i}$.
+
+Recall the issue with the greedy algorithm was that we exhausted the budgets of
+some advertisers too early (the greedy algorithm has competitive ratio
+$\frac{1}{2}$. Rather than always giving the ad to the highest bidder, what if we
+prioritize bidders with a large fraction of their budget remaining?
+
+\begin{definition}
+    The \textbf{balance mechanism} for Adwords does the following:
+    \begin{enumerate}
+        \item Let $F_{i}$ be the fraction of advertiser $i$'s budget spent so far.
+        \item Let $\Psi(F_{i})$ be a non-negative function that is decreasing on
+            the domain $[0,1]$.
+        \item Give the ad with keyword $j$ to the bidder maximizing $V_{ij} 
+            \times  \Psi(F_{i})$.
+        \item Charge them $V_{ij}$.
+    \end{enumerate}
+\end{definition}
+
+A primary question in optimizing a balance mechanism is which $\Psi(\cdot)$ to
+choose to get the best competitive ratio. If it decreases quickly, we will be
+very conservative, preferring to sell to advertisers with most of their budget
+remaining. If it decreases too slowly, we will be more aggressive, preferring to
+sell to the highest bidder, even if they are running out of budget. In
+A.Mehta et al (in the supplemental readings), they posit that the ideal $\Psi$ is
+\[
+    \boxed{\Psi(F_{i}) = 1 - e^{-(1-F_{i})}}
+\]
+\subsection{Personalisation and ads}
+In addition to keyword auctions by bid, advertisements are personalized. A
+personalised relevance score is factored in during the auction. There are obvious
+privacy concerns with large corporations tracking the details of its users for
+this purpose.
+
+Recall that no one is charge unless an ad is \textit{clicked}. Relevance tracks
+the likelihood of this event. Advertisement platforms can use recommender
+algorithms (e.g. collaborative filtering) to \textit{predict} relevance
+$R_{ij} \in [0,1]$. Now, just replace bitds $V_{ij}$ with \textit{expected 
+revenue} $V_{ij}R_{ij}$ and run the actions as before.
+
+\pagebreak
+\section{Video Streaming and Compression}
+
+Some compression is \textit{lossless}. That is, when you decompress, the result is
+\textit{exactly} what you started with before compression. For audio, images, and
+video (as well as other large file types), uses \textbf{lossy compression}, where
+the result of decompression is only an \textit{approximation} of what was 
+compressed. But, if these techniques are imperfect, why do large platforms need 
+them if they have such massive budgets for memory, bandwidth, etc.?
+
+For one example of the need for compression, assume a 1080p 24 FPS video on
+Netflix takes 6MB of space for a single frame without compression. For a
+one-second, 24 FPS clip becomes 144 MB/s, which is over 1 Gb/s worth of
+bandwidth. But on Netflix's recommendation page, they recommend a 5 Mb/s
+connection. This is a \textit{200x} improvement, and is made possible by
+compression. Lots of work goes into achieving this compression, but today we will
+focus on an approach from signal processing: \textit{lossy wavelet compression.}
+
+\subsection{Images}
+For the sake of today's lecture, we will work with grayscale images to avoid 
+needing to deal with three color values. Images of this type are represented as
+a matrix/2D table. Each 8 bit number gives the \textit{intensity} of light at a
+given level.
+
+\begin{note}
+    For color images, three values (RGB) are on each cell of that 2D table.
+\end{note}
+
+\subsubsection{Downsampling spatially}
+Instead of storing every pixel, we could store only every $k$th pixel. However,
+depending on the value of $k$, we very rapidly approach an unuseable degradation
+in quality.
+
+\subsubsection{Average spatially}
+Instead of throwing away pixels, an average could be taken over $k$ pixels. This
+could be considered "better," but instead of dropping pixels, an average is taken
+across $k$ pixels. This gives rise to a blurry loss instead of a blocky one, but
+still a very noticible one.
+
+\subsubsection{Downsample intensity}
+Instead of a $[0,255]$ scale, we can use a $[0, (2^{k}-1)]$ scale. This degrades
+an image in a strange way, where color degreades into a strange blur of blacks
+and whites.
+
+\end{document}
