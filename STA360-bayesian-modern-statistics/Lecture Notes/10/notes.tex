@@ -1,0 +1,253 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 10 - Bias and Variance}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Definitions}
+
+\begin{definition}
+    A \textbf{point estimator} of an unknown parameter $\theta$ is a function that
+    converts data into a single element of parameter space $\Theta$.
+    For example, imagine $\theta$ is the population mean. Point estimators of $\theta$
+    may include $\bar y$, $y_{1}$, $\frac{y_{1}+y_{2}}{2}$, etc.
+
+    \begin{note}
+        By convention, we write population parameters as a Greek character and the
+        estimator for that parameter as the same character with a hat (e.g. $\theta$,
+        $\hat \theta$).
+    \end{note}
+\end{definition}
+
+\begin{definition}
+    \textbf{Sampling properties} of a point estimator refer to the estimator's behavior
+    under hypothetical repeatable surveys or experiments. Three common sampling 
+    properties that we will see again are
+    \begin{itemize}
+        \item bias
+        \item variance
+        \item mean squared error (MSE)
+    \end{itemize}
+\end{definition}
+
+Before we discuss bias, variance, and MSE of an estimator, it is important to understand
+that \textit{an estimator is a statistic (function of the data) and is therefore a
+random variable}. Because of this, estimators have a \textbf{sampling distribution}.
+
+\pagebreak
+\section{Bias, Variance, and MSE}
+\subsection{Bias}
+
+\begin{definition}
+    \textbf{Bias} is the difference between the expected value of the estimator and the
+    true value of the parameter. Mathematically, we say
+    \[
+    \mathbb{E}(\hat \theta|\theta=\theta_{0}) - \theta_{0} = Bias(\theta).
+    \]
+    If the estimator is equal to the parameter (i.e. $ \mathbb{E}(\hat \theta|\theta = 
+    \theta_{0}) = \theta_{0}$), we say that $\hat \theta$ is an \textbf{unbiased
+    estimator} of $\theta$. If the estimator is not equal to the parameter (i.e.
+    $ \mathbb{E}(\hat \theta|\theta=\theta_{0})\ne \theta_{0}$), then we say that
+    $\hat \theta$ is a \textbf{biased estimator} of $\theta$.
+\end{definition}
+
+\subsection{Variance}
+\begin{definition}
+    \textbf{Variance} is the average squared distance from the mean. In this context,
+    the variance of an estimator refers to the variance of the sampling distribution of
+    $\hat \theta$. We write this mathematically as
+    \[
+        Var(\hat \theta|\theta_{0}) = \mathbb{E}[(\hat \theta-m)^{2}|\theta_{0}],
+    \]
+    where $m= \mathbb{E}(\hat \theta|\theta_{0})$.
+\end{definition}
+
+\subsection{MSE}
+\begin{definition}
+    The \textbf{mean squared error} (MSE) is, as the name suggests, the expeted value of
+    the squared difference between the estimator and the true parameter value. 
+    Equivalently, MSE is the variance plus the square bias of the estimator.
+    \begin{align*}
+        MSE(\hat \theta|\theta_{0}) &= \mathbb{E}[(\hat \theta-\theta_{0})^{2}|
+        \theta_{0}]\\
+                                    &= Var(\hat \theta|\theta_{0}) + Bias^{2}(\hat \theta
+                                    |\theta_{0})
+    \end{align*}
+\end{definition}
+
+Observe that finding a non-biased estimator is not always the only end goal. For example,
+an estimator that is non-biased but with a wide variance may be less helpful that a 
+more confident estimator that is slightly biased. Balancing acceptable bias is a
+subjective exercise that is left up to the statistician and it will vary by problem. The
+MSE quantifies \textit{how close} an estimator is to the true parameter value.
+
+\subsection{Example}
+Suppose we wish to make inference about the average bill length of Chinstrap penguins. We
+make the modeling assumption that $Y$, the bill length of a penguin, is normally 
+distributed. That is $Y \sim N(\theta,\sigma^{2})$ and you set up a conjugate prior as we
+have done before. 
+
+We can then show that the posterior mean estimator of $\theta$ is
+\[
+\hat \theta_{b} = \mathbb{E}(\theta|\vec y) = \frac{n}{\kappa_{0}+n}\bar y +
+\frac{\kappa_{0}}{\kappa_{0}+n}\mu_{0}.
+\]
+Since $\kappa_{0}+n=1$, we can define a new varible $w$ that is $\frac{n}{\kappa_{0}+n}$.
+Thus, we arrive at
+\[
+\hat \theta_{b}=w\bar y+(1-w)\mu_{0}.
+\]
+\begin{note}
+    Note that we can pick $\kappa_{0}$ ourselves. It just denotes how much we want to
+    weight our previous obsevations, not the actual number of previous observations.
+\end{note}
+
+\subsubsection{Compare $\hat \theta_{b}$ to the estimator $\hat \theta_{e}=\bar y$}
+First, we calculate the expected value of each estimator. Starting with $\hat \theta_{e}$
+\begin{align*}
+    \mathbb{E}(\hat \theta_{e}|\theta_{0}) &= \mathbb{E}\bar y\\
+                                           &=\frac{1}{n}\sum_{i=1}^{n} 
+                                           \mathbb{E}(y_{i})\\
+                                           &= \frac{1}{n}\sum\theta\\
+    \mathbb{E}(\hat \theta_{e}|\theta_{0}) &= \theta
+\end{align*}
+
+Since $ \mathbb{E}(\hat \theta_{e}|\theta_{0}) = \theta$, then we know that $\hat \theta
+_{e}$ is \textit{unbiased}. Next, let's look at the bias of $\hat \theta_{b}$.
+\begin{align*}
+    \mathbb{E}(\hat \theta_{b}|\theta_{0}) &= \mathbb{E}[w\bar y+(1-w)\mu_{0}] \\
+                                           &= w\theta+(1-w)\mu_{0}
+\end{align*}
+If $\mu_{0} \ne \theta_{0}$, then $\hat \theta_{b}$ is biased. So, unless we happen to
+choose the perfect $\mu_{0}$ such that $\mu_{0}=\theta_{0}$ (which is basically
+impossible), then $\hat \theta_{b}$ is \textit{biased}.
+
+Now that we have expected values and biases, lets investigate their different variances.
+First, we'll find the variance of $\hat \theta_{e}$.
+\begin{align*}
+    Var(\hat \theta_{e}|\theta_{0}) &= Var(\bar y)\\
+                                    &= Var\left(\frac{1}{n}\sum y_{i}\right)\\
+                                    &= \frac{1}{n^{2}}\sum Var(y_{i})\\
+                                    &= \frac{1}{n^{2}}\sum \sigma^{2}\\
+                                    &= \frac{1}{n}\sigma^{2}
+\end{align*}
+
+Next we want the variance of our Bayesian estimate
+\begin{align*}
+    Var(\hat \theta_{b}|\theta_{0}) &= Var(w\bar y + (1-w)\mu_{0})\\
+                                    &= Var(w\bar y)\\
+                                    &= w^{2}Var(\bar y)\\
+                                    &= w^{2}\cdot \frac{\sigma^{2}}{n}
+\end{align*}
+Since we know that $w<1$, the variance of $\hat \theta_{e}$ is just the variance of
+$\hat \theta_{b}$ scaled by the square of a number less than 1. Thus, \textit{the
+variance of the Bayesian estimator is smaller}.
+
+\subsubsection{Calculate the MSE}
+We know that $MSE = Var(\hat \theta|\theta_{0}) + Bias^{2}(\hat \theta|\theta_{0})$. We
+have already calculated those for each estimator. Thus, for $\hat \theta_{e}$,
+\begin{align*}
+    MSE(\hat \theta_{e}|\theta_{0}) &= \frac{\sigma^{2}}{n} + 0^{2}\\
+                                    &= \frac{\sigma^{2}}{n}
+\end{align*}
+For $\hat \theta_{b}$, recall that $\theta_{0}=w\theta_{0}+(1-w)\theta_{0}$. Thus,
+\begin{align*}
+    MSE(\hat \theta_{b}|\theta_{0}) &= \mathbb{E}[(w(\bar y-\theta_{0})+(1-w)(\mu_{0}-
+    \theta_{0}))^{2}]\\
+                                    &= \mathbb{E}[w^{2}(\bar y-\theta_{0})^{2}+ 2w
+                                    (\bar y-\theta_{0})(1-w)(\mu_{0}-\theta_{0}) +
+                                    (1-w)^{2}(\mu_{0}-\theta_{0})^{2}]
+\end{align*}
+We know that $(\bar y-\theta_{0})^{2}$ is the variance of $\bar y$ by definition, and we
+know that $ \mathbb{E}(\bar y)=\theta_{0}$. Thus, the $(\bar y-\theta_{0})$ term is
+0, and the entire middle term cancels to 0. Thus
+\[
+    \boxed{MSE(\hat \theta_{e}|\theta_{0}) = w^{2}\frac{\sigma^{2}}{n}+
+    (1-w)^{2}(\mu_{0}-\theta_{0})^{2}}
+\]
+So which has the smaller $MSE$ (since we are calling the smaller $MSE$ a "better"
+predictor)? We want to know when the $MSE$ of the posterior mean $\hat \theta_{b}$ is 
+smaller than the $MSE$ of our sample mean $\hat \theta_{e}$. Mathematically,
+\[
+    (\mu_{0}-\theta_{0})^{2} < \frac{\sigma^{2}}{n}\frac{1+w}{1-w}
+\]
+where
+\[
+\frac{\sigma^{2}}{n}\frac{1+w}{1-w} = \sigma^{2}\left(\frac{1}{n}+\frac{2}{\kappa_{0}}
+    \right)
+\]
+When the above inequality holds, the $MSE$ for $\hat \theta_{b}$ is smaller than
+the $MSE$ of $\hat \theta_{e}$.
+
+\begin{note}
+    A good rule of thumb is that if the prior guess of $\mu_{0}$ is within two standard
+    deviations of $\theta_{0}$ and we pick $\kappa_{0}=1$, then the Bayes estimator
+    probably has lower MSE.
+\end{note}
+
+
+\end{document}
