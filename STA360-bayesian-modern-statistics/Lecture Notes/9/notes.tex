@@ -1,0 +1,221 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 9 - Normal Models (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Normal Models}
+
+We can break up the joint posterior $p(\theta,\sigma^{2}|\vec y)$ as follows:
+\[
+p(\theta,\sigma^{2}|\vec y) = p(\theta|\sigma^{2},\vec y)p(\sigma^{2}|\vec y).
+\]
+This suggests that we can calculate the joint posterior by first finding the 
+full conditional of $\theta: p(\theta|\sigma^{2},\vec y)$, and then finding the
+marginal posterior of $\sigma^{2}:p(\sigma^{2}|\vec y)$ where $\vec y = \{y_{1},
+\cdots y_{n}\}$.
+
+\begin{definition}
+    The \textbf{joint posterior} is a posterior that contains every variable. For
+    example,
+    \[
+        p(\theta,\sigma^{2}|\vec y)
+    \]
+\end{definition}
+
+\begin{definition}
+    The \textbf{full conditional} of $\theta$ is an expression for $\theta$ that
+    takes all other variables into account. For example,
+    \[
+    p(\theta|\sigma^{2},\vec y)
+    \]
+\end{definition}
+
+\begin{definition}
+    The \textbf{marginal posterior} is an expression that \textit{does not} take
+    every variable into account. For example, the following expression for
+    $\sigma^{2}$ does not contain $\theta$:
+    \[
+        p(\sigma^{2}|\vec y)
+    \]
+\end{definition}
+
+We can write our posterior in two different ways. One (1) is a full equality, and
+the other (2) is broken up using Bayes' rule into proportionality of some
+likelihood and a joint prior.
+\begin{align}
+    p(\theta,\sigma^{2}|\vec y) &= p(\theta|\sigma,\vec y)p(\sigma^{2}|\vec y)\\
+                        &\propto p(\vec y|\theta,\sigma^{2})p(\theta,\sigma^{2}).
+\end{align}
+
+We'd use the latter form (2) if we wanted to find a conjugate prior (this is the
+point of conjugacy). If we break down the prior in such a way, what we are really
+saying is that the form of $p(\theta|\sigma^{2})p(\sigma^{2})$ should match the
+form of $p(\theta|\sigma^{2},\vec y)p(\sigma^{2}|\vec y)$. This means that we 
+want $p(\sigma^{2})$ to be conjugate to $p(\sigma|\vec y)$. That is, we want
+\[
+p(\sigma^{2}|\vec y) \propto p(\vec y|\sigma^{2})p(\sigma^{2}).
+\]
+However, we don't know $p(\vec y|\sigma^{2})$. Fortunately, we can perform
+marginalization over $\theta$ such that
+\begin{align*}
+    p(\sigma^{2}|\vec y) &= \int p(\sigma^{2},\theta|\vec y)d \theta\\
+                     &= \frac{
+                     p(\vec y|\theta,\sigma^{2})p(\theta|\sigma^{2}) 
+                     p(\sigma^{2}d \theta}{p(\vec y)}\\
+                     &\propto p(\sigma^{2})\int p(\vec y |\theta, \sigma^{2})
+                     p(\theta|\sigma^{2})d \theta
+\end{align*}
+
+We know the following (given independence):
+\begin{align*}
+    p(\vec y|\theta,\sigma^{2}) & \sim \prod_{i=1}^{n}Norm(y_{i}, \theta, 
+    \sigma^{2}) \\
+    p(\theta|\sigma^{2}) & \sim Norm(\theta,\mu_{0}, \frac{\sigma^{2}}{k_{0}})
+\end{align*}
+
+This gives rise to something that looks like the kernel
+\[
+    (\sigma^{2})^{-\frac{1}{2}}e^{-\frac{b}{\sigma^{2}}}
+\]
+We now know the marginal posterior $p(\sigma^{2}|\vec y)$. We can then look
+through our distributions to find one of a similar structure. The correct one
+turns out to be \textit{inverse-gamma}.
+
+Taken all together, if we let our sampling model and prior distributions be such
+that
+\begin{align*}
+    Y_{i}|\theta,\sigma^{2} & \sim N(\theta,\sigma^{2}) \\
+    \theta|\sigma^{2} & \sim N(\mu_{0}, \frac{\sigma^{2}}{k_{0}}\\
+    \frac{1}{\sigma^{2}} & \sim gamma\left(\frac{\nu_{0}}{2}, \frac{\nu_{0}}{2}
+        \sigma^{2} \right),
+\end{align*}
+
+then the posterior
+\[
+\frac{1}{\sigma^{2}}|\vec y \sim gamma \left(\frac{\nu_{n}}{2},
+    \frac{\nu_{n}\sigma^{2}_{n}}{2}\right),
+\]
+where
+\begin{align*}
+    \nu_{n} &= \nu_{0}+n,\\
+    \sigma^{2}_{n} &= \frac{1}{\nu_{n}}\left[\nu_{0}\sigma^{2}_{0} + (n-1)s^{2} +
+    \frac{k_{0}n}{k_{0}+n}(\bar y-\mu_{0})^{2}\right]
+\end{align*}
+and $s^{2}$ is the sample variance
+\[
+s^{2} = \frac{1}{n-1}\sum_{i=1}^{n}(y_{i}-\bar y)^{2}
+\]
+
+
+\begin{note}
+    There is no given proof for the latter distribution, but it is given in
+    class as a convenient choice for our prior.
+\end{note}
+
+\begin{definition}
+    A \textbf{convolution} is an integral containing two things multiplied
+    together. 
+    \begin{note}
+        \textbf{Important}: a convolution of normal distributions is also normal.
+    \end{note}
+\end{definition}
+
+\subsection{Sampling from the joint posterior}
+Since $p(\theta,\sigma^{2}|\vec y) = p(\theta|\sigma^{2},\vec y)p(\sigma^{2}|
+\vec y)$, we can sample from the joint posterior by first sampling from
+$p(\sigma^{2}|\vec y)$ and then sampling from $p(\theta|\sigma^{2},\vec y)$.
+
+\subsubsection{An example with code}
+We have some data from R (where $n = 10$)
+\begin{verbatim}
+true_theta = 4
+true_sigma = 1
+y = rnorm(10, true_theta, true_sigma)
+
+y_bar = mean(y)
+n = length(y)
+s2 = var(y)
+
+# theta prior
+mu_0 = 2; k_0 = 1
+
+# sigma^2 prior
+nu_0 = 1; s2_0 = 0.01
+
+# posterior parameters
+k_n = k_0 + n
+nu_n = nu_0 + n
+mu_n = (k_0 * mu_0 + n * y_bar) / k_n
+s2_n = (nu_0 * s2_0 + (n-1) * s2 + k_0 * n * (y_bar - mu_0)^2 / k_n) / nu_n
+
+s2_postsample = 1 / rgamma(10000, nu_n / 2, s2_n * nu_n / 2)
+theta_postsample = rnorm(10000, mu_n, sqrt(s2_postsample / k_n))
+\end{verbatim}
+
+
+\end{document}

@@ -1,0 +1,122 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 11 - Linear Predictors (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Soft Step}
+
+Note that a soft step function is differentiable at all points. That means that
+we can calculate the gradient of that logistic function at all points, and we can
+proceed to use gradient descent, unlike with hard step score functions.
+
+\subsection{Logistic functions in $d$ dimensions}
+We want a \textit{linear} classifier. The level crossing must always be a
+hyperplane. The level crossing to $s(\textbf{x}) = \frac{1}{2}$, and the shape of
+the crossing depends on $s$. Let us compose an affine function 
+\[
+a(\textbf{x}) = c + \textbf{u}^{T}\textbf{x}
+\]
+with a monotonic $f(a)$ that crosses $\frac{1}{2}$,
+\[
+s(\textbf{x}) = f(a(\textbf{x})) = f(c+\textbf{u}^{T}\textbf{x}).
+\]
+Then, if $f(\alpha) = \frac{1}{2}$, the equation $s(\textbf{x}) = \frac{1}{2}$ is
+the same as $c + \textbf{u}^{T}\textbf{x}$, which is a \textit{hyperplane}! Let
+$f$ be the logistic function.
+
+\begin{note}
+    The function $s$ returning 0 and 1 with $\frac{1}{2}$ representing pure
+    uncertainty naturally gives rise to a probabilistic interpretation of the
+    results. But not all numbers between 0 and 1 are inherently probabilistic.
+    These are such numbers. 
+\end{note}
+
+\subsection{Ingredients for regression}
+We determine the distance $\Delta$ of a point $\textbf{x}\in X$ from a 
+hyperplane $\mathcal{X}$, and the side of $\mathcal{X}$ on which the point is on.
+We specify a monotonically increasing function $f$ that turns $\Delta(\textbf{x})$
+into a probability $p = f(\Delta(\textbf{x}))$ (Choise based on convenience: the
+\textit{logistic function}). We also define a loss function $\ell(y,p)$ that 
+measures how good $p$ is given the true label $y$ (Convenience again: choose 
+$\ell$ so that $\ell(y, f(\Delta(\textbf{x})))$ is a \textit{convex risk}: the
+\textit{cross-entropy loss}).
+
+\subsubsection{Normal to a hyperplane}
+Suppose we are given a hyperplane $\mathcal{X} : b + \textbf{w}^{T}\textbf{x}=0$
+with $\textbf{a}_{1}, \textbf{a}_{2} \in \mathcal{X} \rightarrow c = 
+\textbf{a}_{1}-\textbf{a}_{2}$ (i.e. $c$ is the vector from $\textbf{a}_{1}$
+to $\textbf{a}_{2}$) parallel to $\mathcal{X}$. We subtract 
+$b + \textbf{w}^{T}\textbf{a}_{1}=0$ from $b+\textbf{w}^{T}\textbf{a}_{2}=0$ and
+obtain $\textbf{w}^{T}c=0$ for any $\textbf{a}_{1},\textbf{a}_{2}\in \mathcal{X}$.
+Here, crucially, \textbf{w is perpendicular to $\mathcal{X}$}.
+
+\begin{note}
+    Note that in the above, $\textbf{w}$ cannot be zero (or the zero vector).
+\end{note}
+
+\end{document}

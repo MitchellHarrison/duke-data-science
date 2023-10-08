@@ -1,0 +1,253 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 12 - Linear Predictors (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Distances from the Origin}
+
+\subsection{Distance of a hyperplane from the origin}
+Recall that $\mathcal{X}$ is a hyperplane such that $b + \textbf{w}^{T}\textbf{x}=0$ as
+$\textbf{n}^{T}\textbf{x}=\beta$ where $\beta = -b/||\textbf{w}||\ge 0$. Let us define
+a line $\textbf{x}$ that is all scalar multiples of the vector $\textbf{n}$ such that
+$\textbf{x} = \alpha \textbf{n}$ for $\alpha \in \mathbb{R}$, where $\alpha$ is the
+signed distance from the origin. Replacing that into the equation for $\mathcal{X}$, we
+arrive at $\alpha \textbf{n}^{T}\textbf{n}=\beta$. That is, $\alpha = \beta\ge0$. In
+particular, $\textbf{x}_{0}=\beta \textbf{n}$, where $\textbf{x}_{0}$ is the point on 
+the line $\textbf{x}$ where it intersects with the hyperplane $\mathcal{X}$. Thus,
+\textbf{ $\beta$ is the distance of $\mathcal{X}$ from the origin}.
+
+\subsection{Distance from any point from a hyperplane}
+Let $\textbf{n}^{T}\textbf{x} = \beta$ where $\beta = -b/||\textbf{w}|| \ge 0$ and
+$\textbf{n} = \textbf{w}/||\textbf{w}||$. In one-half space, $\textbf{n}^{T}\textbf{x}
+\ge \beta$. The distance of any point $\textbf{x}$ from the hyperplane $\mathcal{X}$ is
+$\textbf{n}^{T}\textbf{x} - \beta \ge 0$. In the other half-space, we say 
+$\textbf{n}^{T}\textbf{x}' \le \beta$. The distance of point $\textbf{x}'$ from 
+the hyperplane $\mathcal{X}$ is thereby $\beta - \textbf{n}^{T}\textbf{x}'\ge 0$. On the
+decision boundary, $\textbf{n}^{T}\textbf{x}=\beta$. \textbf{The signed distance of $x$
+from the decision hyperplane $\mathcal{X}$ is $\Delta(x) = \textbf{n}^{T}\textbf{x}
+-\beta$.}
+
+\begin{note}
+    The visualization in the lecture recordings is extremely helpful for visualizing the
+    linear algebra described above.
+\end{note}
+
+\subsection{In summary}
+If $\textbf{w}$ is non-zero (which is has to be), the distance from the origin of the
+hyperplane $\mathcal{X}$ with the equation $b+\textbf{w}^{T}\textbf{x}=0$ is
+\[
+\beta = \frac{|b|}{||\textbf{w}||},
+\]
+which is a non-negative number, and the quantity
+\[
+\Delta(\textbf{x}) = \frac{b+\textbf{w}^{T}\textbf{x}}{||\textbf{w}||}
+\]
+is the \textit{signed distance} of a point $\textbf{x}\in \mathcal{X}$ from hyperplane
+$\mathcal{X}$. Specifically, the distance of $\textbf{x}$ from $\mathcal{X}$ is
+$|\Delta(\textbf{x})|$, and $\Delta(\textbf{x})$ is non-negative if and only if
+$\textbf{x}$ is on the side of $\mathcal{X}$ pointed to by $\textbf{w}$. Let us call
+that side the \textbf{positive half-space} of $\mathcal{X}$.
+
+\pagebreak
+\section{The Logistic Function}
+We want to make the score of $\textbf{x}$ be only a function of the signed distance
+$\Delta(\textbf{x})=\textbf{n}^{T}\textbf{x}-\beta$ where $||\textbf{n}|| =1$. Given
+$\Delta_{0}$, all points such that $\Delta(\textbf{x}) = \Delta_{0}$ have the same score.
+Let the score function be $s(\textbf{x}) = f(\Delta(\textbf{x}))$. The question is, how
+do we pick $f$?
+
+We know that $f$ must have the following characteristics:
+\begin{enumerate}
+    \item $\lim_{\Delta \to -\infty} f(\Delta)=0$
+    \item $f(0)=\frac{1}{2}$ 
+    \item $\lim_{\Delta \to \infty} f(\Delta)=1$.
+\end{enumerate}
+
+The \textbf{logistic function} is
+\[
+    f(\Delta) = \frac{1}{1+e^{-\Delta}}.
+\]
+\begin{note}
+    For the above, recall that
+    \begin{align*}
+        \textbf{n} &= \frac{\textbf{w}}{||\textbf{w}||}\\
+        \beta &= -\frac{b}{||\textbf{w}||}
+    \end{align*}
+\end{note}
+
+We could adjust the scale of the logistic function if we divide $\Delta$ by a constant
+$c$. It then takes the form
+\[
+f(\Delta) = \frac{1}{1+e^{-\Delta}}.
+\]
+Changing the value of $c$ adjusts the "steepness" of the logistic curve, which can be
+useful in weighting data points that fall near or far from the point $f(\Delta) = 
+\frac{1}{2}$, should be need to. We can also use both $c$ and $\Delta(\textbf{x})$ such
+that
+\[
+\frac{\Delta(\textbf{x})}{c} = \frac{\textbf{n}^{T}\textbf{x}-\beta}{c},
+\]
+or more simply we can use no $c$ but instead use $a(\textbf{x}) = b+\textbf{w}^{T}
+\textbf{x}$ where $b = -\beta/c$ and $\textbf{w} = \textbf{n}/c$. Then, the activation
+$a(\textbf{x})$ takes care of scale implicitly.
+
+Let the score then become
+\[
+s(\textbf{x}) = f(a(\textbf{x})) = \frac{1}{1 + e^{-b-\textbf{w}^{T}\textbf{x}}}.
+\]
+We then change notation slightly to write $s(\textbf{x}; b, \textbf{w})$ to remind us of
+dependence.
+
+\subsection{Optimize the regressor, not the classifier}
+We would like to minimize the average of 
+\[
+\ell_{0-1}(y, \hat y) =
+\begin{cases}
+    0 & y=\hat y \\
+    1 & \text{otherwise}.
+\end{cases}
+\]
+However, $\frac{\partial \ell_{0-1}}{\partial \hat y}=0$ almost everywhere, and is 
+undefined everywhere else. Instead, we use the score $p = s(\textbf{x};b,\textbf{w})$
+instead of $\hat y$ such that $\hat y \in \{0,1\}$ while $p \in [0,1]$. Instead of 
+measuring the loss on $\hat y = h(\textbf{x})$, we measure it on $p = s(\textbf{x};
+b, \textbf{w})$, a proxy of $\hat y$. 
+
+We need a different $\ell(y,p)$ because the 0-1 loss no longer makes sense. We also
+desire differentiability and $\frac{\partial \ell}{\partial p}\ne 0$.
+
+\subsection{Differentiable risk with non-zero gradient}
+We want $\ell(y,p)$ to be differentiable in $p$ and $\frac{\partial \ell}{\partial p}
+\ne 0$. Since $p = s(\textbf{x}; b, \textbf{w})$ is differentiable in $(b,\textbf{w})$, 
+then $\ell$ will be too, and the gradient has a chance to be non-zero. Why do we insist
+on differentiability and non-zero gradient?
+
+Recall the risk function
+\[
+L_{T}(b,\textbf{w}) = \frac{1}{N}\sum_{n=1}^{N}\ell(y_{n}, s(\textbf{x}_{n};
+b,\textbf{w})).
+\]
+We can then use a gradient method (steepest descent, Newton, etc.). However, we have not
+yet chosen the specific form of $\ell$. We can make $L_{T}(b,\textbf{w})$ a 
+differentiable \textit{and} convex function of $\textbf{v}=(b,\textbf{w})$ by a suitable
+choice of $\ell$.
+
+\subsection{The cross-entropy loss}
+\begin{definition}
+    The \textbf{cross-entropy loss function} is
+    \[
+    \ell(y,p) = 
+    \begin{cases}
+        -log(p) & y=1 \\
+        -log(1-p) & y=0.
+    \end{cases}
+    \]
+    Here, the base of the log is unimportant. The unit of loss is conventional. Note that
+    this is the same as
+    \[
+    \ell(y,p) = -y\cdot log(p) - (1-y)\cdot log(1-p),
+    \]
+    which is more convenient for differentiation.
+
+    The domain of the cross-entropy loss function is $\{0,1\} \times [0,1]$. 
+    Additionally, $\ell(1,p)=\ell(0,1-p)$ and $\ell(1,1/2) = \ell(0,1/2) = -log(1/2)$.
+\end{definition}
+
+The literature gives an elegant interpretation of cross-entropy loss in terms of number
+theory, but that is beyond the scope of this course (but is in the course notes
+appendix). But perhaps a more cogent explanation, observe that with cross-entropy and
+the logistic function:
+\begin{enumerate}
+    \item The risk becomes a convex function of the parameters 
+        $\textbf{v = (b,\textbf{w})}$.
+    \item The gradient and Gessian of the risk are easy to compute.
+\end{enumerate}
+
+A crucial concellation occurs when computing derivatives of the risk with respect to the
+parameters.
+
+\begin{note}
+    \textbf{Note on exams!} We \textit{will} be asked to \textit{use} the gradient and
+    Hessian and be able to compute them. We with \textit{not} be asked to 
+    \textit{remember} their formulas or know how to derive them.
+\end{note}
+
+\subsection{The "magic"}
+The logistic function and cross-entropy loss were chosen to simplify the math. Here is
+the magic:
+\begin{align*}
+    L_{T}(\textbf{v}) &= \frac{dL_{T}}{d\ell}\frac{d\ell}{df}\frac{df}{da}\nabla a\\
+    \ell &= -y\cdot log(f) - (1-y)\cdot log(1-f) \text{ so that }
+    \frac{d\ell}{df} = \frac{f-y}{f(1-f)}\\
+    f(a) &= \frac{1}{1+e^{-a}} \text{ so that } \frac{df}{da} = f(1-f).
+\end{align*}
+
+Therefore, $\frac{d\ell}{df}\frac{df}{da}=f-y$. This is the cancellation that simplifies
+everything!
+
+\end{document}
