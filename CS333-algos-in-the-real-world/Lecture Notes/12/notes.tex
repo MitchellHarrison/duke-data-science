@@ -1,0 +1,195 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 12 - Recommendation (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Recommendation}
+
+\subsection{Collaborative filtering}
+There are two perspectives on \textit{collaborative filtering}:
+\begin{enumerate}
+    \item From a \textbf{user} perspective, a recommender may use something like
+        "users like you enjoyed watching $X$, and so you may also like it."
+    \item From an \textbf{item} perspective, a recommender may use reasoning
+        like "viewers feel similarly about this movie and these other movies."
+\end{enumerate}
+
+\begin{note}
+    Here, we use films as an example for our hypothetical platform (e.g. Netflix),
+    but all of these could apply to any recommender systems (e.g. YouTube,
+    Twitter, etc.).
+\end{note}
+
+\begin{definition}
+    A \textbf{latent factor model} uses a matrix with rows of users and columns
+    of films. Each entry is a user's score for that film. That matrix is factored
+    into a product of smaller matrices such that when they are multiplied, they
+    approximate our original matrix $M$. But where there were missing ratings in
+    $M$, there will now be values that serve as our prediction. In practice, 
+    gradient descent techniques are used here.
+\end{definition}
+
+\subsection{$k$ Nearest Neighbor search}
+To make predictions for user $i$, we search for the $k$ nearest users with the
+most similar ratings to $i$. We then predict $i$'s blank ratings based on the $k$
+nearest neighbors.
+
+Given $n$ points $P$, a similarity measure $S()$, and a query point $q$, find
+$x \in P$ that maximizes $S(x,q)$. Call this $NN_{s}(q)$. Equivalently, given 
+distance measure $D()$ that minimizes $D(x,q)$. This is the Euclidian distance of
+a point to its neighbors.
+
+\subsubsection{Similarity measures}
+Suppose our data is geometric. Each point $x \in P$ is a oint in $d$-dimensional
+Euclidean space. This is
+\[
+S(x,y) = - \sqrt{\sum_{i=1}^{d}(x_{i}-y_{i})^{2}}.
+\]
+But perhaps a better measure of distance is known as the \textbf{angular distance}
+\[
+S(x,y) = cos(\theta_{xy}) = \frac{xy}{||x||_{2}||y||_{2}} = 
+\frac{\sum_{i=1}^{d}x_{i}y_{i}}{\sqrt{\left(\sum_{i=1}^{d}x_{i}^{2}\right)
+\left(\sum_{i=1}^{d}y_{i}^{2}\right)}}.
+\]
+This form of distance measure corrects for things like users grading on a
+different scale as one another. For example, if one user gives most movies they
+like a 4, and another with similar tastes gives them a 5, the cosine similarity
+(i.e. the angular distance) renormalizes the scale, while Euclidian distance will
+return a non-trivial distance between the two users.
+
+\subsubsection{Problems with kNN}
+There are two concerns with $k$-NN. First, we are forced to generalize from 
+limited data. The \textit{vast} majority of a real world matrix of this form is
+empty. Additionally, because of the size of this matrix is massive, search is
+very slow. With $n$ users and $m$ items, search is $O(nm)$.
+
+One possible way of dealing with missing data is filling missing entries with
+zeros. The problem with doing so is that we heavily penalize users who have few
+films in common that they have rated, even if the movies that users \textit{did}
+rate in common were very similar ratings.
+
+Instead, we could choose to only compute similarity on items rated in common.
+That is, score should penalize when little is in common. We can \textit{threshold}
+or \textit{regularize}. Thresholding only allows similarity to be calculated if
+at least $\tau$ items have been reviewed by both users.
+
+To deal with scale, we can preprocess our sparse matrix $M$ in a sparse format. 
+This will allow us to store our matrix using less memory \textit{and} to conduct
+comparisons. Let $\tilde{m}$ be the average number of items a user has rated.
+Now we can implement $k$-NN search in $\approx O(n\tilde{m})$ time instead of
+$O(nm)$.
+
+\subsubsection{Collaborative filtering after finding $k$NN}
+Suppose we want to make recommendations for a user Alice.
+\begin{enumerate}
+    \item First, find $N$, the set of nearest neighbors to Alice.
+    \item Find $M$, the set of candidate items rated by users in $N$.
+    \item Predict a score for each item $M$ based on how $N$ scored them.
+    \item Rank $M$ according to these scores.
+    \item Sort and recommend the top items.
+\end{enumerate}
+
+We can improve the efficiency of $k$-NN by clustering our points into clusters so
+that near neighbors are likely to be in the same clusters. A \textit{QuadTree} is
+one classical data structure for performing such clustering. In higher dimensions,
+we can $(c,r)$-approximate near neighbor problem with failure probability $f$.
+That is, for a query point $q$, if there exists another point $p$ with $d(q,p)
+\le r$, then report a point $p'$ with $d(q,p) \le c\cdot r$ with probability at 
+least $1-f$.
+
+\subsection{Dealing with scale through clustering}
+\textbf{Insight:} If $x$ and $y$ are similar, they are likely to have similar
+nearest neighbors. If we can identify neighborhoods of similar users, there is no
+need to search the entire dataset in collaborative filtering.
+
+Let $n$ be the number of users, $m$ be the number of items, and $\tilde{m}$ be
+the average number of items rated by a user. We compute sparse representations of
+user ratings, which takes $O(n \tilde{m})$ time and memory. We cluster sparse 
+ratings to get $k$ sets of similar users. Each iterations takes $O(n\tilde{m})$
+time, but we may need many iterations. Then, we \textit{may}, for each cluster,
+preprocess the predicted ratings so that recommendations are effectively 
+performed in constant time. Choosing to do so will sacrifice some personalization
+for the sake of performance. Now, nearest neighbor search takes only 
+$O(\frac{n\tilde{m}}{k})$ time, where $k$ is the number of clusters.
+
+\subsection{A/B testing evaluation}
+Frankly, A/B testing is the empirical gold standard that most client-facing,
+data-driven companies use when iterating on their product. Effectively, it
+conducts a randomized control trial on users to see which changes most positively
+impact retention, income, or whichever business metric a company desires to
+improve.
+
+\subsection{Diversity}
+Our approach thus far for making recommendations to a user generates a set of
+candidate items, predicts how a user would score them, and recommends items with
+the top predicted scores. But this does not account for diversity. For example,
+if a recommendation algorithm decides that a user will like Harry Potter, it may
+recommend nothing but every Harry Potter film. While that may minimize error,
+it is probably not an ideal experience to a user.
+
+\end{document}

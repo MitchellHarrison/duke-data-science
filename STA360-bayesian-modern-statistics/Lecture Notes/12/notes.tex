@@ -1,0 +1,248 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 12 - Non-conjugate Priors and Gibbs Sampler}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Non-Conjugate Priors}
+
+\begin{definition}
+    A \textbf{semiconjugate} or \textbf{conditionally conjugate} prior is a
+    prior that is conjugate to the full conditional posterior.
+\end{definition}
+
+Note that the idea of a semiconjugate prior only makes sense when making
+inferences about two or more parameters. For example:
+\begin{align*}
+    Y|\theta,\sigma^{2} & \sim N(\theta,\sigma^{2})\\
+    \theta & \sim N(\mu_{0}, \tau_{0}^{2}) \\
+    \frac{1}{\sigma^{2}} & \sim gamma\left(\frac{\nu}{2},
+        \frac{\nu_{0}\sigma_{0}^{2}}{2}\right)
+\end{align*}
+In this case, $\tau_{0}^{2}$ is \textit{not} a function of $\sigma^{2}$, and
+thus $p(\theta, \sigma^{2}) = p(\theta, \sigma^{2}) = p(\theta)p(\sigma^{2})$.
+Each prior is "semiconjugate" since $p(\theta|\sigma^{2}, \vec y)$ is normal
+and $p(\frac{1}{\sigma^{2}} | \theta, \vec y)$ is gamma but $p(\theta,
+\sigma^{2})$ is not conjugate to $p(\theta, \sigma^{2})$ is not conjugate to
+$p(\theta,\sigma^{2}|\vec y)$.
+
+\begin{definition}
+    A \textbf{proper prior} is a density function that does not depend on data
+    and integrates to 1. If a prior integrates to a positive finite value, it
+    is an un-normalized density that can be renormalized by being multiplies by
+    a constant to integrate to 1. If a prior is \textit{not} proper, we call it
+    an \textbf{improper prior}.
+\end{definition}
+One example of an improper prior is
+\begin{align*}
+    Y|\theta,\sigma^{2} & \sim N(\theta, \sigma^{2})\\
+    p(\theta,\sigma^{2}) &= \frac{1}{\sigma^{2}}
+\end{align*}
+where $p(\theta, \sigma^{2})$ is an improper prior. Here, $p(\theta, 
+\sigma^{2}$ does not integrate to a finite value and thus cannot be 
+re-normalized. It is not a probability density. However, it yields a tractable
+posterior for $\theta$ and $\sigma^{2}$ (see p.79 of Hoff).
+
+\pagebreak
+\section{Non-Informative Priors}
+Priors are meant to describe our state of knowledge before examining data. In
+some cases, we may wish to describe our ignorance a priori using a vague prior
+that playes a minimal role in the posterior distribution.
+
+A common trap is to imagine that a flat, uniform prior is uninformative. 
+Previously (on homework 3), we showed a uniform prior on binary probability of
+success $\theta$ is informative on the log-odds. Additionally, an improper flat
+prior may carry a lot of information since most of the mass in infinitely far
+away.
+\begin{definition}
+    The \textbf{Jeffreys prior} is
+    \[
+    J(\theta) \propto \sqrt{I(\theta)},
+    \]
+    where $I(\theta) = - \mathbb{E}[\frac{\partial}{\partial \theta^{2}}
+    log(p(Y|\theta)) | \theta]$. The defining feature of Jeffreys' prior is
+    tha tit will yield an equivalent result if applied to a transformed 
+    parameter. This principle of invariance is one approach to non-informative
+    priors that works well for single parameter priors. Multiparameter 
+    extensions are often less useful.
+\end{definition}
+
+\pagebreak
+\section{Gibbs Sampler}
+What if we have a non-conjugate prior? How can we look at $p(\theta,\sigma^{2}|
+\vec y)$? In general, suppose we don't know
+\[
+p(\theta,\sigma^{2}|\vec y),
+\]
+but we do know the full conditional posteriors
+\begin{align*}
+    &p(\theta|\sigma^{2},\vec y)\\
+    &p(\sigma^{2}|\theta, \vec y),
+\end{align*}
+we can generate sample $\theta^{(s)}$, $\sigma^{2(s)}$ from the joint
+posterior by the following algorithm:
+\begin{enumerate}
+    \item sample $\theta^{(s+1)}$ from $p(\theta|\sigma^{2(s)},\vec y)$
+    \item sample $\sigma^{2(s+1)}$ from $p(\sigma^{2}|\theta^{(2+1)}, \vec y)$
+    \item let $\phi^{(s+1)} = \{\theta^{(s+1)}, \sigma^{2(s+1)}$
+\end{enumerate}
+and iterate these steps $S$ times. This algorithm is called the \textbf{Gibbs
+sampler}. The Gibbs sampler creates a dependent set of values $\phi^{(1)},
+\cdots , \phi^{(S)}$. This sequence is called a \textbf{Markov Chain}, and it
+lets us approximate the posterior. That is, the histogram of $\{\psi^{(1)},
+\cdots \psi^{(S)}\}$ is a Markov Chain Monte Carlo approximation to
+$p(\psi|\vec y)$.
+
+\subsection{Example}
+In the semiconjugate normal model described above, the resulting posteriors are
+\[
+\theta|\sigma^{2},\vec y \sim N(\mu_{n}, tan_{n}^{2}),
+\]
+where 
+\begin{align*}
+    &\mu_{n} = \frac{\frac{\mu_{0}}{\tau_{0}^{2}} + \frac{n\bar y}{\sigma^{2}}}
+    {\frac{1}{\tau_{0}^{2}} + \frac{n}{\sigma^{2}}}
+    & \tau_{n}^{2} = \left(\frac{1}{\tau_{0}^{2}} + \frac{n}{\sigma^{2}}
+        \right)^{-1}
+\end{align*}
+and
+\[
+\sigma|\theta, \vec y \sim  invgamma\left(\frac{\nu_{n}}{2}, 
+    \frac{\nu_{n}\sigma^{2}_{n}}{2}\right)
+\]
+where
+\begin{align*}
+    &\nu_{n} = \nu_{0} + n \\
+    &\sigma_{n}^{2} = \frac{1}{\nu_{n}}[\nu_{0}
+    \sigma^{2}_{0} + ns_{n}^{2}(\theta)]\\
+    &s_{n}^{2}(\theta) = \frac{1}{n}\sum (y_{i}-\theta)^{2}
+\end{align*}
+
+\begin{definition}
+    Since the sequence $\{\phi^{s}$ depends on $\phi^{(0)}, \cdots ,
+    \phi^{(s-1)}\}$ only through $\phi^{(s-1)}$, we say that the sequence is
+    \textit{memoryless}. This is called the \textbf{Markov property}, and so 
+    the sequence is a \textbf{Markov chain}. In plain english, we can say that
+    "what happens next only depends on the state of affairs now."
+\end{definition}
+
+Under some conditions,
+\[
+p(\psi^{(s)}\in A) \rightarrow \int_{A}p(\phi)d \phi \text{ as }s\rightarrow 0.
+\]
+That is, the \textit{sampling distribution} of $\phi^{(s)}$ approaches the
+\textit{target distribution} as $s \rightarrow \infty$ regardless of 
+$\psi^{0}$. Furthermore, 
+\[
+    \frac{1}{S}\sum_{s=1}^{S}g(\psi^{(s)}) \rightarrow \mathbb{E}[g(\psi)]
+\]
+\begin{note}
+    \textbf{Big take-away:} If we can sample from the full conditional
+    posteriors, we can construct a Markov chain with samples from the joint
+    posterior! We can then use the Monte Carlo approximation to use the samples
+    to summarize aspects of the posterior.
+\end{note}
+
+\pagebreak
+\section{Example Code}
+This example code is from Hoff chapter 6.
+\begin{verbatim}
+# data
+y = c(1.64, 1.70, 1.72, 1.74, 1.82, 1.82, 1.82, 1.90, 2.08)
+mean.y = mean(y) ; var.y = var(y) ; n = length(y)
+
+# priors
+mu0 = 0
+t20 = 100
+nu0 = 1
+s20 = 2
+
+# starting point
+S = 1000
+PHI = matrix(nrow = S, ncol = 2)
+phi = c(mean.y, var(y))
+PHI[1, ] = phi
+
+# Gibbs sampling
+set.seed(360)
+for(s in 2:S) { 
+    ## generate theta from sigma2
+    mun = (mu0 / t20 + n * mean.y * phi[2]) / (1 / t20 + n * phi[2])
+    t2n = 1 / (1 / t20 + n * phi[2])
+    phi[1] = rnorm(1, mun, sqrt(t2n))
+
+    ## generate 1/sigma2 from theta
+    nun = nu0 + n
+    s2n = (nu0 * s20 + (n - 1) * var.y + n * (mean.y - phi[1])^2 ) / nun
+    phi[2] = rgamma(1, nun/2, nun * s2n / 2)
+
+    ## update chain
+    PHI[s,] = phi
+}
+\end{verbatim}
+
+\end{document}

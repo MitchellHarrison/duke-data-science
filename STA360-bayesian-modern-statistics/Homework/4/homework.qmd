@@ -1,0 +1,19 @@
+# Question 2
+```{r}
+#| label: import-data
+library(tidyverse)
+school1 = read_csv("https://sta360-fa23.github.io/data/school1.csv")
+school2 = read_csv("https://sta360-fa23.github.io/data/school2.csv")
+school3 = read_csv("https://sta360-fa23.github.io/data/school3.csv")
+
+mu_0 = 5
+s2_0 = 4
+k_0 = 1
+nu_0 = 2
+```
+
+## 2A
+```{r}
+#| label: school-1
+
+```

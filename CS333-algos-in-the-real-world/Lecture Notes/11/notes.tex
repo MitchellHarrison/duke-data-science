@@ -1,0 +1,187 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 11 - Compression (cont'd) and Recommender Systems}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{MPEG}
+
+MPEG (Moving Pictures Expert Group) is a core compression standard used by 
+Netflix, YouTube, and most other major online video services. It uses multiple
+compression techniques to achieve a compression ratio of around 50 (in general,
+this can vary widely). Some of these include Huffman, DCT, Quantization,
+Interframe prediction, and others. There are three basic types of frames from 
+earlier MPEG stanards: \textit{I-Frame}, \textit{P-Frame}, and \textit{B-Frame}.
+
+\begin{note}
+    There are several MPEG variants, which include MPEG-1, MPEG-2, MPEG-4, and
+    MPEG-4 AVC (a.k.a. H.264).
+\end{note}
+
+\subsection{Frames}
+
+\subsubsection{I-Frames}
+\textbf{I-Frames} (intra-coded) are \textit{independent}, meaning that they
+are encoded just like a single image using DCT and Huffman like JPEG. These
+are used as reference/anchor points.
+The first frame in a new scene or after a large camera movement so it can better
+serve as an anchor. \textit{Playback can only start from these frames.}
+
+\subsubsection{P-Frames}
+\textbf{P-Frames} (predicted) frames are based on \textit{previous} frame, 
+encoding the block-wise differences from the previous frame as we have seen.
+Normally, a sequence of P-Frames follows an I-Frame.
+
+\subsubsection{B-Frames}
+\textbf{B-Frames} (bidirectional) are based \textit{both} on the previous and the
+next frame. This is important when a new object appears in the scene.
+If a B-frame uses the \textit{next} frame as a reference, we sometimes need to
+decode out of order in a buffer of multiple frames. For every B-frame, first
+decode the other frames in the buffer.
+
+\subsection{MPEG-AVC/H.264 pipeline}
+H.264 encoding uses the following pipeline:
+\begin{enumerate}
+    \item Raw video input is broken into blocks per frame, per color.
+    \item Interframe prediction and motion estimation is completed (for example,
+        on P-frames). We scan over previous and future frames to find the best
+        reference (sparsest difference). If no good reference is found, use an
+        I-frame.
+    \item Discrete Cosine Transform, quantization, and sparse encoding are 
+        applied.
+    \item Huffman compression (a.k.a. "entropy encoding") is applied.
+\end{enumerate}
+
+Putting this entire pipeline together, it is reasonable to assume approximately
+50x savings on space. Note that this only gives rise to the ability to watch 4K
+video, provided at least a 100 Mbps internet connection. Not yet ideal, but much
+better than 5 Gbps for raw 4K video.
+
+\subsection{Streaming vs. physical media}
+In encoding a DVD, we can calculate the space available and generate the highest
+quality encoding that fits. However, when streaming, we need to be able to 
+adapt to changing bandwidth (in particular, download speed) of the client. This
+is \textbf{adaptive streaming}. One such example is the phenominon where if 
+available download speed drops, so too does the resolution of the video.
+
+\subsubsection{Adaptive bitrate algorithms}
+Adaptive bitrate algorithms encode multiple resolutions/qualities of video
+available on the server (e.g. 1080p, 720p). The video/streaming content then 
+changes quality with changes in bandwidth. This required an \textit{online}
+algorithm that makes this choice in real time without knowing what the future
+bandwidth quality will be.
+
+\begin{definition}
+    In the theory of algorithms, \textbf{regret} measures how many more mistakes
+    that an online algorithm makes (or scale of the mistakes) relative to the best
+    fixed decision \textit{in hindsight}.
+    \begin{note}
+        There is an entire field of machine learning called \textit{no-regret
+        learning} that is beyond the scope of this course, but perhaps worth
+        researching on one's own.
+        No-regret learing makes \textit{no assumption} about having prior data. 
+        With  access to more data, we can build machine learning models with
+        better average performance.
+    \end{note}
+\end{definition}
+
+\pagebreak
+\section{Search and Recommendation Contested}
+
+Recommendation is distinct from web search because with many platforms, users
+are not explicitly searching for content, but are scrolling and are being fed
+content at the behest of the platform itself. This gives rise to myriad new 
+problems not related to search. For example, Amazon is currently being sued by
+17 states because of an alleged conflict of interest because it is both
+recommending products on its site and \textit{selling} on that site.
+
+\subsection{Why personalize?}
+A platform could do recommendation without personalization. In that case, 
+platforms would recommend what they view as "the best" for the average user, and
+everyone would get the same recommendations. Platforms generally experience a
+power law in various distributions. That is, a relatively small number of films
+(e.g. on Netflix) gets the vast majority of the streams, and that exponentially
+decays rapidly. Without personalized recommenders, users with rare preferences or
+interests in new indie films will never be appropriately pleased. On Netflix, 
+they say that personalization improves the size of their "effective library."
+
+\subsubsection{Effective catalog size}
+Personalizing recommendations spreads viewership over a much broader range of
+items that just showing the most popular. This increases a metric called the
+\textit{take-rate}.
+
+\begin{definition}
+    The \textbf{take-rate} is the probability that someone "takes" the 
+    recommendation given by a platform, be it buying, watching, or reading.
+\end{definition}
+
+\subsection{Candidates and ranking}
+There are two processes involved in recommendation out of a large catalog. First,
+an algorithm generates a short list of likely-wanted items. Then a second
+algorithm orders that list by probability of a user taking that recommendation.
+
+\end{document}

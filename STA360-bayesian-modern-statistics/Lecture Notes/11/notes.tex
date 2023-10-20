@@ -1,0 +1,253 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 11 - Estimators}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Definitions}
+
+\begin{definition}
+    A \textbf{point estimator} of an unknown parameter $\theta$ is a function
+    that converts data into a single element of parameter space $\Theta$.
+
+    For example, if $\theta$ is the population mean, the following are point
+    estimators of $\theta$:
+    \begin{enumerate}
+        \item $\bar y$
+        \item $y_{1}$
+        \item $\frac{y_{1}+y_{2}}{2}$
+    \end{enumerate}
+\end{definition}
+
+Note that it is conventions to write the population parameter as a Greek 
+character and the estimator as the same Greek character, but with a hat.
+For example, for a parameter $\theta$, the estimator is $\hat \theta$.
+
+\begin{definition}
+    \textbf{Sampling properties} of a point estimator refer to the estimator's
+    behavior under hypothetical repeatable surveys or experiments. Three common
+    sampling properties are:
+    \begin{enumerate}
+        \item bias
+        \item variance
+        \item mean squared error (MSE)
+    \end{enumerate}
+\end{definition}
+
+\begin{note}
+    Before we discuss bias, variance, and MSE of an estimator, it is important 
+    to understand that \textit{an estimator is a statistic (function of the 
+    data), and is therefore a random variable}.
+\end{note}
+
+\pagebreak
+\section{Bias, Variance, and MSE}
+
+\begin{definition}
+    \textbf{Bias} is the difference between the expected value of the estimator
+    and the true value of the parameter. That is,
+    \[
+    bias(\hat \theta) = \mathbb{E}[\hat \theta | \theta = \theta_{0} - 
+    \theta_{0}
+    \]
+    If $\hat \theta = \theta_{0}$, we say that $\hat \theta$ is an
+    \textbf{unbiased estimator}, and if $\hat \theta \ne \theta_{0}$, we say
+    that $\hat \theta$ is a \textbf{biased estimator}.
+\end{definition}
+
+\begin{definition}
+    \textbf{Variance} is the average squared distance from the mean. In this
+    context, the variance of an estimator refers to the variance of the
+    sampling distrbution of $\hat \theta$. We write this mathematically as
+    \[
+        Var[\hat \theta | \theta_{0}] = \mathbb{E}[(\hat \theta - m)^{2}|
+        \theta_{0}]
+    \]
+    where $m = \mathbb{E}[\hat \theta|\theta_{0}]$.
+\end{definition}
+
+While is may seem desirable to have an estimator with zero bias, the estimator
+may still be far away from the true parameter value if the variance is too
+large. The mean squared error quantifies \textit{how close} an estimator is to
+the true parameter value.
+
+\begin{definition}
+    \textbf{Mean squared error} (MSE) is, as the name suggests, the expected
+    value of the squared difference between the estimator and the true 
+    parameter value. Equivalently, MSE is the variance plys the square bias
+    of the estimator. That is,
+    \[
+    MSE(\hat \theta|\theta = \theta_{0}) = Var(\hat \theta|\theta =\theta_{0})
+    + [Bias(\hat \theta|\theta = \theta_{0})]^{2}
+    \]
+\end{definition}
+
+\subsection{Example}
+Suppose you wish to make inference about the average bill length of Chinstrap
+penguins from the Palmer penguins dataset. You make the modeling assumption 
+that $Y$, the bill length of a penguin, is normally distributed. That is,
+$Y \sim  N(\theta,\sigma^{2})$, and you set up a conjugate prior as we've done
+before. We can then show that the posterior mean estimator of $\theta$ is
+\[
+    \hat \theta_{b} = \mathbb{E}[\theta|\vec y] = \frac{n}{\kappa_{0}+n}
+    \bar y + \frac{\kappa_{0}}{\kappa_{0}+n}\mu_{0} = w\bar y + (1-w)\mu_{0}.
+\]
+\textbf{Exercise}: compare $\hat \theta_{b}$ to the estimator $\hat \theta_{e}
+= \bar y$. Compute the expected value of each estimator, and say which is
+biased. Compute the variance of each estimator and say which is lower.
+
+\subsubsection{Computing which is biased (possible on exam)}
+For $\hat \theta_{e}$, expected value is trivial:
+\[
+    \mathbb{E}[\hat \theta_{e}|\theta_{0}] = \mathbb{E}[\bar y] = 
+    \frac{1}{n}\sum_{i=1}^{n} \mathbb{E}[y_{i}] = \frac{1}{n}\sum \theta =
+    \theta.
+\]
+Notice that because our estimator is equal to $\theta$, this is an \textit{
+unbiased estimator}. Now for $\hat \theta_{b}$.
+\begin{align*}
+    \mathbb{E}[\hat \theta_{b}|\theta_{0}] &= \mathbb{E}[w\bar y + 
+    (1-w)\mu_{0}\\
+                                           &= w\theta + (1-w)\mu_{0}
+\end{align*}
+Thus, unless we happened by coincidence to choose a $\mu_{0}$ such that
+$\mu_{0} = \theta_{0}$, this estimator would be \textit{biased}.
+
+\subsubsection{Computing estimator variance}
+First, let's compute the variance of $\hat \theta_{e}$,
+\[
+Var(\hat \theta_{e} | \theta_{0}) = Var(\bar y) = Var(\frac{1}{n}\sum y_{i}) =
+\frac{1}{n^{2}}\sum Var(y_{i}).
+\]
+We know the variance of $y_{i}$ is $\sigma^{2}$. We read this from our problem
+statement where $Y \sim N(\theta, \sigma^{2})$. Thus,
+\[
+Var(\hat \theta_{e}|\theta_{0}) = \frac{1}{n}\sigma^{2}.
+\]
+Now, for $\hat \theta_{b}$,
+\begin{align*}
+    Var(\hat \theta_{b}|\theta_{0}) &= Var(w\bar y + (1-w)\mu_{0})\\
+                                    &= Var(w\bar y) \\
+                                    &= w^{2}Var(\bar y) \\
+                                    &= w^{2} \cdot \frac{\sigma^{2}}{n}
+\end{align*}
+We see that $\hat \theta_{b}$ has a smaller variance because $w < 1$, and thus
+is simply a lower-weighted $\hat \theta_{e}$.
+
+\begin{note}
+    In the calculation of $\hat \theta_{b}$, we can get rid of the term
+    $(1-w)\mu_{0}$ because it is a constant. We can shift distributions left
+    and right by a constant without any changes to variance.
+\end{note}
+
+\subsubsection{Computing MSE}
+Recall that 
+\[
+    MSE = E[(\hat \theta-\theta_{0})^{2} | \theta_{0}] = Var(\hat \theta|
+    \theta_{0}) + Bias^{2}(\hat \theta | \theta_{0}).
+\]
+For $\hat \theta_{e}$, this means that
+\[
+MSE(\hat \theta_{e}|the_{0}) = \frac{\sigma^{2}}{n} + 0^{2} = 
+\frac{\sigma^{2}}{n}.
+\]
+But for $MSE(\hat \theta_{b})$, we will use a trick. This trick is recalling
+that $\theta_{0}= w\theta_{0}+ (1-w)\theta_{0}$, which means
+\begin{align*}
+    MSE(\hat \theta_{b} | \theta_{0}) &= \mathbb{E}[(w(\bar y - \theta_{0}) + 
+    (1-w)(\mu_{0} - \theta_{0}))^{2}] \\
+                  &= \mathbb{E}[w^{2}(\bar y- \theta_{0})^{2} + 2w(\bar y -
+                  \theta_{0})(1-w)(\mu_{0} - \theta_{0}) + (1-w)^{2}(\mu_{0}-
+                  \theta_{0})^{2}] \\
+                  &= w^{2}\cdot\frac{\sigma^{2}}{n} + 0 + (1-w)^{2}(\mu_{0} - 
+                  \theta_{0})^{2}
+\end{align*}
+\begin{note}
+    We know that $\bar y = \theta_{0}$, so the entire second term in the
+    previous work becomes 0 due to the $(\bar y-\theta_{0})$ term being equal
+    to 0. Also note that $(\bar y - \theta_{0})^{2} = Var(\bar y)$, which we
+    have already calculated, hence the final result.
+\end{note}
+
+\subsubsection{Choosing the best estimator}
+We now have the bias, variance, and MSE of both $\hat \theta_{e}$ and
+$\hat \theta_{b}$. Choosing which is more important is problem-specific, but
+we will use the MSE to decide which is best. Effectively, we want to know 
+under which conditions the following is true
+\[
+    MSE[\hat \theta_{b}|\theta_{0}] < MSE[\hat \theta_{e}|\theta_{0}].
+\]
+We can see that this holds when
+\[
+    (\mu_{0}-\theta_{0})^{2} < \frac{\sigma^{2}}{n} \cdot \frac{1+w}{1-w}.
+\]
+A good \textbf{rule of thumb} for this problem is that if our prior guess of
+$\mu_{0}$ is withing two standard deviations of $\theta_{0}$ and we choose
+$\kappa_{0}=1$, then the Bayes estimator $\hat \theta_{b}$ will probably be
+better.
+
+\end{document}

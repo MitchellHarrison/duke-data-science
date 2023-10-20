@@ -1,0 +1,180 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 13 - Linear Predictors (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Linear Predictors}
+
+\subsection{Turning the crank}
+Recall the gradient of the risk
+\[
+\nabla L_{T}(\textbf{v)}\frac{1}{N}\sum_{n=1}^{N}
+[s(\textbf{x}_{n};\textbf{v})-y_{n}]
+    \begin{bmatrix}
+    1\\ 
+    \textbf{x}_{n}
+    \end{bmatrix},
+\]
+where $s(\textbf{x};\textbf{v}) = f(a(\textbf{x};\textbf{v})$. The 
+\textit{Hessian of the risk }is simply
+\[
+H_{L_{T}}(\textbf{v}) = \frac{1}{N}\sum_{n=1}^{N}s(\textbf{x}_{n};\textbf{v})
+[1-s(\textbf{x}_{n};\textbf{v})]
+\begin{bmatrix}
+1\\ 
+\textbf{x}_{n}
+\end{bmatrix}
+\begin{bmatrix}
+1 & \textbf{x}_{n}^{T}
+\end{bmatrix}.
+\]
+Each term in the summation for $H_{L_{T}}$ is an outer product. This implies 
+(easily) that $H_{L_{T}}$ is positive semidefinite. This leaves us with a
+\textbf{gradient of the risk $\nabla L_{T}$ that is convex}. Then, we don't need 
+to check the eigenvalues.
+
+\subsection{Training}
+Recall that $L_{T}(\textbf{v})$ is convec in $\textbf{v}\in \mathbb{R}^{m}$ with
+$m=d+1$. We can therefor use any gradient-based method to minimize. When $d$ is 
+not too large we can use Newton's method (but gradient descent still works). But
+more efficient, problem-specific algorithms exist. We could even use stochastic
+gradient descent because $L_{T}(\textbf{v})$ is an average. Typically, after
+training using cross-entropy loss, we \textit{evaluate} with 0-1 loss.
+
+\begin{note}
+    When using the logistic function with cross-entropy loss, if we have a
+    non-zero risk, we know that the data is \textit{not} linearly separable. But
+    if we have a risk of 0.1 (for example), we know that 10\% of the data is
+    \textit{not} linearly separable.
+\end{note}
+
+\subsection{Multi-class linear predictors}
+One obvious approach is a one-versus-rest method. We build $K-1$ classifiers
+$c_{k}$ versus not $c_{k}$. This works for $K=2$ but not $K=3$. We could also
+try one-versus-one, in which we build $\binom{K}{2}$ classifiers $c_{i}$ versus
+$c_{j}$. This also works for $K=2$ but not for $K=3$. Visualizations for these
+techniques are available in the lecture slides.
+
+\subsubsection{A symmetric view of the binary score}
+We start by renaming our classes. Value 1 stays as 1, but 0 becomes 2. Our 
+activation function is
+\[
+a = b+\textbf{w}^{T}\textbf{x}.
+\]
+The score for class 1 is $s_{1}(a) = \frac{1}{1 + e^{-a}}$ and for class 2 is
+$s_{2}(a) = 1 - s_{1}(a) = s_{1}(-a)$. More symmetrically, we have two activations
+\begin{align*}
+    a_{1} &= b+\textbf{w}^{T}\textbf{x}\\
+    a_{2} &= -b - \textbf{w}^{T}\textbf{x}.
+\end{align*}
+\begin{note}
+    \[
+    \frac{1}{1+e^{-a}} = \frac{e^{\frac{a}{2}}}{e^{\frac{a}{2}}+ e^{-\frac{a}{2}}}
+    \]
+\end{note}
+We then arrive at two class scores
+\begin{align*}
+    s_{1} &= s(a_{1}) = \frac{e^{\frac{a_{1}}{2}}}{e^{\frac{a_{1}}{2}}+
+        e^{\frac{a_{2}}{2}}}\\
+        s_{2} &= s(a_{2}) = \frac{e^{\frac{a_{2}}{2}}}{e^{\frac{a_{1}}{2}}+
+        e^{\frac{a_{2}}{2}}}.
+\end{align*}
+
+Then, the class with the highest score wins (is selected)! Note that because
+activations are freely scalable, we can just remove the fractions in the
+exponents. 
+
+\subsubsection{Multiple classes}
+This leaves us with a fully generalizable function from $K$ classes:
+\[
+s_{k}(\textbf{x}) = \frac{e^{a_{K}(\textbf{x})}}{\sum_{j=1}^{K}e^{a_{j}
+(\textbf{x})}},
+\]
+where $a_{k}(\textbf{x}) = b_{k} + \textbf{w}^{T}\textbf{x}$. Again, the class
+with the highest score wins such that $\hat y = h(\textbf{x}) \in argmax_{k}
+s_{k}(\textbf{x})$. 
+
+\begin{definition}
+    This is the \textbf{Linear Regression Multi-Class Classifier}: compute $k$
+    scores, each with parameters $\textbf{v}_{k}=(b_{k},\textbf{w}_{k})$, and
+    pick the class with the highest score.
+\end{definition}
+
+\subsubsection{The Soft-Max function}
+The \textbf{Soft-Max} function is
+\[
+s_{k}(\textbf{x}) = \frac{e^{a_{K}(\textbf{x})}}{\sum_{j=1}^{K}e^{a_{j}
+(\textbf{x})}},
+\]
+used in the above section. If $s_{k}(\textbf{x}) >0$ and $\sum_{k=1}^{K}
+s_{k}\textbf{x}) = 1$ for all $\textbf{x}$. If $a_{i} >> a_{j}$ for $j\ne i$,
+then $\sum_{j=1}^{K} e^{a_{j}(\textbf{x})} \approx e^{a_{i}(\textbf{x})}$.
+Therefore, $s_{i} \approx 1$ and $s_{j} \approx 0$ for $j \ne i$. This "brings
+out the biggest," hence the name "soft-max."
+
+\end{document}

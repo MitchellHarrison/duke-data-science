@@ -1,0 +1,203 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 10 - Video Streaming and Compression (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Still image compression}
+\subsection{JPEG}
+
+Recall that, in general, we can think of JPEG as \textit{roughly} 4x size 
+reduction (i.e. $\frac{1}{4}$ of the memory of the raw image) with minimal but 
+\textit{non-zero} loss of quality. Recall that JPEG compression is lossy.
+
+\subsection{Sparsity}
+\textbf{High level idea}: We want to find a \textit{sparse} representation of the
+matrix that represents an image. A matrix is sparse if most of the entries are 0.
+We do this because there are good ways of storing a sparse matrix effeciently in
+memory.
+
+Suppose your $n\times m$ matrix has $k$ non-zero values. Sparse representation
+stores $\le 3k$ values. An improved version called \textit{sparse row} (CSR) is
+a standard for numerical computing. We could use the same method to avoid any 
+number in a matrix but we use 0s. \textit{Run Length Encoding} is another storage
+method that works best on matrices with some level of spacial locality. It 
+involves storing a list of two-element tuples, where the first element is a number
+and the second is the number of times it occurs in a row in a matrix. We can 
+use other techniques (e.g. Huffman compression) to encode the second elements of
+these tuples, since they will tend to stay roughly $\le 9$.
+
+However, sparsity on raw images doesn't really work. On a random greyscale image,
+sparsity may be 3\% or lower. How do we tackle that? 
+
+\subsubsection{Rounding down near 0}
+First, we can try rounding down everything $\le 2^{k}$ to 0. However, if you only
+allow, for example, $k=2$, you get almost no storage savings. Letting $k=7$ as
+another example, we see massive degredation in image quality as darker colors
+become large areas of pure black.
+
+\subsubsection{Polynomial interpolation}
+
+\begin{definition}
+    \textbf{Block encoding} is when an algorithm (or a pipeline of algorithms) is
+    applied to every $n\times n$ grid of pixels in an image. These blocks are
+    partitions of the overall image (i.e. they are disjoint and sum to the whole
+    image). These grids are called \textbf{reference blocks}.
+\end{definition}
+
+Let us have a row of 3 pixels. They have grayscale indices $\{0,1,2\}$ and
+values $\{1, 2, 2\}$. We can plot them as a scatterplot and fit a polynomial 
+between them (in this case, a parabola). \textbf{Claim}: for $N$ points
+$x_{1}, \cdots ,x_{n}$, there exists a degree $N-1$ polynomial that precisely
+fits each point. Thus, instead of storing those three points in memory, we can 
+store the polynomial that fits the points and compute the values of that
+polynomial at $\{0,1,2\}$ to get the values of our pixels. To store that
+polynomial, we store a vector of its coefficients.
+
+\begin{definition}
+    \textbf{Interpolation} is the process by which we find the polynomial
+    coefficients from the data. \textbf{Evaluation} is finding the original
+    $N-1$ points using the polynomial.
+\end{definition}
+
+\subsubsection{Discrete cosine transform}
+However, rather than a polynomial representation, we want a \textit{periodic}
+representation. In particular, JPEG, MP3, and other technologies are based on the
+discrete cosine transform (DCT). This only works for a 1-dimensional array. For
+2-dimensional DCT, we first compute the DCT for every row. Then, on the 
+row-transformed matrix, compute the DCT for every column for the final result.
+Showing the resulting coefficients on a table would demonstrate the comparatively
+small coefficient values towards the bottom-right of the table.
+
+After finding the DCT representation of an image, we can drop the small
+coefficients near the bottom right of the coefficient table. We must find which
+coefficients we can drop while minimizing the degredation of the image. To do so,
+we divide the result uniformly (i.e. each element) by a \textbf{quality factor}
+and round to integers. We then restore the resulting sparse matrix.
+
+\begin{note}
+    The quality factor lets you "tune" how aggressive you want your wavelet
+    compression to be.
+\end{note}
+
+\pagebreak
+\section{Streaming Video}
+We have already discussed that a 1080p, 24FPS video would take Gigabit internet
+speeds to stream uncompressed, but Netflix only recommends 5 Mb connections. For
+4K video at 24FPS, this requirement goes up to 5-Gigabit internet. We can approach
+video streaming from two points of consideration: limiting by demands of the
+quality of the video being streamed or the bandwidth available to most of your
+perspective customers. Note that if we just compress each frame as a still image,
+we only get $\approx 4x$ bandwidth savings. Thus, transform encoding cannot be the
+only compression involved used in video.
+
+However, videos are not a collection of \textit{random} images because of their
+temporal structure. Frame-to-frame, very little changes. Perhaps we only need to
+store the areas that are more quickly changing. The easiest way to encode the
+difference between two frame is to literally subtract the values of the frames
+$M_{1}$ and $M_{2}$ by performing $M_{2}-M_{1}$. However, that wouldn't save us
+any storage space. We seek a sparse encoding.
+
+\subsection{Representing motion}
+Observe that if the camera shifts, the difference matrix become very much not
+sparse. But we can encode the movement of an object without encoding it over and
+over. To do so, we allow the previous reference block to come from anywhere in the
+previous reference frame. That way, we can find a more sparse difference matrix
+and store it more efficiently.
+
+\subsubsection{Runtime complexity to encode}
+Given two $n\times m$ frames represented by matrices $M_{1}$ and $M_{2}$, let $B$
+be our block size, and suppose $n$ and $m$ are divisible by $B$. The, to encode
+$M_{2}$:
+\begin{verbatim}
+For each BxB block Target in M_2:
+    For each x offset from 0 to n-B:
+        For each y offset from 0 to m-B:
+            reference = the x = x+B and y to y+B block in M_1
+            diff = target - reference
+            if diff is sparse than the best so far...
+    Save best diff and its motion vector
+\end{verbatim}
+
+The runtime of this algorithm is $O((nm)^{2})$, or \textit{quadratic time} 
+for each frame. That's part of the reason encoding video is so computationally
+expensive. But, encoding can also be pre-processed on a server with no real-time
+performance requirement. You also only need to encode once to copy and 
+distribute to multiple viewers.
+
+But \textit{decoding} happens when we watch video, and it has to be done in 
+real-time by a potentially very computationally weak machine (e.g. a Roku).
+
+\subsubsection{Runtime complexity to decode}
+Decoding runs in $O(nm)$, or \textit{linear} time.
+\begin{verbatim}
+For each BxB block Target in M_2:
+    Get the BxB block reference in M_1 found using motion vector for Target
+    Decode Target
+\end{verbatim}
+
+\end{document}

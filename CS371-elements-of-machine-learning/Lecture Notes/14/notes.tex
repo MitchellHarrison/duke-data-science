@@ -1,0 +1,151 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 14 - Linear Predictors (cont'd) and Validation}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Linear Predictors}
+
+\subsection{Multi-class cross-entropy loss}
+Cross entropy loss for $K=2$ (recall that we named $Y=\{0,1\}$ to $Y=\{1,2\}$ with
+$1 \rightarrow 1$ and $0 \rightarrow 2$) is 
+\[
+\ell(y,p) = 
+\begin{cases}
+    -log(p) & y = 1 \\
+    -log(1-p) & y=2
+\end{cases}
+=
+\begin{cases}
+    -log(p_{1}) & y=1 \\
+    -log(p_{2}) & y=2.
+\end{cases}
+\]
+This is the same as $\ell(y,\textbf{p}) = -log(p_{y})$, but this is gerneral! We
+can also write as follows:
+\[
+\ell(y,\textbf{p}) = -\sum_{k=1}^{K}q_{k}(y)log(p_{k}).
+\]
+For example, if $K=5$, then $y=4$ is represented by the vector
+\[
+\textbf{q} = 
+\begin{bmatrix}
+0 & 0 & 0 & 1 & 0
+\end{bmatrix}.
+\]
+\begin{definition}
+    The above encoding of $\textbf{q}$ is the \textbf{one-hot encoding}.
+\end{definition}
+
+\subsection{Convex risk}
+Even with $K>2$, the risk is a convex function of
+\[
+    \textbf{v}  = (b_{1}, \textbf{w}_{1}, \cdots , b_{k}, \textbf{w}_{k}) \in 
+    \mathbb{R}^{m}
+\]
+with $m = (d+1)K$. The proof for this is analogous to the $K=2$ case, just
+technically more involved. This means that we can still use gradient descent,
+including Newton or Stochastic Gradient Descent (SGD).
+
+\subsection{Geometry of multiclass decision regions}
+We have a total of $M = \binom{K}{2}$ hyperplanes instead of one, where $K$ is the
+number of classes. Each hyperplane separates classes $i,j \in \{1, \cdots K\}$.
+For example, where $d=2$ and $K=4$, there would be 6 hyperplanes (lines in 
+$ \mathbb{R}^{2}$. Crossing one of these hyperplanes switches two scores. For
+example,
+\[
+s_{3}> s_{2} > s_{4} > s_{1} \rightarrow s_{3} > s_{4} > s_{2} > s_{1}
+\]
+is when we cross the hyperplane separating the regions representing $s_{2}$ and
+$s_{4}$. A useful visualization of this in $ \mathbb{R}^{2}$ is available in the
+lecture notes.
+
+\pagebreak
+\section{Validation and Testing}
+
+Recall that \textit{empirical risk} is the average loss over a training set. 
+Training is just an exercise in \textbf{Empirical Risk Minimization} (ERM). But
+this is not enough for machine learning. We desire a small risk on previously
+unseen data. How do we know? We evaluate on a separate \textit{test set} $S$. This
+is called \textit{testing} the predictor. But, how do we know that $S$ and the
+training set $T$ are "related"?
+
+\subsection{Model selection}
+When fitting a function to a set of data, we first select hyper-parameters: 
+degree $k$ for polynomials, number $k$ of neighbors in $k$-NN, etc. How do we 
+choose, and why don't we just include with parameters and train? The primary 
+technical difficulty that causes issue is that answering from training data
+would be trivial. Thus, $k$ must be chosen separately from training. It tunes
+generalization. That's what makes it a hyper-parameter. We evaluate the
+choices of hyper-parameters on a separate validation (test) set $V$.
+
+\begin{definition}
+    Choosing hyper-parameters is called \textbf{model selection}.
+\end{definition}
+
+
+\end{document}
