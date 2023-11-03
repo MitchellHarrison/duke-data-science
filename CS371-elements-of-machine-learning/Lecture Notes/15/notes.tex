@@ -1,0 +1,182 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 15 - Validation and Testing (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Model Selection, Training, and Testing}
+
+\begin{note}
+    We use "model" with two different meanings in the same notes. This is 
+    simply a product of the accepted vocabulary in the literature.
+\end{note}
+
+The "model" in "model selection" is $\mathcal{H}$. With $k$-NN for example,
+the model space is all possible models (1-NN, 2-NN, etc.), and we select one
+by choosing $k$. That is, given a (hyper-) parametric family of hypothesis
+spaces, model selection selects one particular member of the family. Given a
+specific hypothesis space (hyper-parameter), training selects one particular
+predictor out of it. We use $V$ to select a model, $T$ to train the model, and
+$S$ to test the model, where $V$, $T$, and $S$ are different datasets. These
+three datasets are necessarily mutually disjoint but "related." In this case,
+what does "related" mean?
+
+\subsection{Generative data models}
+Suppose you train a model on handwritten letters, but then test it on typed
+digits. You wouldn't expect the model to perform well, because the training and
+the test datasets were not related. Facial recognition models training on 
+photos specifically taken for training models may underperform in the real world
+where lighting, age, angles, and other things change. Thus we need to find data
+that are related but disjoint from the test data. Enter the generative data 
+model.
+
+\begin{definition}
+    We assume that \textit{every} sample $(\textbf{x}, y)$ comes from a joint
+    probability distribution $p(\textbf{x}, y)$. This is the \textbf{Generative
+    Data Model}. This assumption is true for training, validation, and test
+    data, as well as data seen during model deployment.
+\end{definition}
+
+For data gathered during model deployment, $y$ values exist but are unknown at
+the time of prediction. The goal of machine learning is to define the 
+statistical risk 
+\[
+    L_{p}(h) = \mathbb{E}_{p}[\ell(y, h(\textbf{x}))] =
+    \int \int \ell(y, h(\textbf{x}))p(\textbf{x},y)d \textbf{x} dy,
+\]
+while learning performs statistical risk minimization
+\[
+    RM_{p}( \mathcal{H}) \in argmin_{h \in \mathcal{H}}L_{p}(h).
+\]
+The lowest risk on $ \mathcal{H}$ is
+\[
+    L_{p}(\mathcal{H}) = min_{h \in \mathcal{H}}L_{p}(h).
+\]
+If we knew $p(\textbf{x}, y)$, then we wouldn't need any new research. We would
+have perfect data and we could lock machine learning engineers in their office
+to do a bunch of math and arrive at a perfect solution. But we don't have, and
+cannot have, $p(\textbf{x}, y)$. What does the collection of all possible
+sentences look like? What about all possible images of faces? These are
+infinitely large possible datasets. We very quickly are stopped by the curse of
+dimensionality again. Even if we cannot perfectly calculate $RM_{p}(
+\mathcal{H})$ or $L_{p}( \mathcal{H})$, pursuing them is a worthwhile goal 
+because we end up performing better and better through continued research.
+
+So why talk about $p(\textbf{x}, y)$ if we cannot know it. Here,
+$L_{p}(\mathcal{H})$ is a mean, and we can \textit{estimate} means, even if we
+cannot calculate them perfectly. For example, we can sandwich $L_{p}(
+h)$ or $L_{p}( \mathcal{H})$ between \textit{bounds over all possible
+choices of $p$}. We can think of $p$ as an oracle that sells samples from
+$X$ and $Y$. She knows $p$, but we don't. Also, in the real world, these
+samples cost money and effort.
+
+More importantly, we now know what "related" means: $T$, $V$, and $S$ are all
+drawn independently from $p(\textbf{x}, y)$. We know what "generalize" means
+as well: find $RM_{p}(\mathcal{H}) \in argmin_{h \in \mathcal{H}}L_{p}(h)$. Thus
+we arrive at the entire goal of machine learning. That is, to minimize the
+\textit{statistical} risk of our models so that they perform as well as possible
+on previously unseen data given to it during model deployment.
+
+\subsection{Validation}
+Let a hyper-parametric family of hypothesis spaces be $ \mathcal{H} =
+\bigcup_{\pi \in \Pi} \mathcal{H}_{\pi}$. Finding a good vector 
+$\hat \pi$ of hyper-parameters is called \textit{model selection}. One 
+popular method of model selection is \textit{validation}. We use a validation
+set $V$ separate from the training data $T$. We then pick a hyper-parameter
+vector for which the predictor trained on the \textit{training set} minimized
+the \textit{validation} risk
+\[
+\hat \pi = argmin_{\pi \in \Pi}L_{V}(ERM_{T}( \mathcal{H}_{\pi}),
+\]
+where $ERM_{T}$ is the \textit{empirical risk minimization} on the training 
+dataset $T$. When the set of hyper-parameters is finite, we try them all. When
+it is not finite, we scan to find a local minimum. When it is not countable,
+we scan a grid a find a local minimum.
+
+\begin{definition}
+    \textbf{Validation} is the process of tuning hyper-parameters. The dataset
+    used for validation is $V$, and is separate from both testing and training
+    data.
+\end{definition}
+
+\pagebreak
+\subsubsection{Validation algorithm}
+Given $ \mathcal{H}, \Pi, T, V, \ell$, we perform validation with the following
+steps/pseudocode:
+
+\begin{enumerate}
+    \item Let $\hat L = \infty$ represent the best risk so far.
+    \item For $\pi \in \Pi$:
+        \begin{enumerate}
+            \item $h \in argmin_{h' \in \mathcal{H}}L_{T}(h')$
+            \item $L = L_{V}(h)$
+            \item if $L < \hat L$, then $(\hat \pi, \hat h, \hat L) =
+                (\pi, h, L)$
+        \end{enumerate}
+    \item return $(\hat \pi, \hat h, \hat L)$
+\end{enumerate}
+
+\end{document}

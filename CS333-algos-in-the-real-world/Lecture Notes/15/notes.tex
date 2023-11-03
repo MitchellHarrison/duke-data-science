@@ -1,0 +1,132 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 15 - Fairness and Machine Learning}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Fairness and Machine Learning}
+
+\subsection{Recidivism prediction example}
+In court, a judge has the power to decide whether or not a currently-innocent
+person awaits trial in jail or at home. If a defendant appears to be a risk to
+others, they may not be granted bail. Some data scientists tried to counter
+potentially biased judges by building a machine learning model that predicts
+likelihood of committing a crime while awaiting bail. That for-profit company
+ultimately produced a model that was biased against black defendants. 
+Crucially, this model was a black box. That is, it was hidden from the judicial
+system by the company that produced it and was therefore above investigation 
+without legal formalities.
+
+\subsection{Binary classification and notation}
+Let,
+\begin{align*}
+    X &: \text{observational covariates/model input}\\
+    Y &: \text{true value in \{0,1\}}\\
+    A &: \text{population groups/sensitive attributes, a discrete variable}\\
+    f(X) \rightarrow \{0,1\} &: \text{a statistical/machine learning model}\\
+    \hat Y &: \text{the prediction of our model}
+\end{align*}
+
+\subsubsection{Learning a binary classifier}
+Given a dataset $(x_{1},y_{1}), \cdots , (x_{n}, y_{n})$, we specify a model
+class for $f$ (e.g. logistic regression, neural net) to predict
+$p(Y=1|X)$. We optimize the parameters of the model to minimize average loss, 
+and choose a threshold $\tau$ (e.g. 0.5) and output 1 if $f(X) > \tau$.
+
+\subsubsection{Reality of machine learning}
+In the real world, \textit{the data that you have are not necessarily the
+truth that you want to predict}. It could be garbage data, statistically
+biased, etc. The model you build is then trained on that imperfect data, which
+makes decisions that impact individuals, and then we continue to take data from
+that same group of individuals. Thus, in reality, a model often impacts the 
+data that it ends up learning from. This is a couple that makes the system 
+chaotic, with a feedback loop that can amplify imperfections.
+
+\subsection{Issues in fairness}
+We have discussed some issues in fairness in machine learning. 
+\textit{Data generation} was the first, but we also discussed model objectives.
+For example, if we optimize a recommender to minimize empirical risk over some
+dataset, there is no reason to believe that that model also happens to be
+unbaised when it comes to racial groups. In many systems with large impacts 
+(e.g. recidivism prediction), \textit{model interpretability} is critical. That
+is, if a model makes a decision, can a human justify that decision. 
+Transparency about that decision-making process and the equitability created by
+that model is also crucial for technology making high-impact decisions about 
+human life.
+
+\subsection{Classification notation}
+We have the following notation for classification:
+\begin{align*}
+    p(\hat Y|Y) &: \text{true positive rate}\\
+    p(\not\hat Y|Y) &: \text{true positive rate}\\
+    p(\hat Y|Y) &: \text{true positive rate}\\
+    p(\hat Y|Y) &: \text{true positive rate}\\
+\end{align*}
+\textbf{TODO: FIX ABOVE AND CONTINUE}
+
+
+\end{document}

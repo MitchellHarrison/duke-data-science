@@ -1,0 +1,252 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 14 - ML Classification, Bias, and Interpretability
+(cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Gradient Descent}
+
+Recall that $\nabla l(\textbf{w)}$ is the direction of greatest increase in the
+function value (considered from the point $\textbf{w}$). \textbf{Gradient
+descent} is the greedy algorithm that iteratively steps in the negative
+gradient direction. More formally, let $\gamma$ be a small step size. The
+gradient descent algorithm iteratively update according to
+\[
+\textbf{w}^{t+1} = \textbf{w}^{t} - \delta\nabla l(\textbf{w}^{t})
+\]
+until $||\nabla l(\textbf{w}^{t})||\le \epsilon $ for some tolerance $\epsilon$.
+Often, many such \textit{hyperparameters} (like step size) exist in the training
+process. Step size is almost always one of the most important of those.
+
+\subsection{Back Propagation}
+
+Recall that we compute the gradient as the vector of partial derivatives with
+respect to each parameter. Suppose we have the single training sample
+$\textbf{x} = (0.5,1); y = 0$ and a network with two inputs $x_{1}, x_{2}$, and
+one output layer $z$ with weighted edges $w_{1}$ and $w_{2}$ between the 
+inputs and the outputs. Let $z$ be the sigmoid function that we will try to
+maximize. let $l = (z-y)^{2}$. Then by the chain rule,
+\[
+    \frac{\partial l}{\partial w_{1}} = 2(z-y)\frac{\partial z}{\partial w_{1}}.
+\]
+But note that $z = \sigma(w_{1}x_{1} + w_{2}x_{2})$. Let $a = w_{1}x_{1} 
++ w_{2}x_{2}$. Then we can write
+\[
+\frac{\partial z}{\partial w_{1}} = \frac{\partial \sigma}{\partial a}\cdot
+\frac{\partial a}{\partial w_{1}} = \sigma(a)(1-
+\]
+\textbf{TODO FINISH THIS MATH}
+
+First we have a forward propagattion pass to calculate the value of $z$:
+\[
+z = \sigma(w_{1}x_{1} + w_{2}x_{2}) = \sigma
+\]
+\textbf{TODO FINISH THIS MATH}
+
+Performing the same calaulations for the other parameter $w_{2}$, we find:
+\[
+    \frac{\partial l}{\partial w_{2}} = 2(z-y)z(1-z)x_{2 }\approx0.13.
+\]
+Note that the only thing that changes is we multiply by $x_{2}$ instead of
+$x_{1}$. In other words, we can reuse computation; we only need to calculate
+$z$ once. So $\nabla l = $ \textbf{TODO}
+
+If this was our only training example, then gradient descent would have us 
+update our weights according to
+\begin{align*}
+    &w_{1}' = w_{1} - \delta \frac{\partial l}{\partial w_{1}};
+    &w_{2}' = w_{2} - \delta \frac{\partial l}{\partial w_{2}}
+\end{align*}
+
+Suppose our step size is 0.5, then:
+\begin{align*}
+    w_{1}' &= 1 - 0.5(0.065) \approx 0.97\\
+    w_{2}' &= 2 - 0.5(0.13) \approx 1.94
+\end{align*}
+
+If you go back to recalculate $z$ with the new weights, you get 0.919 instead
+of 0.924 with the old weights (correct answer is 0). That is progress!
+
+\subsection{Stochastic gradient descent}
+Re call that we want to compute the gradient of $\sum_{i=1}^{m}l(f(w,x_{i}),
+y_{i}$, where the sum is over all of our samples. If we have a lot of samples,
+that can be very computationally expensive; back propagation goes one sample
+at a time.
+\begin{definition}
+    \textbf{Stochastic gradient descent} initilizes weights $w$. Input step
+    size $\delta$ and batch size $b$. Until convergence:
+    \begin{enumerate}
+        \item Draw $b$ samples $B \sim S$ uniformly at random.
+        \item Update weights as
+            \[
+            w' = w - \delta \nabla \sum_{i \in B}l(f(w,x_{i}),y_{i})
+            \]
+    \end{enumerate}
+\end{definition}
+More commonly, we randomly shuffle our data once, and then iterate over it
+multiple times, performing batched gradient updates. Each iteration over all 
+of the data is an \textbf{epoch}. Initialize weights $w$. Input step size
+$\delta$ and batch size $b$. Shuffle the order of $S$ (the training data)
+randomly. For epochs from 1 to $T$ (selected max number of epochs), for batches 
+$B$ in $S$ of size $b$,
+\[
+    w' = w - \delta \nabla \sum_{i \in B}l(f(w,x_{i}),y_{i}).
+\]
+Note that above, batch size $b$ is a hyperparameter.
+
+\subsubsection{Non-convex optimization}
+For non-covex functions, gradient descent is not guaranteed to converge to the
+global minimum. For some (or many) applications, that may be good enough. There
+is no guarantee that a trained neural network has globally optimal parameters.
+
+\subsubsection{Open source general purpose deep learning libraries}
+Some existing deep learning tools exist and are readily available. Some include:
+\begin{itemize}
+    \item PyTorch
+    \item TensorFlow
+    \item Keras
+\end{itemize}
+A code example for a simple multi-layer perceptron (defined in PyTorch) is on 
+the course slides, as well as code for stochastic gradient descent and back
+propagation.
+
+\pagebreak
+\section{Convolutional Neural Networks}
+
+Convlutional neural networks in nearly all modern computer vision tasks.
+
+Multilayer perceptrons do not scale well to large inputs. In the 
+\textit{CIFAR-10}, images are $32 \times 32 \times 3$, which results in 
+3072 neurons in the input layer. Say you have $\approx 6000$ neurons in the 
+first hidden layer, you yield nearly 18 million parameters, even for extremely
+low resolution images. This yields realistically unusable training times.
+
+Convolutional neural networks assume that images are somehow 
+\textit{localizable}. That is, not every pixel needs to be connected to every
+other pixel. Convolutional layers process proximally local features. To do so,
+it established a \textbf{kernel} that is an $n\times n$ grid of pixels (say
+$3\times 3$) and perform some function over that kernel (e.g. the mean) and
+set the value of the output image pixel in the center point of the kernel to the
+output of that function.
+
+In neural networks, the kernel is a matrix of coefficients (parameters). A
+neural network will learn to look for low-level features of an image earlier in
+the training process by iterating the kernel over the image. As these iterations
+continue, the features being searched for get higher and higher level, until
+the network arrives at an image classification.
+
+\subsection{Pooling layers}
+\textbf{Pooling layers} reduce dimensionality. Here, when a kernel passes over 
+an image, but this time, the kernel iterations don't overlap. Each time a
+function (usually $max()$) resolves for an iteration, a single value is stored
+in the output, rather than a grid of values the same size as the kernel. This
+is often used to perform dimensionality reduction.
+
+\subsection{Convolutional neural network pipeline}
+One possible general workflow for convolutional neural networks might be
+\begin{enumerate}
+    \item Input layers
+    \item Convolution layers
+    \item Pooling layers
+    \item Flattening
+    \item Final layer look a lot like a regular multilayer perceptron, only
+        it uses a vector of strange representations given to it by the previous
+        layers in the model.
+\end{enumerate}
+
+\pagebreak
+\section{Bias in Machine Learning}
+\subsection{Misconceptions}
+There are several misconceptions that surround the idea of algorithms and 
+machine learning.
+
+\subsubsection{Algorithms can't descriminate.}
+Many times, desiners have been suprised (often negatively) about the outcome of
+trianing a model. Often, a designer isn't manually structuring the possible
+direction of a training process. Tay from Microsoft is often cited as an
+example of a machine learning technology becoming intensely racist, xenophobic,
+anti-feminist, etc.
+
+\subsubsection{If the model doesn't take sensitivce attributes into account, it
+will be fair with respect to those attributes.}
+For example, "if I don't give race or gender data, then my model can't be biased
+against race or gender." This is plainly not true. For example, take a 
+university that claims to be "need-blind" by not looking at net worths of
+applicants. That same university \textit{does} take into consideration an
+applicant's high school, home town, race, and other parameters that are likely
+strongly correlated with net worth.
+
+\subsubsection{If a model works well on average it will work well for all groups
+or applications.}
+Note that our models are minimizing the total loss from a given loss function.
+Unfortunately, that does not mean that the equal treatment of all groups in the
+training data. For example, many facial recognition algorithms are more 
+effective on white users and worse on black users, even though the average
+performance of the model as a whole is sufficient.
+
+\end{document}

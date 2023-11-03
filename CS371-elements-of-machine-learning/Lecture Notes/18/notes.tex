@@ -1,0 +1,166 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 18 - Support Vector Machines (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Training an SVM}
+We have what we will call $\rho(z) = max\{0,z\}$ the hinge function. This is also
+known as a Rectified Linear Unit (ReLU) in deep learning. We train an SVM by
+using gradient or stochastic gradient descent on $L_{T}(\textbf{w},b)$. The
+problem is, $L_{T}$ has a hinge, and is therefore not differentiable at the
+origin. Thus we use the \textit{sub-gradient}. For instance:
+\[
+\rho'(z) = 
+\begin{cases}
+    1 & z>0 \\
+    0 & \text{otherwise}
+\end{cases}
+\]
+\begin{note}
+    For cases where we care about correctly classifying the minority class in
+    an imbalanced data set (e.g. positive cancer dignoses), SVMs perform better
+    that logistic regression. If we care more about the majority class,
+    logistic regression is superior because it accepts incorrect classifications
+    on the minority class to be more sure about the majority.
+\end{note}
+
+\pagebreak
+\section{SVM Kernels}
+So far, SVMs are a linear classifier, so they won't work well for non-linearly
+separable data. But with \textit{feature augmentation}, we can add entries to
+the data point vectors $\textbf{x}_{n}$ to make the data separable (or close 
+to it). This increases the computational complexity and sample complexity 
+because we need more training data in higher dimensions. The \textit{representer
+theorem} lets us address this problem. The effect is to make SVM decision
+boundaries very nonlinear. This increases the applicability of SVMs
+enormously.
+
+\subsection{Feature augmentation}
+Feature transformation transforms $\textbf{x}$. For example,
+\[
+\textbf{x} = (x_{1}, x_{2}) \rightarrow \textbf{z} = (z_{1}, z_{2}) =
+(x_{1}^{2}, x_{2})
+\]
+The problem is, we don't know the boundary, and we cannot guess the correct
+transformation. \textbf{Feature augmentation}, however, allows us to add
+dimensions in the hope that some combination of new features (possible many)
+will help. 
+\begin{ex}
+    For example, one possible feature augmentation is
+    \[
+    \textbf{x} = (x_{1}, x_{2}) \rightarrow \textbf{z } = (z_{1},z_{2},z_{3})
+    = (x_{!},x_{2},x_{1}^{2})
+    \]
+\end{ex}
+
+Say we add all monomials of $x_{1},x_{2}$ up to some degree $k$. From Taylor's
+theorem, we know that with $k$ high enough, we can approximate \textit{any}
+hypersurface by a linear combinations of the features in $\textbf{z}$. But
+this introduces two issues. First, more features means more computational
+complexity/workload. Second, more dimensions means more training data 
+required (curse of dimensionality). Fortunately, with SVMs, we can address
+both issues.
+
+\subsection{Sample complexity}
+The more training samples we have, the better we can generalize. With larger
+$N$, the set $T$ represents the model $p(\textbf{x},y)$ better. 
+\begin{definition}
+    \textbf{Sample complexity} is a measure of how many training samples $(N)$
+    are needed to achieve some level of performance (error rate).
+\end{definition}
+The sample complexity of a machine learning problem turns out to grow with the
+dimensionality $d$ of the data space $X$. It also grows as the target error rate
+decreases, which should be intuitive.
+
+For a binary logistic-regression classifier, and given some level of perofrmance
+(error rate), the sample complexity grows linearly with the dimensionality $d$
+of $X$. This is not too bad, which is why linear classifiers are so successful.
+SVMs with \textit{bounded data space $X$} do even better.
+\begin{definition}
+    \textbf{Bounded} data are contained in a hypersphere of a finite radius.
+    Most datasets end up being bounded, even if the radius is extremely large.
+\end{definition}
+For SVMs with bounded $X$, \textit{the sample complexity is independent of
+$d$}, and we therefore are immune from the curse of dimensionality! Therefore,
+we can augment features to our heart's content.
+
+\subsection{Computational complexity}
+\begin{definition}
+    The \textbf{representer theorem} states that $\textbf{w}^{*}$ is a
+    linear combination of the training data
+    \[
+    \textbf{w}^{*} = \sum_{n=1}^{N}\beta_{n}x_{n}
+    \]
+\end{definition}
+The separating hyperplane parameter $\textbf{w}$ is a linear combination of the
+training points $\textbf{x}_{n} \in X \subseteq \mathbb{R}^{d}$. This is
+suprising, especially when $N << d$. It turns our that only few of the 
+$\beta_{n}$ are non-zero. The corresponding data points $\textbf{x}_{n}$ are
+called the \textit{support vectors}. These facts have important repercussions.
+
+\end{document}

@@ -1,0 +1,229 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 14 - Multivariate Normal Parameter Estimation}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Example: Precision Medicine}
+
+\begin{note}
+    This example is taken from the Hoff textbook chapter 7.
+\end{note}
+
+The dataset contains four variables: blood plasma glucose concentration
+(\texttt{blu}), diastolic blood pressure (\texttt{bp}), skin fold thickness
+(\texttt{skin}), and body mass index (\texttt{bmi}). There are 200 observations,
+each representing the measurements of a single woman of Pima Indian heritage
+living in or near Phoenix, Arizona. Some observations are missing.
+
+\subsection{Inference using Gibbs sampling}
+We want to find the joint posterior distribution
+\[
+p(\vec \theta, \Sigma, \vec y_{miss}|\vec y_{obs}).
+\]
+But that is a tough distribution to calculate a closed form to, so we will use
+Gibbs sampling. To perform Gibbs sampling, we will need the full conditionals
+$p(\vec \theta|\cdot)$, $p(\Sigma|\cdot)$, and $p(\vec y_{miss}|\cdot)$.
+
+We need to describe how missingness occurs in the data
+\[
+p(\theta, \Sigma | \vec y_{obs}, O),
+\]
+where
+\[
+O = 
+\begin{cases}
+    1 & \text{if $j$ is observed} \\
+    0 & \text{if missing}
+\end{cases}
+\]
+We can know the following from conditional probability rules:
+\begin{align*}
+    p(\theta, \Sigma|\vec y_{obs}, O) &\propto p(\theta, \Sigma, 
+    \vec y_{obs}, O)\\
+                                      &\propto p(\vec y_{obs}|O, \theta,
+                                       \Sigma)p(O|\theta, \Sigma)p(\theta,
+                                       \Sigma)
+\end{align*}
+
+We are assuming that observations are missing at random. That is, $O\perp 
+\vec y_{obs}$ ($O$ is independent of $\vec y_{obs}$). Therefore,
+$O\perp \theta,\Sigma$. By independence, then, we find that
+\[
+p(O|\theta, \Sigma) = p(O).
+\]
+So,
+\begin{align*}
+    p(\theta,\Sigma|\vec y_{obs}, O) &\underset{\theta,\Sigma}{\propto}
+    p(O|\theta,\Sigma)p(\theta,\Sigma) \\
+                                     &\underset{\theta,\Sigma}{\propto}
+                                     p(\vec y_{obs}|O,\theta,\Sigma)p(O)
+                                     p(\theta,\Sigma)\\
+                                     &\underset{\theta,\Sigma}{\propto}
+                                     p(\vec y_{obs}|O, \theta, \Sigma)
+                                     p(\theta, \Sigma)\\
+                                     &\underset{\theta,\Sigma}{\propto}
+                                     \int p(\vec y_{obs}, \vec y_{miss}|
+                                     O, \theta, \Sigma)p(\theta,\Sigma)
+                                     d \vec y_{miss}
+\end{align*}
+
+We need a starting value for $\vec y_{miss}$ to start the sampler. We will use
+the mean of the column of each missing value. Then, we sample $\theta^{(s+1)}$
+and $\Sigma^{(s+1)}$. It turns out, if we partition $Y$ into $\{b,a\}$ such that
+$b$ indicates the indices of missing data and $a$ indicates the indices of full
+data, then,
+\[
+    \vec y_{[b]}|\vec y_{[a]}, \vec \theta, \Sigma \sim MVN(\vec \theta_{b|a},
+    \Sigma_{b|a}),
+\]
+where
+\begin{align*}
+    \vec \theta_{b|a} &= \vec \theta_{b} + \Sigma_{[b,a]}\left(\Sigma_{[b,a]}
+    \right)^{-1}\left(\vec y_{[a]}-\vec \theta_{[a]}\right)\\
+        \Sigma_{b|a} &= \Sigma_{[b,b]} - \Sigma[b,a]\left(\Sigma_{[a,a]}
+            \right)^{-1}\left(\Sigma_{[a,b]}\right)
+\end{align*}
+
+Thus, with missing data, we have the above extra step where we integrate over 
+the missing data and sample that as well.
+
+\subsubsection{Gibbs sampling code example}
+The following code sets up our parameters and starting values.
+\begin{verbatim}
+## prior parameters
+n = nrow(Y); p = ncol(Y)
+# prior on theta
+mu0 = c(120, 64, 26, 26); sd0 = (mu0 / 2)
+L0 = matrix(.1, p, p)
+diag(L0) = 1 
+L0 = L0 * outer(sd0, sd0) # \Lambda_0
+# prior on Sigma
+nu0 = p + 2; 
+S0 = L0
+###
+
+### starting values
+Sigma = S0
+Y.full = Y
+O = 1 * (!is.na(Y)) # indices for observe values of Y
+
+for(j in 1:p) {
+  Y.full[is.na(Y.full[,j]),j]<-mean(Y.full[,j],na.rm=TRUE)
+} 
+\end{verbatim}
+\begin{note}
+    The above code initializes $\theta$, $\Sigma$, and $\textbf{Y}_{miss}$.
+    \textbf{TODO}
+\end{note}
+
+We then conduct the actual Gibbs sampling with 1,000 iterations.
+\begin{verbatim}
+### Gibbs sampler
+THETA <- SIGMA <- Y.MISS <- NULL
+set.seed(360)
+
+for(s in 1:1000) {
+
+  ###update theta
+  ybar <- apply(Y.full, 2 , mean)
+  Ln <- solve(solve(L0) + n * solve(Sigma))
+  mun <- Ln %*% (solve(L0) %*% mu0 + n * solve(Sigma) %*% ybar)
+  theta <- rmvnorm(1, mun, Ln)
+  ###
+  
+  ###update Sigma
+  Sn <- S0 + (t(Y.full) - c(theta)) %*% t(t(Y.full) - c(theta))
+  Sigma <- rwish(nu0 + n, solve(Sn))
+  ###
+  
+  ###update missing data
+  for(i in 1:n) { 
+    b <- (O[i, ] == 0)
+    a <- (O[i, ] == 1)
+    if( sum(b) != 0) {
+    iSa <- solve(Sigma[a, a])
+    beta.j <- Sigma[b, a] %*% iSa
+    s2.j   <- Sigma[b, b] - Sigma[b, a] %*% iSa %*% Sigma[a, b]
+    theta.j <- theta[b] + beta.j %*% (as.matrix(Y.full[i, a]) - theta[a])
+    Y.full[i, b] <- rmvnorm(1, theta.j, s2.j)
+    }
+  }
+  
+  ### save results
+  THETA<-rbind(THETA,theta) ; SIGMA<-rbind(SIGMA,c(Sigma))
+  Y.MISS<-rbind(Y.MISS, Y.full[O==0] )
+  ###
+
+  if(s %% 250 == 0 | s == 1) {
+  cat(s,theta,"\n")
+  }
+}
+\end{verbatim}
+
+
+\end{document}

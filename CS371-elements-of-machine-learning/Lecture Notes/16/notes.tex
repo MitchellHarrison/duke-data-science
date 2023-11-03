@@ -1,0 +1,166 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 16 - Validation and Testing (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Validation}
+
+\subsection{Validation for infinite sets}
+\begin{definition}
+    \textbf{Cross-validation} is one method for determining parameters, which
+    are distinct from hyperparameters.
+\end{definition}
+
+Validation is good but expensive because it needs separate data. It would be a
+pity not to use $V$ as part of $T$! Resampling methods split $T$ into $T_{k}$
+and $V_{k}$ for $k = 1, \cdots , K$. This has nothing to do with the number of
+classes of polynomial degree. For each $\pi$, for each round $k$, train on
+$T_{k}$, test on $V_{k}$ to measure performance. Average performance over $k$
+taken as a validation risk for $\pi$. Let $\hat \pi$ be the best $\pi$. When
+complete, we train the predictor in $\mathcal{H}_{\hat \pi}$ and on all of 
+$T$. \textit{Cross-validation} and the \textit{bootstrap} differ on how splits
+are made.
+
+\begin{definition}
+    Splitting $T$ into $T_{k}$ and $V_{k}$ for $k=1, \cdots ,K$ is 
+    \textbf{folding}, and each of them is called a \textbf{fold}. We take the
+    average performance of those folds to find an average validation error.
+\end{definition}
+
+\subsection{K-fold cross validation}
+\textbf{K-fold cross validation} creates $V_{1}, \cdots , V_{K}$ which are
+partitions of our data $T$ of approximately equal size. Note that 
+$T_{k} = T / V_{k}$. For every $\pi$ in $\Pi$, and then for every $k \in 
+\{1, \cdots ,K\}$, we train on $T_{k}$ and measure performance on 
+$V_{k}$. We then average the performance over $k$, and call that the 
+validation risk for $\pi$. 
+
+\begin{note}
+    Here, $\pi$ is a hyper-parameter, $k$ is the current fold, and $K$ is the
+    number of folds (hence $K$-fold CV).
+\end{note}
+
+When then pick $\hat \pi$ as the $\pi$ with the best average performance. When
+complete, we train the predictor in $\mathcal{H}_{\hat \pi}$ and on all of 
+$T$. Since performance is an average, we also get a variance! We don't have 
+such a variance for standard validation. That helps us decide how much we can
+trust our validation risk.
+
+\subsubsection{How big should $K$ be?}
+Smaller $K$ values makes us more pessimistic in our risk estimate because it
+gives upward bias due to training on smaller $T_{k}$. Larger $K$ decreases
+bias of risk estimates, so why not just use $K=N$? This form of validation is
+called $N$-fold CV or Leave One Out CV (LOOCV), in which we train on every 
+point but one, then validate on that point. The primary reason this isn't used
+frequently in practice or in literature is because of the obvious computational
+workload that it would create on large dataset.
+\begin{note}
+    Nadeau and Bengio recommend $K=15$. Full citation is in the class notes.
+    (Yes, this is the Turing award winner Bengio).
+\end{note}
+
+\subsection{The bootstrap}
+This is effectively the same as $K$-fold CV, but it samples differently. In
+the bootstrap, $T_{k}:N$ samples drawn uniformly at random from $T$, 
+\textit{with replacement} and $V_{k}=T/T_{k}$, where $T_{k}$ is a bag, and
+$V_{k}$ is a set. Because of this replacement, even if I draw $N$ samples from
+a dataset of size $N$, the resulting sampling will not be identical to $T$.
+\begin{definition}
+    A \textbf{bag} or \textit{multiset} is a set that allows for multiple
+    instances within the set. For example, in the set $\{a,a,b,b,b,c\}$, we
+    have cardinality 6, but varying multiplicities (2 for $a$, 3 for $b$, and 1
+    for $c$).
+\end{definition}
+
+\begin{note}
+    Because we sample with replacement, we can have $K>N$ where $N$ is the
+    number of data points in the dataset $K$ is the number of folds.
+\end{note}
+
+We use the bootstrap because it has some interesting statistical properties that
+help when using some machine learning techniques, most famously the random
+forest.
+
+\subsubsection{How many elements are in $V_{k}$?}
+Let us focus on a single sample $s$. The probability that we draw that sample
+when drawing once is $1/N$. Thus the probability it isn't drawn is $1 - 1/N$.
+Thus, the probability it is never drawn is $(1-1/N)^{N}$, which is also the
+average fraction of missing elements. For a large $N$, this approximates
+\[
+\lim_{N \to \infty} \left(1 - \frac{1}{N}\right)^{N} = \frac{1}{e} \approx 0.37.
+\]
+Therefore, about 36\% of elements are missing from $T_{k}$ on average and make
+it into $V_{k}$. Thus, $\approx 63\%$ of elements end up in $T_{k}$ on 
+average.
+
+\subsection{Cross-validation vs. Bootstrap}
+Bootstrap estimates are good, but are typically somewhat more biased than CV,
+because $|T_{k}|\approx 0.63|T|$. CV is the method of choice for model selection
+and the bootstrap leads to \textit{random decision forests.}
+
+\end{document}

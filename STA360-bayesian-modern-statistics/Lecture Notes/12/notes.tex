@@ -84,11 +84,10 @@ inferences about two or more parameters. For example:
         \frac{\nu_{0}\sigma_{0}^{2}}{2}\right)
 \end{align*}
 In this case, $\tau_{0}^{2}$ is \textit{not} a function of $\sigma^{2}$, and
-thus $p(\theta, \sigma^{2}) = p(\theta, \sigma^{2}) = p(\theta)p(\sigma^{2})$.
+thus $p(\theta, \sigma^{2}) = p(\theta)p(\sigma^{2})$.
 Each prior is "semiconjugate" since $p(\theta|\sigma^{2}, \vec y)$ is normal
 and $p(\frac{1}{\sigma^{2}} | \theta, \vec y)$ is gamma but $p(\theta,
-\sigma^{2})$ is not conjugate to $p(\theta, \sigma^{2})$ is not conjugate to
-$p(\theta,\sigma^{2}|\vec y)$.
+\sigma^{2})$ is not conjugate to $p(\theta,\sigma^{2}|\vec y)$.
 
 \begin{definition}
     A \textbf{proper prior} is a density function that does not depend on data
@@ -148,7 +147,7 @@ posterior by the following algorithm:
 \begin{enumerate}
     \item sample $\theta^{(s+1)}$ from $p(\theta|\sigma^{2(s)},\vec y)$
     \item sample $\sigma^{2(s+1)}$ from $p(\sigma^{2}|\theta^{(2+1)}, \vec y)$
-    \item let $\phi^{(s+1)} = \{\theta^{(s+1)}, \sigma^{2(s+1)}$
+    \item let $\phi^{(s+1)} = \{\theta^{(s+1)}, \sigma^{2(s+1)}\}$
 \end{enumerate}
 and iterate these steps $S$ times. This algorithm is called the \textbf{Gibbs
 sampler}. The Gibbs sampler creates a dependent set of values $\phi^{(1)},
@@ -160,7 +159,7 @@ $p(\psi|\vec y)$.
 \subsection{Example}
 In the semiconjugate normal model described above, the resulting posteriors are
 \[
-\theta|\sigma^{2},\vec y \sim N(\mu_{n}, tan_{n}^{2}),
+\theta|\sigma^{2},\vec y \sim N(\mu_{n}, \tau_{n}^{2}),
 \]
 where 
 \begin{align*}

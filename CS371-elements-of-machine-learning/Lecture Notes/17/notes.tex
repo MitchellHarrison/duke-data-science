@@ -1,0 +1,195 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 17 - Linear, Binary Support Vector Machine Classifiers}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{What to Linear, Binary SVM Classifiers Do?}
+
+There is an issue with the logistic regression classifier. On imbalanced
+classification problems (i.e. there are many more points of one class than the
+other), LRC underperforms. Because the LRC takes the entire landscape of points
+with equal weight, it can afford to be less accurate on the class that has
+fewer points. The landscape near the boundary should matter most.
+
+In the separable case in 2D, we have infinitely many lines that could separate
+out linearly separable data. The number of degrees of freedom changes with
+increases in $d$.
+
+Placing a boundary as far as possible from the nearest point increases
+generalization. We hope to leave as much empty space as possible around the
+boundary. Only the points that barely make the margin matter. These are the
+\textbf{support vectors}. Initially, we don't know which points will be the 
+support vectors.
+\begin{definition}
+    The margin around the decision boundary in an SVM is called the
+    \textbf{reference margin}.
+\end{definition}
+
+\begin{note}
+    They are called \textit{support} vector machines because the points 
+    around the boundary \textit{support} the boundary in its position.
+\end{note}
+The loss of points outside of the margin around the boundary is 0.
+
+\subsection{The general case: soft SVM's}
+If the data isn't separable, there \textit{must} be incorrectly classified
+data points. These have a negative margin. We assign a penalty that penalizes
+a narrow band arround the boundary \textit{and} the number of samples that fall
+into it or on the incorrect side of the boundary. We give different weights to
+the two penalties (cross-validation) and find the optimal compromise: the
+minimum risk (total penalty). This is a \textbf{soft SVM}.
+
+\pagebreak
+\section{The Separating Hyperplane}
+Let $X = \mathbb{R}^{d}$ and $Y = \{-1, 1\}$ because this provides more
+convenient labels than $\{0,1\}$. The hyperplane separated them is 
+$\textbf{n}^{T}\textbf{x}$ with $||\textbf{n}|| = 1$. The decision rule is
+$\hat y = h(\textbf{x}) = sign(\textbf{n}^{T}\textbf{x} + c)$. Here, 
+$\textbf{n}$ points towards the $\hat y=1$ half-space. If $y$ is the true
+label, the decision is correct if
+\[
+\begin{cases}
+    \textbf{n}^{T}\textbf{x} + c \ge 0 & y=1 \\
+    \textbf{n}^{T}\textbf{x} + c \le 0 & y=-1
+\end{cases}
+\]
+More compactly, the decision is correct if $y(\textbf{n}^{T}\textbf{x}+c)\ge 0$.
+SVMs want this inequality to hold with a \textit{margin}.
+\begin{note}
+    $\textbf{n}^{T}\textbf{x} + c$ is the signed distance from the decision
+    boundary.
+\end{note}
+
+\subsection{The margin}
+\begin{definition}
+    The \textbf{margin} of the data point $(\textbf{x}, y)$ is the signed
+    distance of $\textbf{x}$ from the decision boundary. It is positive if
+    $\textbf{x}$ is on the correct side of the boundary and negative otherwise.
+\end{definition}
+For convenient storage and notation, let $\textbf{v} = (\textbf{n}, c)$. The
+margin of a training set $T$ is
+\[
+\mu_{\textbf{v}}(T) = min_{(\textbf{x}, y)\in T}\mu_{\textbf{v}}(\textbf{x},y).
+\]
+The boundary separates $T$ if $\mu_{\textbf{v}}(T) > 0$.
+
+\subsection{The hinge loss}
+We have the \textit{reference margin} $\mu^{*}>0$, which is unknown and yet to
+be determined. The \textbf{hinge loss} $\ell_{\textbf{v}}(\textbf{x},y)$ is
+\[
+\ell_{\textbf{v}}(\textbf{x},y) = \frac{1}{\mu^{*}}max\{0, \mu^{*}-
+\mu_{\textbf{v}}(\textbf{x},y)\},
+\]
+where $\mu$ is a margin that will change as the machine learns.
+
+Training samples with $\mu_{\textbf{v}}(\textbf{x},y)\ge \mu^{*}$ are
+classified correctly with a margin of at least $\mu^{*}$. Some loss is
+incurred as soon as $my_{\textbf{v}}(\textbf{x},y) < \mu^{*}$, \textit{even if
+the sample is classified correctly!} This type of loss is called the "hinge 
+loss" because of the hinge that occurs where the loss function meats the 
+$x$-axis in the loss graph.
+
+\pagebreak
+\section{The Training Risk}
+The training risk for SVMs is not just the average sum of $\ell_{\textbf{v}}
+(\textbf{x}_{n},y_{n})$. A \textit{regularization term} is added to force the
+$\mu^{*}$to be large. The decision boundary is $\textbf{n}^{T}\textbf{x}+c=0$.
+Therefore,
+\begin{align*}
+    \ell_{\textbf{v}}(\textbf{x},y) &= \frac{1}{\mu^{*}}max\{0,\mu^{*} - 
+    \mu_{\textbf{v}}(\textbf{x},y)\} \\
+                                    &= \frac{1}{\mu^{*}}max\{0, \mu^{*} - 
+                                    y(\textbf{n}^{T}\textbf{x}+c)\} \\
+                                    &= max\{0, 1-y(\textbf{w}^{T}\textbf{x}+b)\}
+\end{align*}
+where,
+\begin{align*}
+    &\textbf{w} = \frac{\textbf{n}}{\mu^{*}} \\
+    &b = \frac{c}{\mu^{*}}\\
+    &||\textbf{w}|| = \frac{1}{\mu^{*}}
+\end{align*}
+The decision boundary becomes $\textbf{w}^{T}\textbf{x} + b = 0$.  We make risk
+higher when $1/\mu^{*}$ is large (i.e. with a small margin):
+\[
+L_{T}(\textbf{w}, b) = \frac{1}{2}||\textbf{w}||^{2} + \frac{C_{0}}{N}
+\sum_{n=1}^{N}\ell_{(\textbf{w},b)}(\textbf{x}_{n}, y_{n})
+\]
+\subsection{Regularized risk}
+The ERM classifier is
+\[
+    (\textbf{w}^{*}, b^{*}) = ERM_{T}(\textbf{w},b) = argmin_{(\textbf{w},b)}
+    L_{T(\textbf{w},b)},
+\]
+where $L_{T}(\textbf{w},b)$ is defined above. Here, $C_{0}$ determines a
+trade-off. Therefore, $C_{0}$ is a hyper-parameter, and we can perform
+cross-validation! A large $C_{0}$ means $||\textbf{w}||$ is less important,
+which gives a smaller margin $\mu^{*}$ and fewer total samples that fall in the
+margin by virtue of it being smaller. We "buy" a larger margin at the cost of
+more samples inside of it.
+
+\end{document}
