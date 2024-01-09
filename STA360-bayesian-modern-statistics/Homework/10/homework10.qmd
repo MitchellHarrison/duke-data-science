@@ -1,0 +1,443 @@
+---
+format: pdf
+title: "Homework 9"
+author: "Mitchell Harrison"
+execute: 
+  warning: false
+---
+
+```{r setup, include=FALSE}
+# Set global options for your document
+options(
+  quarto.code.width = 85
+)
+```
+
+```{r}
+library(tidyverse)
+library(rstanarm)
+library(coda)
+library(ggplot2)
+set.seed(360)
+```
+
+# Exercise 1
+```{r}
+yX = read_csv("https://sta360-fa23.github.io/data/azdiabetes-train.csv")
+yX.test = read_csv("https://sta360-fa23.github.io/data/azdiabetes-test.csv")
+```
+
+## Part A
+```{r}
+g <- n <- dim(yX)[1]
+p <- dim(yX)[2] - 2
+X <- as.matrix(yX[, -c(2, 8)])
+y <- as.matrix(yX[, 2])
+y_test <- select(yX.test, glu)
+nu0 <- 2
+s20 <- 1
+S <- 1000
+
+Hg <- (g/(g+1)) * X %*% solve(t(X) %*% X) %*% t(X)
+SSRg <- t(y) %*% (diag(1, nrow = n) - Hg) %*% y
+
+s2 <- 1 / rgamma(S, (nu0 + n) / 2, (nu0 * s20 + SSRg) / 2)
+
+Vb <- g * solve(t(X) %*% X) / (g+1)
+Eb <- Vb %*% t(X) %*% y
+
+E <- matrix(rnorm(S * p, 0, sqrt(s2)), S, p)
+beta <- as_tibble(t(t(E %*% chol(Vb)) + c(Eb)))
+```
+
+```{r}
+calculate_ci <- function(parameter_vector, alpha = 0.05) {
+  quantiles <- quantile(parameter_vector, c(alpha / 2, 1 - alpha / 2))
+  return(quantiles)
+}
+
+CI <- t(apply(beta, 2, calculate_ci))
+coefs <- apply(beta, 2, mean)
+out <- cbind(coefs, CI)
+colnames(out) <- c("Mean", "2.5%", "97.5%")
+out
+```
+
+### MSE
+```{r}
+X_test <- yX.test[, -c(2, 8)]
+preds <- t(as_vector(coefs)) %*% t(X_test)
+mse_a <- mean(as_vector((preds - y_test)^2))
+mse_a
+```
+
+
+## Part B
+```{r}
+p_theta <- normal(0, 1)
+model <- stan_glm(glu ~ . - diabetes, data = yX, prior = p_theta, 
+                  prior_intercept = NULL, refresh = 0)
+```
+
+### MSE
+```{r}
+stan_preds <- predict(model, newdata = as_tibble(yX.test),
+                      type = "response")
+mse_stan <- mean(as_vector((stan_preds - y_test)^2))
+mse_stan
+```
+
+
+## Part C
+```{r}
+backward_elimination <- function(X, y, tcutoff) {
+  beta_hat <- solve(t(X) %*% X) %*% t(X) %*% y
+  
+  while (TRUE) {
+    residuals <- y - X %*% beta_hat
+    sigma_hat <- sqrt(sum(residuals^2) / (length(y) - ncol(X)))
+    se <- sigma_hat * sqrt(diag(solve(t(X) %*% X)))
+    t_values <- abs(beta_hat / se)
+    
+    removable_indices <- which(t_values < tcutoff)
+    
+    if (length(removable_indices) > 0) {
+      j_min <- which.min(t_values[removable_indices])
+      j_min <- removable_indices[j_min]
+      X <- X[, -j_min]
+    } else {
+      break
+    }
+    
+    beta_hat <- solve(t(X) %*% X) %*% t(X) %*% y
+  }
+  return(beta_hat)
+}
+
+tcutoff <- 1.96
+final_beta <- backward_elimination(X, y, tcutoff)
+final_beta
+```
+
+### MSE
+```{r}
+back_preds <- t(final_beta) %*% t(yX.test[, c(3, 5, 6, 7)])
+mse_back <- mean(as_vector((back_preds - y_test)^2))
+mse_back
+```
+
+```{r}
+tibble("Part A MSE" = mse_a, "Stan MSE" = mse_stan, 
+     "Backwards Elim MSE" = mse_back)
+```
+
+We see that the `stan_glm` function produced the lowest MSE on unobserved test
+data.
+
+\pagebreak
+
+# Exercise 2
+```{r}
+yXsparrow <- read_csv("https://sta360-fa23.github.io/data/yXsparrow.csv")
+```
+
+## Part A
+We are given that $\theta = \mathbb{P}(y_i=1|\alpha, \beta, x_i)$ and that
+$logit(\theta) = log(\theta/1-\theta) = \alpha + \beta x_i$. Solving for
+$\theta$,
+\begin{align*}
+log\left(\frac{\theta}{1-\theta}\right) &= \alpha + \beta x_i \\
+\frac{\theta}{1-\theta} &= exp\{\alpha + \beta x_i\} \\
+\theta &= exp\{\alpha + \beta x_i\} - \theta exp\{\alpha + \beta x_i\} \\
+\theta(1 + exp\{\alpha + \beta x_i\}) &= exp\{\alpha + \beta x_i\} \\
+\mathbb{P}(y_i = 1 | \alpha, \beta, x_i) &= 
+\frac{exp\{\alpha + \beta x_i\}}{1 + exp\{\alpha + \beta x_i\}}.
+\end{align*}
+
+Taking the sampling distribution for $n$ data points, we arrive at a solution,
+$$
+\boxed{\prod_{i=1}^n \mathbb{P}(y_i = 1 | \alpha, \beta, x_i) =
+\frac{exp\{\sum[y_i(\alpha + \beta x_i)]\}}{\prod[1 + exp\{\alpha + 
+\beta x_i\}]}}.
+$$
+
+## Part B
+If wingspan ranges from 10 to 15, the middle of that range is 12.5. A priori, we
+may expect that birds in the middle of the wingspan range may also be in the 
+middle of the likelihood of mating success. Letting $\theta = 0.5$, we see that
+$logit(\theta) = 1$ and $log(1) = 0 = \alpha + \beta x_i$. Letting $x_i = 12.5$,
+we find that $\alpha = -12.5\beta$. Choosing normal distributions a priori, and
+giving those distributions large variance (and assuming $p(\beta)$ has mean 0),
+we arrive at our solutions
+\begin{align*}
+\alpha &\sim N(-12.5\beta, 100) \\
+\beta &\sim N(0, 100)
+\end{align*}
+
+## Part C
+```{r}
+# log likelihood from logit function
+log_likelihood <- function(alpha, beta, x, y) {
+  logit_prob <- alpha + beta * x
+  p <- 1 / (1 + exp(-logit_prob))
+  likelihood <- dbinom(y, 1, p, log = TRUE)
+  return(sum(likelihood))
+}
+
+# separate function to save doing multiple additions explicitly
+log_prior <- function(alpha, beta) {
+  prior_alpha <- dnorm(alpha, mean = -12.5 * beta, sd = 10, log = TRUE)
+  prior_beta <- dnorm(beta, mean = 0, sd = 10, log = TRUE)
+  return(prior_alpha + prior_beta)
+}
+
+# custom metropolis function
+metropolis <- function(initial_alpha, initial_beta, S, x, y, proposal_std) {
+  samples <- matrix(NA, nrow = S, ncol = 2)
+  current_alpha <- initial_alpha
+  current_beta <- initial_beta
+  accept_count <- 0
+
+  for (i in 1:S) {
+    # take a new sample
+    proposal_alpha <- rnorm(1, mean = current_alpha, sd = proposal_std)
+    proposal_beta <- rnorm(1, mean = current_beta, sd = proposal_std)
+
+    # find current/proposed posterior for use in accept/reject calculation
+    current_posterior <- log_likelihood(current_alpha, current_beta, x, y) + log_prior(current_alpha, current_beta)
+    proposal_posterior <- log_likelihood(proposal_alpha, proposal_beta, x, y) + log_prior(proposal_alpha, proposal_beta)
+
+    # accept/reject proposal
+    acceptance_ratio <- exp(proposal_posterior - current_posterior)
+    if (runif(1) < acceptance_ratio) {
+      current_alpha <- proposal_alpha
+      current_beta <- proposal_beta
+      accept_count <- accept_count + 1
+    }
+
+    samples[i, ] <- c(current_alpha, current_beta)
+  }
+
+  # display acceptance rate per the problem
+  acceptance_rate <- accept_count / S
+  cat("Acceptance Rate:", acceptance_rate, "\n")
+
+  return(samples)
+}
+
+# required starting parameters
+alpha_s <- 1
+beta_s <- 1
+S <- 150000
+y <- yXsparrow$nest
+x <- yXsparrow$wingspan
+
+output <- metropolis(alpha_s, beta_s, S, x, y, 10)
+```
+
+```{r}
+mean(output[,1])
+mean(output[,2])
+```
+
+```{r}
+effectiveSize(output[,1])
+effectiveSize(output[,2])
+```
+
+## Part D
+```{r}
+alpha_posterior_samples <- output[, 1]
+beta_posterior_samples <- output[, 2]
+alpha_prior_samples <- rnorm(10000, mean = 0, sd = 10)
+beta_prior_samples <- rnorm(10000, mean = 0, sd = 10)
+
+df_posterior <- data.frame(
+  Parameter = rep(c("Alpha", "Beta"), each =length(alpha_posterior_samples)),
+  Value = c(alpha_posterior_samples, beta_posterior_samples),
+  DensityType = rep("Posterior", length(alpha_posterior_samples) +
+                      length(beta_posterior_samples)))
+
+df_prior <- data.frame(
+  Parameter = rep(c("Alpha", "Beta"), each = length(alpha_prior_samples)),
+  Value = c(alpha_prior_samples, beta_prior_samples),
+  DensityType = rep("Prior", length(alpha_prior_samples) + 
+                      length(beta_prior_samples)))
+
+df_combined <- rbind(df_prior, df_posterior)
+ggplot(df_combined, aes(x = Value, fill = DensityType)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ Parameter, scales = "free") +
+  labs(title = "Prior and Posterior Densities of Alpha and Beta",
+       x = "Value", y = "Density") +
+  theme_test()
+```
+
+## Part E
+```{r}
+library(ggplot2)
+
+alpha_samples <- output[, 1]
+beta_samples <- output[, 2]
+
+f_alpha_beta <- function(alpha, beta, x) {
+  exp_term <- exp(alpha + beta * x)
+  return(exp_term / (1 + exp_term))
+}
+
+x_values <- yXsparrow$wingspan
+
+function_values <- sapply(1:length(alpha_samples), 
+                          function(i) f_alpha_beta(alpha_samples[i], 
+                                                   beta_samples[i], x_values))
+mean_values <- apply(function_values, 1, mean)
+lower_quantile <- apply(function_values, 1, quantile, probs = 0.025)
+upper_quantile <- apply(function_values, 1, quantile, probs = 0.975)
+
+df_band <- data.frame(x = x_values,
+                      Mean = mean_values,
+                      Lower = lower_quantile,
+                      Upper = upper_quantile)
+
+ggplot(df_band, aes(x = x)) +
+  geom_line(aes(y = Mean), color = "blue") +
+  geom_ribbon(aes(ymin = Lower, ymax = Upper), fill = "blue", alpha = 0.2) +
+  labs(title = "Confidence Band for f_alpha_beta(x)",
+       x = "Wingspan (x)", y = "f_alpha_beta(x)") +
+  theme_minimal()
+```
+
+\pagebreak
+
+# Exercise 3
+```{r}
+# load the data
+url <- url("https://sta360-fa23.github.io/data/trans-prob-mat.rds")
+trans.prob.mat = readRDS(url)
+cipher_text = readLines("https://sta360-fa23.github.io/data/ciphertext.txt")
+
+pl = function(mapping, message) {
+  logprob = 0
+  prevletter = "SPACE"
+  for (i in 1:nchar(message)) {
+    curletter = substring(message, i, i)
+    if(curletter == " ") {
+      curletter = "SPACE"
+    }
+    map_prev <- mapping[prevletter]
+    map_cur <- mapping[curletter]
+    logprob = logprob + log(trans.prob.mat[rownames(trans.prob.mat) == map_prev,
+                                           colnames(trans.prob.mat) == map_cur])
+    prevletter = curletter
+  }
+  return(logprob)
+} 
+```
+
+## Part A
+```{r}
+glimpse(trans.prob.mat)
+```
+
+The `trans.prob.mat` matrix is a $27\times 27$ square matrix with each row and
+column corresponding to a letter of the English alphabet or a `SPACE` character
+denoting the boundary between two words. Letting $\ell_{i,j}$ be an entry in 
+this matrix at position $\{i,j\}$, the value of $\ell_{i,j}$ is the proportion 
+of letter $j$'s that follow letter $i$'s in the training data (i.e. 
+*War and Peace*). That is, it is the *transition probability* from letter $i$ 
+to letter $j$.
+
+```{r}
+all(trans.prob.mat == t(trans.prob.mat))
+```
+
+The matrix `trans.prob.mat` is *not symmetric*. This is intuitively clear. Let
+our entire training data set be the string `the cats like hats `. We see that the
+letters `s` and `e` are exclusively followed by `SPACE` characters, but 
+`SPACE` characters are never followed by either `s` or `e`. Increasingly complex
+training data would result in similar discrepancies, if less extreme.
+
+The function `pl()` calculates the plausibility score for a given decoding. First,
+it instantiates `logprob=0` to track the total log-probability of the given
+decoding scheme. It also assigns a starting value of `SPACE` to the `prevletter`
+variable, which tracks which letter came before the current one. Then, for each
+letter is the `message` argument passed to the `p1()` function, it finds the
+the entry in `trans.prob.mat` that corresponds to the two-letter combination of
+`prevletter` and `curletter` (the later of which represents the current letter
+being read), and add the log of that value to `logprob`. After the entire 
+message is read, the total `logprob` is returned.
+
+## Part B
+```{r}
+# randomly generate a starting transposition guess
+generate_starting_mapping <- function() {
+  symbols <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+               "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+               "SPACE")
+  shuffled_symbols <- sample(symbols)
+  mapping <- setNames(shuffled_symbols, symbols)
+  return(mapping)
+}
+
+make_transposition <- function(f) {
+  new_f <- f
+  symbols <- names(f)
+  indices <- sample(seq_along(symbols), size = 2)
+  new_f[symbols[indices]] <- f[symbols[c(indices[2], indices[1])]]
+  return(new_f)
+}
+
+
+metropolis_hastings <- function(initial_f, num_iterations, message) {
+  best_map <- current_f <- initial_f
+  current_logprob <- pl(current_f, message)
+  max_logprob <- current_logprob
+  changes <- 0
+
+  for (iteration in 1:num_iterations) {
+    proposal_f <- make_transposition(current_f)
+    proposal_logprob <- pl(proposal_f, message)
+
+    # choose to accept the proposed transposition or not
+    if (proposal_logprob > current_logprob || 
+        runif(1) < exp(proposal_logprob - current_logprob)) {
+      current_f <- proposal_f
+      current_logprob <- proposal_logprob
+    }
+    
+    if (current_logprob > max_logprob) {
+      best_map <- current_f
+      max_logprob <- current_logprob
+      changes <- changes + 1
+    }
+  }
+  return(best_map)
+}
+
+decode_message <- function(encoded_message, mapping) {
+  decoded_message <- character(0)
+  for (i in 1:nchar(encoded_message)) {
+    curletter <- substring(encoded_message, i, i)
+    if (curletter == " ") {
+      curletter <- "SPACE"
+    }
+    mapped <- mapping[curletter]
+    if (mapped == "SPACE") {
+      mapped <- " "
+    }
+    decoded_message <- paste(decoded_message, mapped, sep = "")
+  }
+  return(decoded_message)
+}
+
+N <- 1000
+starting_mapping <- generate_starting_mapping()
+final_map <- metropolis_hastings(starting_mapping, N, cipher_text)
+decoded <- decode_message(cipher_text, final_map)
+decoded
+```
+
+The full output (not cut off by the R Studio renderer) is as follows using
+$N=1000$, where $N$ is the number of iterations:
+
+*"ESTER HADLET HAD TO BE OR SOT TO BE THAT IN THE QUENTIOS WHETHER TIN SOBLER IS THE DISK TO NUFFER THE NLISMN ASK ARROWN OF OUTRAMEOUN FORTUSE OR TO TAVE ARDN AMAISNT A NEA OF TROUBLEN ASK BY OPPONISM ESK THED"*

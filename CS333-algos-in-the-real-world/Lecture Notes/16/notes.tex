@@ -1,0 +1,213 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 16 - Generative Adversarial Networks and Deepfakes}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Introduction to Generative Models}
+
+Suppose we want to learn what a cat is. We need \textit{labeled training data}.
+We call this \textit{supervised} learning because someone supplies us with these
+labels. We learn a \textit{classifier}, which is a function $f$ from the
+input space (e.g. pictures) to a \textit{class} (e.g. 1 or 0). To classisify a
+new data point, we apply the function to make a prediction.
+
+\begin{definition}
+    The kind of model that makes a decision from between outcomes is called a
+    \textbf{descriminator}.
+\end{definition}
+ 
+In a \textbf{generative model}, we learn a \textit{generator}, which is a
+function $G$ from \textit{random noise} to the data space (e.g. images). To
+generate a new image from a given class, we draw random noise from a distribution
+$z \sim p_{z}(z)$, and apply $G$, where $z$ is a noise vector. That is,
+\[
+    G(z, \text{"cat"}) = \text{picture of a cat}.
+\]
+\subsection{Why are generative models important?}
+There are many common examples of generative AI art in daily life. 
+
+\subsubsection{AI-generated art}
+Most of these models are generative AI models, where you can pass some text to
+the model and it returns an image of some form that meets that classification.
+
+\subsubsection{Super-resolution}
+In detective films, computer nerds often "enhance" the resolution of a blurry
+security camera image. Effectively, super-resolution brings that technique to
+reality, in which a noisy, low-resolution image is passed into the model, which
+returns a plausable higher-resolution image.
+
+\subsubsection{Image completion}
+This is similar to AI-generated art. The primary difference is that instead of
+generating an image from scratch, image completion techniques fill holes in
+otherwise complete images. One popular example is removing people/things from
+images and filling in the gap by generating a reasonable background.
+
+\subsubsection{GPT-3}
+The most widely-known GPT-3 model is ChatGPT. Like image generation that is
+conditional on text input, GPT-3 is conditional on input text, but generates
+output reasonable text instead of images.
+
+\subsection{Generative model desiderata}
+Desiderata are hard to quantify for generative models. Measuring things like 
+"is this image realistic" or "is this image original" has proved challenging.
+Some possible desiderata are:
+\begin{enumerate}
+    \item The image (or text) generated is \textit{original}.
+    \item The image generated is correct. That is, the expected output is of the
+        form desired by the conditional input (if any) or desired output without
+        conditional input.
+    \item There is a diverse range of generations that look relatively unique
+        from the training examples.
+\end{enumerate}
+
+\begin{definition}
+    We introduce \textbf{generalization}, which describes a model that is
+    trained on real data but needs to generate new, unseen examples.
+\end{definition}
+
+\begin{definition}
+    Generative model \textbf{accuracy} describes whether or not an output is
+    correct based on a conditional input (e.g. text prompt).
+\end{definition}
+
+\subsection{Accuracy measured by a discriminator}
+Suppose we have a descriminator $D:X \rightarrow [0,1]$ that estimates the
+probability that an example is real. For example $D(x)=0.9$ would lead a
+descriminator to believe that $x$ is real. A small $D$ value would lead to a
+judgement of "fake." We measure the performance of $G$ as
+\[
+    \mathbb{E}_{z \sim p_{z}(z)} [D(G(z))],
+\]
+which is how likely we are to "fool" the discriminator. Alternatively, we can 
+measure the loss of $G$ and work to minimize that (as is common in other ML
+areas),
+\[
+    \mathbb{E}_{z \sim p_{z}(z)} [log(1 - D(G(z)))].
+\]
+\subsection{How good is the descriminator?}
+Suppose we have a descriminator $D:X \rightarrow [0,1]$ as before. We measure
+the performance of $D$ as
+\[
+    \mathbb{E}_{x \sim Data}[log(D(x))]+\mathbb{E}_{z \sim p_{z}(z)}[log(1 - D(G(z)))].
+\]
+Note that in the above formula, the first term measure the discriminator's
+ability to correctly detect real exmaples, and the second term measures its
+ability to correctly reject fake examples.
+
+\pagebreak
+\section{Generative Adversarial Networks (GANs)}
+Enter the 2014 paper \textit{Generative Adversarial Nets}, writted by multiple
+Turing Award winners, which currently has more than 60,000 citations.
+
+The big idea of GANs is that we train two \textit{separate} deep neural networks,
+the \textit{generator} $G(z,\theta_{G})$ and the \textit{discriminator}
+$D(x,\theta_{D})$. We learn both the generator and the discriminator together. 
+The loss function then becomes \textbf{adversarial}. That is, $G$ and $D$ have
+different objectives in a 2-player game between them
+\[
+min_{\theta_{G}}max_{\theta_{D}} \mathbb{E}_{x \sim Data}[log(D(x, 
+\theta_{D}))]+\mathbb{E}_{z \sim p_{z}(z)}[log(1 - D(G(z), \theta_{D}))].
+\]
+
+\begin{note}
+Crucially, when we update the generative model, because we will optimize with
+gradient descent and therefore take the partial derivative with respect to
+$\theta_{G}$, the first term will disappear.
+\end{note}
+
+\begin{note}
+    Also note that the generator will perform gradient \textit{ascent} because
+    it is trying to maximize, not minimize, the function.
+\end{note}
+
+\subsection{The optimal discriminator}
+\subsubsection{Proposition 1}
+For a fixed generator $G$, the optimal discriminator $D$ is
+\[
+D^{*}(x) = \frac{p_{data}(x)}{p_{data}(x) + p_{g}(x)},
+\]
+where $p_{data}$ is the \textit{implicit} distribution of the data generating
+process, and 
+\[
+p_{g}(x) = \mathbb{P}_{z \sim p_{z}(z)}(G(z) = x)
+\]
+
+is the generative distribution. Note that when $D^{*}(x) = 1/2$, the generator is
+guessing at random.
+
+However, we don't get to see $p_{data}$. We actually get a dataset of examples
+drawn from $p_{data}$. Quality of your GAN depends on
+\begin{itemize}
+    \item Networks with high capacity to capture the data
+    \item Training power (to optimize sufficiently)
+    \item Enough data to capture $p_{data}$ well.
+    \item $p_{data}$ is diverse and avoids representation bias.
+\end{itemize}
+
+
+\end{document}

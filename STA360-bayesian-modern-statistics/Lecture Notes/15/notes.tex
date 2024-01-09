@@ -1,0 +1,189 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 15 - Heirarchical Modeling}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Heirarchical Modelling}
+
+This example is from Hoff chapter 8. Data is standardized math test scores in
+NC. There are $m$ schools with $n_{j}$ students at school $j$. Some questions
+we may want to ask of the data are
+\begin{enumerate}
+    \item How are the schools ranked by average score?
+    \item What is the probability that a single randomly sampled samples from
+        school 51 performed better than a student from school 41?
+    \item Does school 51 have better average scores than 41?
+\end{enumerate}
+
+We can observe some crucial characteristics of the data. First, individual
+scores within a single school are probably \textit{exchangeable}. That is,
+\[
+    \{y_{1_{j}j, \cdots , y_{n_{j}}j} | \phi_{j}\} \sim p(y|\phi_{j}.
+\]
+
+This gives our \textit{within-group} sampling variability.
+
+We can also assume exchangability between different school's scores, 
+because they are sampled in a similar way (they all come from NC) compared to 
+the larger population (the US). That is,
+\[
+    \{\phi_{1}, \cdots , \phi_{n}\} \sim p(\phi|\psi).
+\]
+This gives out \textit{between-group} sampling variability.
+
+If our heirarchy is complete, we can arrive at a prior using the highest level 
+of that heirarchy. That is,
+\[
+p(\psi).
+\]
+\begin{note}
+    We could imagine a more complex heirarchy that includes other levels (e.g.
+    school district) or interactions between levels (e.g. geographically similar
+    schools impact others).
+\end{note}
+
+\subsection{Worked example}
+We know that
+\begin{align*}
+    \psi &= \{\mu, \tau^{2}\}\\
+    \phi_{j} &= \{\theta_{j}, \sigma^{2}\}\\
+    y_{ij}|\theta_{j}, \sigma^{2} & \sim N(\theta_{j}, \sigma^{2})\\
+    \theta_{j}|\mu, \tau^{2} & \sim N(\mu, \tau^{2}).
+\end{align*}
+
+Our model contains $\vec y_{j}, \vec \theta, \sigma^{2}, \mu, \tau^{2}$. We 
+can assume
+\begin{align*}
+    p(\mu) &= dnorm(\mu_{0}, \gamma_{0}^{2})\\
+    p\left(\frac{1}{\sigma^{2}}\right) &= dgamma\left(\frac{\nu_{0}}{w},
+        \frac{\nu_{0}\sigma_{0}^{2}}{2}\right) \\
+        p(\tau^{2}) &= dgamma\left(\frac{\eta_{0}}{2}, 
+            \frac{\eta_{0}\tau_{0}^{2}}{2}\right)
+\end{align*}
+
+To Gibbs sample, we construct a joint posterior using conditional probability
+rules, removing conditional terms that do not impact the outcome of the
+condition (e.g. removing $\mu$ from $p(y|\cdot)$ because $\mu$ does not impact
+$\vec y$):
+\begin{align*}
+    p(\vec y, \theta, \mu, 1/\sigma^{2}, 1/\tau^{2}) 
+    &\propto  p(\vec y|\cdot)p(\cdot)\\
+    &\propto  p(\vec y|\cdot)p(\theta, \mu, \tau^{2}, \sigma^{2})\\
+    &\propto  p(\vec y|\cdot)p(\theta|\mu, \tau^{2}, \sigma^{2})p(\mu, \tau^{2}, 
+    \sigma^{2})\\
+    &\propto p(\vec y|\theta,\mu, \tau^{2}, \sigma^{2})p(\theta|\mu, \tau^{2},
+    \sigma^{2})p(\mu)p(\tau^{2})p(\sigma^{2})\\
+    &\propto p(\vec y|\theta,\sigma^{2})p(\theta|\mu,\tau^{2})p(\mu)p(\tau^{2})
+    p(\sigma^{2})
+\end{align*}
+
+We know the following:
+\begin{align*}
+    p(\sigma^{2}|\cdot) &\propto p(\sigma^{2})p(\vec y|\vec \theta, \sigma^{2})\\
+    p(\mu|\cdot) &\propto p(\mu)p(\vec \theta|\mu, \tau^{2})\\
+    p(\tau^{2}|\cdot) &\propto p(\tau^{2})p(\vec \theta|\mu, \tau^{2})
+\end{align*}
+
+We also know that 
+$p(\theta_{j}|\cdot) \propto p(\theta_{j}|\mu, \tau^{2}) \prod_{i=1}^{n}
+p(y_{ij}|\theta_{j}\sigma^{2})$, where
+\begin{align*}
+    p(\vec \theta|\mu, \tau^{2}) &= \prod_{j=1}^{n}p(\theta_{j}|\mu,\tau^{2})\\
+    p(\vec y|\vec \theta,\sigma^{2}) = \prod_{j=1}^{m} \prod_{i=1}^{n}
+    p(y_{ij}|\theta_{j},\sigma^{2})
+\end{align*}
+
+Once we arrive at a full joint distribution, we can perform Gibbs sampling to
+estimate our joint posterior. R code for performing this Gibbs sampler is 
+available on the course website.
+
+\subsection{Answers to our initial questions}
+
+After building a Gibbs sampler, we can arrive at solutions for the questions we
+drafted at the beginning of this lecture.
+
+\subsubsection{What is the rank of the schools?}
+We find that our posterior mean is different than our sample mean. That means
+that our ranking is significantly different than if we simply grouped by school
+and took the sample means to rank the schools. Where the number of students that
+participated in the exam $(n)$ is larger, the mean was shifted less than if
+$n$ is small. Of the 100 schools tested, only 46 kept their frequentist rank 
+(i.e. the sample mean ranking) after performing Gibbs sampling.
+
+\subsubsection{Does 51 perform higher on average than 41?}
+The probability that school 51 is higher-perfoming on average than school 41
+is $\approx 99\%$. The code to see this is available on the course website.
+
+\subsubsection{What is the probability that a random student from 51 performs
+better than a random student from 41?}
+Even with our confidence that school 51 performs better on average, we find that
+a student from school 51 only has a $\approx 69\%$ chance of performing better
+than a random student from school 41. Code to produce this result is available
+on the course website.
+
+\end{document}

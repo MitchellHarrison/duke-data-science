@@ -1,0 +1,230 @@
+---
+format: pdf
+execute: 
+  warning: false
+---
+
+```{r}
+library(tidyverse)
+library(MASS)
+library(mvtnorm)
+library(coda)
+library(rstanarm)
+```
+
+# Exercise 3
+## Part A
+```{r}
+yX<-dget(url("https://www2.stat.duke.edu/~pdh10/FCBS/Inline/yX.diabetes.train"))
+```
+
+```{r}
+y <- yX[,1]
+X <- yX[,-1]
+n <- ncol(X)
+lambda_values <- 0:100
+
+final <- data.frame(matrix(ncol = n, nrow = length(lambda_values)))
+i <- 1
+for (lambda in lambda_values) {
+  b_hat_lambda <- solve(t(X) %*% X + (diag(n) * lambda)) %*% t(X) %*% y
+  final[i,] <- b_hat_lambda
+  i <- i + 1
+}
+
+matplot(lambda_values, final)
+```
+
+## Part B
+```{r}
+yX<-dget(url("https://www2.stat.duke.edu/~pdh10/FCBS/Inline/yX.diabetes.train"))
+yX.diabetes.test<-dget(
+  url("https://www2.stat.duke.edu/~pdh10/FCBS/Inline/yX.diabetes.test"))
+```
+
+## Part C
+```{r}
+y_test <- yX.diabetes.test[,1]
+X_test <- yX.diabetes.test[,-1]
+
+pss <- function(lambda) {
+  vec <- y_test - (X_test %*% t(data.frame(final[lambda + 1,])))
+  nrm <- norm(vec, type = "2")
+  return(nrm^2)
+}
+
+v_lambda <- numeric(length(lambda))
+for (lambda in lambda_values) {
+  v_lambda[lambda + 1] <- pss(lambda)
+}
+
+cbind(lambda_values, v_lambda) |>
+  as_tibble() |>
+  ggplot(aes(x = lambda_values, y = v_lambda)) +
+  geom_point(size = 4, alpha = 0.5) +
+  theme_test() +
+  labs(title = "Exercise 3C - PSS v. Lambda",
+       x = "Lambda",
+       y = "PSS")
+```
+
+Even though the OLS estimator is non-biased, it performs worse when using PSS as
+our model selection technique.
+
+## Part D
+```{r}
+best_lda <- which.min(v_lambda) - 1
+best_lda
+```
+
+$\lambda = 64$ is our best value of $\lambda$.
+
+```{r}
+best <- final[best_lda,]
+colnames(best) <- colnames(X)
+sort(best, decreasing = T)[1:5]
+```
+
+At $\lambda = 64$, the best predictors are BMI, LTG, and MAP. While there are
+some positive relationships with other predictors, they are much smaller.
+
+# Exercise 4
+## Part A
+
+```{r}
+#| label: ex4-read-data
+yX = readRDS(
+  url("http://www2.stat.duke.edu/~pdh10/Teaching/360/Materials/yXSS.rds"))
+y <- yX[,1]
+X <- yX[,-1]
+```
+
+```{r}
+#| label: ex4-gibbs-sampler
+set.seed(360)
+# prior hyperparameters 
+p = 9 # number of covariates
+Sigma0 = diag(rep(1, p))
+b0 = rep(1/9, p)
+nu0 = 2
+sigma02 = 1
+n = length(y)
+
+# starting values
+## note: gamma = 1 / sigma^2
+beta <- t(rep(1/9, p))
+
+# values we should compute just once
+SigmaInv = solve(Sigma0)
+X2 = t(X) %*% X
+Xy = t(X) %*% y
+SIB0 = SigmaInv %*% b0
+a = (nu0 + n) / 2
+nu0s02 = nu0 * sigma02
+
+## empty objects to fill
+BETA = NULL
+GAMMA = NULL
+
+S = 2000
+for (s in 1:S) {
+  ### UPDATE SIGMA
+  SSR1 = (y - (X %*% t(beta)))
+  SSRB = t(SSR1) %*% SSR1
+  gamma = rgamma(1, a, ((nu0s02 + SSRB) / 2))
+  
+  ### UPDATE BETA
+  V = solve(SigmaInv + (gamma * X2))
+  m = V %*% (Xy * gamma) # simplified since b0 = 0
+  beta = rmvnorm(1, mean = m, sigma = V)
+  
+  ### SAVE STATES
+  GAMMA = c(GAMMA, gamma)
+  BETA = rbind(BETA, beta)
+}
+```
+
+```{r}
+#| label: ex4-diagnostics
+effectiveSize(BETA)
+effectiveSize(GAMMA)
+```
+
+### Posterior density
+```{r}
+GAMMA_BURN <- GAMMA[-c(1)]
+hist(1 / GAMMA_BURN)
+```
+
+### Posterior means and 95% CI
+```{r}
+BETA_BURN <- BETA[-c(1:S/10),]
+post_mean_b <- apply(BETA_BURN, 2, mean)
+post_ci_b <- apply(BETA_BURN, 2, quantile, probs = c(0.025, 0.975))
+rbind(post_mean_b, post_ci_b)
+```
+
+### Findings
+```{r}
+colnames(yX[,-1])[c(1, 6, 7)]
+```
+The main sources of the water sample primarily comes from three sources:
+effluent, soil, and street water.
+
+## Stan
+*Note: this was taken from lecture but is only used in this problem to*
+*verify findings.*
+```{r}
+post1 <- stan_glm(V1 ~ 0 + ., data = data.frame(yX),
+                  family = gaussian(link = "identity"), seed = 360,
+                  prior = normal(1/9, 1), refresh = 0)
+post1
+```
+
+## Part B
+```{r}
+preds <- X %*% apply(BETA, 2, mean)
+resids <- y - preds
+cbind(resids, preds) |>
+  data.frame() |>
+  ggplot(aes(x = preds, y = resids)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Exercise 4B - Posterior Residual Plot",
+    x = "Predicted y",
+    y = "Residuals"
+  ) +
+  theme_test()
+```
+
+```{r}
+qqnorm(resids)
+qqline(resids)
+```
+
+Neither the assumption of normality nor the assumption of constant variance is
+met in this model. Our residual plot shows a steady increase in variance until
+around iteration 17, and our QQ-plot shows large deviation from the ideal line
+at both ends of the theoretical quantiles. Only from around -1 to 1 do the
+observed and theoretical quantiles track with the assumption of normality.
+
+## Part C
+If we want our values to be strictly positive, we could sample from a 
+constrained multivariate normal distribution for $\beta$, similar to what we
+did in the univariate case in Homework 6. We could replace our sampling of 
+$\beta$ using the `rmvnorm` function with the following function:
+```{r}
+rcmvnorm<-function(n, mean, sd){
+  p <- length(mean)
+  ret <- numeric(n)
+  
+  # generate a new value and fill ret
+  for (i in 1:n) {
+    ret[i] = abs(rnorm(1, mean = mean[i], sd = sd[i,i]))
+  }
+  return(ret)
+}
+```
+This would give all values in vector $\beta$ the absolute value of the
+number drawn from the distribution that we used in part A. The result is a
+strictly positive vector $\beta$.

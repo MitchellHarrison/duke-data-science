@@ -1,0 +1,176 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 19 - Large Language Models (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{LLM Functionality}
+
+Recall that a language model is a probability function that a single word
+occurs in the context of ordered words before that word. That is,
+\[
+\hat P(w_{t}|w_{1}^{t-1}).
+\]
+Note that for a sufficiently large $n$,
+\[
+\hat P(w_{t}|w_{1}^{t-1}) \approx\hat P(w_{t}|w_{t-n}^{t-1}) .
+\]
+That means that, in principle, we want to consider as large a context as 
+possible. This would increase accuracy at the cost of computational workload.
+In the past, context was limited to few words, even 3 or fewer words in some
+applications.
+
+Recall that $V$ is the \textit{vocabulary} that a language model has access to.
+With a context size $n$, there are $|V|^{n}$ possible sequences of words. Even
+with a relatively small context $n=10$ and a relatively small vocabulary of
+17,000 words, there arises $2\times 10^{42}$ possible sequences of words. Thus,
+we will never see most possible sequences in a training dataset. This is the
+curse of dimensionality at play, and it means that simplistic models with small
+contexts not generalize. 
+\begin{note}
+    For reference, the context $n$ of modern GPT models is somewhere in the
+    thousands of tokens.
+\end{note}
+
+\subsection{Neural language models}
+The input layer of of a neural languge model is a collection of encoded words
+in context numerically (for example, via one-hot encoding). The output layer
+consists of one neuron for each word in $V$. The values of those neurons are
+scores of each word being the next one in context. But, these values are not
+necessarily probabilities. Thus, we use the \textit{softmax activation function}
+to convert to probabilities:
+\[
+\frac{e^{z_{i}}}{\sum_{j=1}^{K}e^{z_{j}}},
+\]
+where $z_{i}$ is the score of word $i$, and the denominator is the same for
+every word score $z_{i}$.
+
+\subsubsection{Unsupervised training of NLMs}
+LLMs can be trained unsupervised by randomly masking known text and using the
+model to predict the words that were masked at random. Because the training
+text was known in its entirety, each guess can be evaluated in real time during
+training. This is how BERT, the famous LLM that preceded GPT models, is trained.
+Although BERT takes both preceeding and following contexts into approach, the
+GPT series does not. This method of training further benefits models by allowing
+their training to scale very well. The more training data, the better.
+
+\pagebreak
+
+\section{Word embeddings}
+\begin{definition}
+    "Hidden" neural representations of words often referred to as a
+    \textbf{word embedding}.
+\end{definition}
+Each word in the vocabulary is represented by a point in high-dimensional space.
+To be useful and generalizable, \textit{similar words should have similar
+representations}. We think of each word as a vector in high-dimensional space.
+In that space, vectors that are near each other are semantically similar.
+One example of such encoding is \textit{Word2Vec}, for which $d$ numbers in the
+hundreds and each vector is in $ \mathbb{R}^{d}$.
+
+Interestingly, vector arithmetic can be used to solve one common type of SAT
+question. That is \textit{X is to Y as A is to...}? For example, 
+\[
+France - Paris = Italy - x,
+\]
+gives rise to $x = Rome$. Perhaps unsuprisingly, this word encoding clustering
+gives rise to bias. For example,
+\[
+Man - Programmer = Woman - y,
+\]
+finds that $y = Homemaker$. Looking at the comparative associations of words in
+the "he" direction vs "she" direction. Men are associated with captains,
+philosopher, warrior, and architect. Women are most strongly associated with
+receptionist, nanny, bookkeeper, librarian, and hairdresser. While these
+encodings cluster our biases, they are not always inherently negative. For
+example, "man is to woman what brother is to sister" is gender-specific but
+accurate and probably not an unhealthy bias for a model to show.
+
+\subsubsection{De-biasing}
+One method for de-biasing these vector encodings of words, one could add a new
+dimension representing bias. To minimize output bias, a model would attempt to
+"flatten" along this dimension and minimize the use of bias words or phrases.
+
+\subsubsection{Attention mechanism}
+\begin{definition}
+    An \textbf{attention mechanism} attempts to estimate, for every words in a
+    given context, how important that word is.
+\end{definition}
+
+\subsection{Training and compute power}
+To train larger models without running out of memory, both parallelism within
+each matrix multiplication and across all layers of the network are used. GPT
+models, for example, were trained on V100 GPU's as a part of a high-bandwidth
+cluster provided by Microsoft. These GPUs are thousands of dollars per unit, and
+are rarely available because they are so difficult to manufacture and sell out
+almost immediately. To train the largest GPT model, an estimated few thousand
+of these GPUs were used. The cost of this training run (nearing the tens of
+millions of dollars in equipment alone) is well beyond any current academic
+research project.
+
+
+\end{document}

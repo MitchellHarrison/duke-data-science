@@ -1,0 +1,158 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 18 - Language Models, Truth, and Toxicity}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Project Specifications}
+The project is a 10-12 minute presentation that should include:
+\begin{enumerate}
+    \item \textbf{Intro:} What real-world system are you studying? How is it
+        used?
+    \item \textbf{Technical:} How do the algorithms work?
+    \item \textbf{Demo:} Show results from your technical demo.
+    \item \textbf{Societal:} What are the societal implications?
+\end{enumerate}
+
+There will be 3-5 minutes given after the presentation for Q\&A, and each group
+will also sign up for a slot to ask the first 1-2 questions to assure that 
+there are at least \textit{some} questions.
+
+\pagebreak
+\section{Language Models}
+
+\subsection{Goals for Language Models}
+
+\subsubsection{Machine translation}
+Machine translation involves inputting text or speech and converting it into the
+same sentence in a different human language. The premier example of this is
+Google Translate.
+
+\subsubsection{Text generation}
+Text generation involves a model that creates original text that is seemingly
+plausible to have come from a human actor. ChatGPT is the obvious example.
+
+\subsubsection{Speech recognition}
+Speech recognition is technology that converts a piece of audio into typed
+text. Alexa and Siri both do this prior to sending a query to their servers, but
+things like Shazam also use a type of "audio recognition" not from speech
+specifically, but with audio more generally and labels them as songs.
+
+\subsection{What is a language model?}
+\begin{definition}
+    A \textbf{language model} is a \textit{probability distribution} over
+    \textit{sequences of words} in a language.
+\end{definition}
+For example, a high-probability sentence may be "I am hungry and want a 
+burrito," a lower probability to "What a scurrilous squirel," and even less to
+things like "Where to benign before go."
+
+Note that it is not a good assumption that you can build a language model with 
+the assumption that words are independent. For example, if we know that a
+sentence starts with "The cat is...," the word "black" is much more likely to
+be the next word than the word "green" would be. In a language model,
+\textit{context matters}.
+
+\subsection{Mathematics and language models}
+A statistical model of language can be represented by the
+\textit{conditional probability} of the next word, given all the previous ones,
+since
+\[
+\hat P(w_{1}^{T}) = \prod_{t=1}^{T}\hat P(w_{t}|w_{1}^{t-1}),
+\]
+where $w_{t}$ is the $t$'th word and writing subsequence $w_{i}^{j} = 
+(w_{i}, w_{i+1}, \cdots , w_{j})$.
+
+\subsection{Context and n-gram models}
+We want to model $\hat P(w_{t}|w_{1}^{t-1})$ where $w_{t}$ is the $t$'th
+word. Technically, that could be every word of an entire book that we use to
+predict the final word of that book. But the computational power required to
+use every word would be immense and possibly give worse results. Instead, we
+define a \textbf{context window} of the last $n$ words.
+
+\begin{definition}
+    A \textbf{context window} is a moving window of the previous $n$ words to 
+    the one we are trying to predict.
+\end{definition}
+
+But the natural question that arises is how much context is enough? Using any
+text as an example, you can likely find a series of $n$ words that isn't very 
+helpful in predicting word $n+1$. In principle, we want a larger context to
+avoid that problem, but that increases computational workload.
+
+Suppose your model has a vocabulary $V$ that is very large, but finite. Say
+the size of $V$ is 17,000 (which is extremely small compared to real
+vocabularies). With a context size $n$, there are $|V|^{n}$ possible sequences.
+In our example, and letting $n=10$,
+\[
+17,000^{10} \approx 2\times 10^{42}.
+\]
+It is simply impossible to memorize sequences at that scale, even for a
+comparatively small $V$. That is why generalization is so crucial to language
+models.
+
+\end{document}

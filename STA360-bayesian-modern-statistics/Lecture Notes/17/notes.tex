@@ -1,0 +1,249 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 17 - Bayesian Regression (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Gibbs Sampler}
+
+Recall that last time we set up the model,
+\begin{align*}
+    \textbf{y}|X,\beta,\sigma^{2} & \sim MVN(X\beta, \sigma^{2}I)\\
+    \beta & \sim MVN(\beta_{0}, \Sigma_{0})\\
+    \frac{1}{\sigma^{2}} & \sim gamma\left(\frac{nu_{0}}{2},
+        \frac{nu_{0}\sigma^{2}_{0}}{2}\right)
+\end{align*}
+and derived the full conditionals
+\begin{align*}
+    \beta|\textbf{y},X,\sigma^{2} & \sim MVN(\textbf{m},V)\\
+    \frac{1}{\sigma^{2}}|\textbf{y},X,\beta & \sim gamma\left(
+        \frac{nu_{0}+n}{2},\frac{nu_{0}\sigma^{2}_{0}+SSR(\beta)}{2}\right),
+\end{align*}
+where
+\begin{align*}
+    V &= Var(\beta|\textbf{y},X,\sigma^{2}) = \left(\Sigma_{0}^{-1} +
+        \frac{X^{T}X}{\sigma^{2}}\right)^{-1}\\
+    \textbf{m} &= E(\beta|\textbf{y},X,\sigma^{2}) = \left(\Sigma_{0}^{-1} +
+        \frac{X^{T}X}{\sigma^{2}}\right)^{-1}\left(\Sigma_{0}^{-1}\beta_{0}+
+        \frac{X^{T}\textbf{y}}{\sigma^{2}}\right).
+\end{align*}
+
+\subsection{Diffuse prior}
+To complete model specification, we must choose $\beta_{0}$, $\Sigma_{0}$,
+$\sigma^{2}_{0}$, and $nu_{0}$. If we know very little about the relationship
+between $X$ and $\textbf{y}$, we may wish to consider a \textit{diffuse} prior
+that describes a large mass of uncertainty around each parameter. For example,
+\begin{align*}
+    \beta & \sim MVN(0,1000I)\\
+    \frac{1}{\sigma^{2}} & \sim gamma(1, 10)
+\end{align*}
+
+\subsection{Sampler pseudo-code}
+First we pick a starting $\sigma^{2(0)}$ and set $s=0$. Now, for $s$ in $1:S$,
+we:
+\begin{enumerate}
+    \item Update $\beta$:
+        \begin{enumerate}
+            \item Compute $V$ and $\textbf{m}$.
+            \item Sample $\beta^{(s+1)} \sim MVN(\textbf{m}, V)$
+        \end{enumerate}
+    \item Update $\sigma^{2}$:
+        \begin{enumerate}
+            \item compute $SSR(\beta^{(s+1)})$
+            \item Sample $1/\sigma^{2(s+1)} \sim gamma(\left(\frac{nu_{0}+n}{2},
+                \frac{nu_{0}\sigma^{2}_{0}+SSR(\beta)}{2}\right)$
+        \end{enumerate}
+    \item Save the states of $\beta$ and $\sigma^{2}$.
+\end{enumerate}
+
+\subsection{Gibbs sampler code}
+Below is the R code for the above Gibbs sampler.
+\begin{verbatim}
+set.seed(360)
+# prior hyperparameters 
+p = 2 # number of covariates
+Sigma0 = 1000 * diag(rep(1, p+1)) # p + 1 for intercept term
+b0 = rep(0, p + 1)
+nu0 = 2
+sigma02 = 10
+n = nrow(y)
+
+# starting values
+## note: gamma = 1 / sigma^2
+gamma = 1 / var(penguins_subset$body_mass_kg)
+
+# values we should compute just once
+SigmaInv = solve(Sigma0)
+X2 = t(X) %*% X
+Xy = t(X) %*% y
+SIB0 = SigmaInv %*% b0
+a = (nu0 + n) / 2
+nu0s02 = nu0 * sigma02
+
+## empty objects to fill
+BETA = NULL
+GAMMA = NULL
+
+S = 2000
+for (s in 1:S) {
+  ### UPDATE BETA
+  V = solve(SigmaInv + (gamma * X2))
+  m = V %*% (Xy * gamma) # simplified since b0 = 0
+  beta = rmvnorm(1, mean = m, sigma = V)
+  
+  ### UPDATE SIGMA
+  SSR1 = (y - (X %*% t(beta)))
+  SSRB = t(SSR1) %*% SSR1
+  gamma = rgamma(1, a, ((nu0s02 + SSRB) / 2))
+  
+  ### SAVE STATES
+  GAMMA = c(GAMMA, gamma)
+  BETA = rbind(BETA, beta)
+}
+\end{verbatim}
+
+\subsection{Diagnostics}
+We calculate the effective sample size of the \texttt{BETA} matrix with
+\texttt{coda::effectiveSize(BETA)}. The same function can be used for the
+\texttt{GAMMA} vector. We can then compare the posterior mean estimates to the
+OLS estimates using the following:
+\begin{verbatim}
+data <- penguins_subset
+posteriorMean = apply(BETA, 2, mean)
+OLS = lm(body_mass_kg ~ flipper_length_mm + bill_length_mm, data = data) 
+OLS = OLS$coefficients
+rbind(OLS, posteriorMean)
+\end{verbatim}
+which returns a dataframe of values. Note that these are extremely similar 
+between OLS and posterior mean. This makes sense, because we intentionally
+chose a diffuse prior that gave little information. Thus, we put our trust
+in the part of the posterior that is informed by the data, which is effectively
+what OLS does.
+
+Why do all of that extra work then, when a single call to the \texttt{lm()} 
+function can do OLS for us? Well, using our sampler, we don't just have a 
+single value (point estimate) and confidence interval, \textit{we have an 
+entire posterior distribution}. Now, we can quantify uncertainty about $\beta$
+in an easy and intuitive way.
+
+Using the posterior, we may find a 95\% confidence interval, compute
+$p(\beta_{i}>0 | \textbf{y},X$, compute the posterior median, and a whole host
+of additional queries quickly and intuitively.
+\begin{note}
+    Marginal posterior distribution visualizations are available on the course
+    website for this lecture.
+\end{note}
+
+Effectively, our sampler is varying a 2D hyperplane in 3D parameter space to
+try to find the best fit for our given number of iterations. In theory, this
+could run indefinitely since Bayesian regression doesn't attempt an "optimal,"
+closed-form solution, but we do have to decide on our maximum number of
+iterations beforehand so we know when to stop our sampler.
+\begin{note}
+    High \textit{autocorrelation} would cause our plane to make only marginal
+    jumps at each step, causing our sampler to need to run a lot longer to
+    arrive at the same level of certainty.
+\end{note}
+
+\pagebreak
+\section{Other Priors}
+\subsection{Ridge regression and the normal prior}
+What if $p>n$? That is, what if we have more predictors than ovservations? $X$
+will be wide, and therefore have linearly dependent columns. In this case,
+$X^{T}X$ is $p \times p$ but is of rank $n<p$. That is, $X^{T}X$ is \textit{not}
+full rank and thus is \textit{not invertible}. Therefore, $\hat \beta_{OLS}$
+satisfying $(X^{T}X)\hat \beta_{OLS}=X^{T}\textbf{y}$ does not exist uniquely.
+
+Separately, in the case of multicolinearity, where the columns of $X$ are highly
+correlated, some eigenvalues of $X^{T}X$ will be very small, which means
+$(X^{T}X)^{-1}$ will have very \textit{large} eigenvalues. That is,
+$Var(\hat \beta_{OLS})$ will be very large. Intuitively, we can fix this by
+shrinking some of the $\beta_{i}$ towards zero (reducing $p$). Algebraically,
+one way we can fix this is by adding some positive quantity on the diagonals.
+
+Frequentists call this sort of algebraic fix \textbf{ridge regression} and
+define the problem thus:
+\[
+\hat \beta_{ridge} = argmin_{\beta}(\textbf{y}-X\beta)^{T}(\textbf{y}-X\beta) +
+\lambda\beta^{T}\beta,
+\]
+where $\lambda$ is a tuning parameter called the \textbf{ridge coefficient},
+$\lambda\beta^{T}\beta$ is the $L_{2}^{2}$ penalty, and $(\textbf{y}-X\beta)^{T}
+(\textbf{y}-X\beta)$ is the sum of squared errors (SSR) of $\beta$.
+Bayesians obtain the same objective via the following prior on $\beta$:
+\[
+\beta \sim MVN\left(0, \frac{\sigma^{2}I}{\lambda}\right)
+\]
+
+\begin{note}
+    \[
+    \hat \beta_{ridge} = \mathbb{E}(\beta|\textbf{y},X,\sigma^{2})
+    \]
+\end{note}
+
+
+\end{document}

@@ -1,0 +1,226 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 16 - Intro to Bayesian Regression}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Intro to Linear Regression}
+
+\subsection{Review}
+A \textbf{generalized linear model} states that $\mathbb{E}(Y|X) = g(X\beta)$
+for some invertible "link" function $g$. \textbf{Linear regression} is one
+special case, where $\mathbb{E}(Y|X) = X\beta$. \textbf{Least squares regression}
+(also called "ordinary least squares") refers to a particular method of
+estimating $\beta$: by minimizing the sum of the squared residuals.
+
+\subsection{Notation}
+We will use the following notation for the remainder of this lecture:
+\begin{itemize}
+    \item $\textbf{y}=\{y_{1}, \cdots ,y_{n}\}$ is an $n\times 1$ vector of
+        outcomes. This is the \textit{response variable}, where $y_{i}$ is a
+        single observed outcome.
+    \item $\textbf{x}_{i}$ is a $p\times 1$ vector or \textit{predictors} (also
+        called regressors, independent variables, covariates, or features).
+    \item $X$ is an $n\times p$ matrix of all covariates. This is often referred
+        to as the "data matrix."
+    \item $\beta$ is a $p \times 1$ vector of constants. These are referred to
+        as \textit{parameters}. These are fixed, but unknown numbers. Being
+        Bayesian, we will describe our uncertainty about this population
+        parameter vector using probability statements.
+\end{itemize}
+\begin{note}
+    The linear regression model $\mathbb{E}(Y|X,\beta) = X\beta$ often has a
+    hidden convention where the first column of $X$ is all 1's and $\beta_{1}$
+    is understood to be the intercept term.
+\end{note}
+
+\subsection{Example}
+Imagine we have collected three measurements from a number of penguins: body
+mass (g), bill length (mm), and flipper length (mm). In all, our data set
+contains the measurements of 342 penguins. Because we've collected \textit{three}
+measurements, each individual penguin can be represented by a single point in
+three-dimensional space, where each axis represents one collected variable.
+
+Now, imagine that it is hard to measure a penguins body mass because it is
+difficult to get them onto a scale. We wish to develop a linear model that uses
+bill length and flipper length to predict body mass,
+\[
+\mathbb{E}(Y|X) = X\beta,
+\]
+where $Y$ is the pody mass of the penguins and $X$ contains covariates bill 
+length and flipper length. In a given parameter space in $D$ dimensions, our
+regression fits a $(D-1)$-dimensional hyperplane that minimizes the sum of
+squared residuals. We could also choose to optimize for the sum of the
+absolute value of errors or any other arbitrary risk function.
+
+\subsection{Normal linear regression model}
+So far, we had not made any distributional assumptions. We only made an 
+assumption about the expectation. Now for the normal linear regression model,
+\[
+Y = X\beta + \epsilon
+\]
+and $\epsilon \sim N(0 \sigma^{2}I)$, where $I$ is an $n \times n$ identity
+matrix. This is a way of saying $e_{i} \overset{\mathrm{iid}}{\sim}N(0,
+\sigma^{2})$. Therefore,
+\[
+\textbf{y}|X,\beta,\sigma^{2} \sim  MVN(X\beta,\sigma^{2}I).
+\]
+\begin{ex}
+    \textbf{Is $\hat \beta_{OLS}$ biased?}
+    \vspace{10px}
+    \begin{align*}
+        \mathbb{E}(\hat \beta_{OLS}|\beta,X) &= \mathbb{E}[(X^{T}X)^{-1}X^{T}Y
+            |\beta,X\\
+                                    &= (X^{T}X)^{-1}X^{T}\mathbb{E}(Y|\beta,X)\\
+                                    &= (X^{T}X)^{-1}X^{T}X\beta\\
+                                    &= \beta
+    \end{align*}
+    
+    Because $\mathbb{E}(\hat \beta_{OLS}|\beta,X) = \beta$, we find that it is
+    an \textit{unbiased estimator} of $\beta$.
+\end{ex}
+\begin{note}
+    The variance of $\hat \beta_{OLS}$ is $\sigma^{2}(X^{T}X)^{-1}$ and
+    $\hat \beta_{MLE} = \hat \beta_{OLS}$, where $\hat \beta_{MLE}$ is the
+    \textit{maximum likelihood estimator} of $\beta$.
+\end{note}
+
+
+\subsection{Assumptions}
+A brief reminder about the flexibility and limitations of classical linear
+regression. 
+
+\subsubsection{Limitation}
+The mean may not be a good summary of the conditional relationship. For example,
+if $p(y|x)$ is skewed, multimodal, or has heavy tails, the mean may be a poor
+summary. Additionally, error may not be iid. In other words, the conditional
+variance of $Y$ may change with the $\textbf{x}$s.
+
+\subsubsection{Flexibility}
+In this example,
+\[
+y_{i} = \beta_{1} + \beta_{2}x_{1} + \beta_{3}x_{1}^{2} + \epsilon_{i},
+\]
+the formula is still linear \textit{in the parameters}, and we can therefore
+involve non-linear relationships between $X$ and $\textbf{y}$, which can 
+often be corrected by a power transformation of $X$, $\textbf{y}$, or both.
+
+\pagebreak
+\section{Bayesian Regression}
+
+Let's assume the normal sampling model (i.e. a normal data generative process,
+or "likelihood"),
+\[
+\textbf{y}|X,\beta,\sigma^{2} \sim MVN(X\beta,\sigma^{2}I).
+\]
+To make inference about our model parameters, we will construct a posterior
+distribution,
+\[
+p(\beta,\sigma^{2}|\textbf{y}, X) \propto p(\textbf{y}|X,\beta,\sigma^{2})
+p(\beta,\sigma^{2}).
+\]
+\subsection{Semi-conjugate prior specification}
+To setup Gibbs sampling, let's consider independent semi-conjugate priors. That
+is, assume $p(\beta,\sigma^{2})=p(\beta)p(\sigma^{2})$.
+
+\subsubsection{Semi-conjugate prior on $\beta$}
+If
+\[
+\beta \sim MVN(\beta_{0},\Sigma_{0}),
+\]
+then,
+\begin{align*}
+    p(\beta|\textbf{y},X,\sigma^{2}) &\propto p(\textbf{y}|X, \beta, \sigma^{2})
+    p(\beta)\\
+                                     &\propto MVN(\textbf{m},V)
+\end{align*}
+where
+\begin{align*}
+    V &= Var(\beta|\textbf{y},X,\sigma^{2}) = \left(\Sigma_{0}^{-1} +
+        \frac{X^{T}X}{\sigma^{2}}\right)^{-1}\\
+    \textbf{m} &= E(\beta|\textbf{y},X,\sigma^{2}) = \left(\Sigma_{0}^{-1} +
+        \frac{X^{T}X}{\sigma^{2}}\right)^{-1}\left(\Sigma_{0}^{-1}\beta_{0}+
+        \frac{X^{T}\textbf{y}}{\sigma^{2}}\right).
+\end{align*}
+
+\subsubsection{Semi-conjugate prior on $\sigma^{2}$}
+Let's reparameterize. Let $\gamma = 1/\sigma^{2}$. If
+\[
+\gamma \sim gamma\left(\frac{nu_{0}}{2}, \frac{nu_{0}\sigma^{2}_{0}}{2}\right)
+\]
+then
+\begin{align*}
+    p(\gamma|\textbf{y}, X, \beta) &\propto p(\textbf{y}|X,\beta,\sigma^{2})
+    p(\gamma)\\
+                                   &\propto gamma\left(\frac{nu_{0}+n}{2},
+                                       \frac{nu_{0}\sigma^{2}_{0} +
+                                       SSR(\beta)}{2}\right)
+\end{align*}
+where $SSR(\beta)$ is the \textit{sum of squared residuals} of $\beta$.
+
+
+\end{document}

@@ -1,0 +1,226 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Exam 2 Practice Problems}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Exercise 1}
+
+\begin{align*}
+    Y_{1}, \cdots ,Y_{n} & \sim binary(\theta) \\
+    \theta & \sim beta(a,b)
+\end{align*}
+
+\subsection{a)}
+\begin{ex}
+    Compute the $\hat \theta_{MLE}$.
+\end{ex}
+
+\begin{align*}
+    \ell(\theta|\vec y) &= \prod_{i=1}^{n}\theta^{y_{i}}(1-\theta)^{1-y_{1}}\\
+                        &= \theta^{\sum y_{i}}(1-\theta)^{n-\sum y_{i}}
+\end{align*}
+
+Thus,
+\[
+\boxed{\hat \theta_{MLE} = \bar y} 
+\]
+
+\subsection{b)}
+\begin{ex}
+    Compute $\hat \theta_{B}= \mathbb{E}[\theta|\vec y]$.
+\end{ex}
+\begin{align*}
+    \theta|\vec y & \sim \beta(a + \sum y_{i}, b + n - \sum y_{i})\\
+    \Aboxed{\mathbb{E}[\theta|\vec y] &= \frac{a + \sum y_{i}}{a + b + n}}
+\end{align*}
+
+\subsection{c)}
+\begin{ex}
+    Compare $MSE(\hat \theta_{MLE})$ to $MSE(\hat \theta_{B})$. Under what
+    conditions is $MSE(\hat \theta_{B})$ smaller?
+\end{ex}
+
+Recall that $MSE(\hat \theta) = bias(\hat \theta)^{2} + Var(\hat \theta)$ and
+$MSE[\hat \theta_{MLE}] = 0 + \sigma^{2}/n.$
+
+\begin{align*}
+    bias(\hat \theta_{b}) &= \mathbb{E}[\hat \theta_{b}] \\
+          &= \mathbb{E}\left[\frac{a + \sum y_{i}}{a+b+n}\right] - \theta\\
+          &= \mathbb{E}\left[\frac{a}{a+b+n}\right] + \mathbb{E}\left[
+          \frac{\sum y_{i}}{a+b+n}\right] - \theta \\
+          &= \frac{a}{a+b+n} + \frac{\mathbb{E}(\sum y_{i})}{a+b+n} \\
+          &= \frac{a}{a+b+n}+ \frac{n\theta}{a+b+n} - \theta
+\end{align*}
+
+We want to observe relationships between priors and posteriors as Bayesians.
+Let $\mu_{0} = \frac{a}{a+b}$ be our prior mean. Often, the relationships are
+a combination of weighted averages among prior means and other prior 
+parameters with additional information from the data.
+
+\begin{align*}
+    \frac{a}{a+b+n} + \frac{n\theta}{a+b+n} &= \frac{a}{a+b+n}\cdot 
+    \frac{\left(\frac{a+b}{a+b+n}\right)}{\left(\frac{a+b}{a+b+n}\right)} +
+    \frac{n\theta}{a+b+n}-\theta \\
+            &= \mu_{0}\left(\frac{a+b}{a+b+n}\right) + \frac{n\theta - 
+            n\hat \theta - a\theta - b\theta}{a+b+n} \\
+            &= \mu_{0}\left(\frac{a+b}{a+b+n}\right) - \frac{\theta(a+b)}{a+b+n}\\
+            &= \mu_{0}w - \theta w \\
+            &= w^{2}(\mu_{0}-\theta)^{2}
+\end{align*}
+
+Also,
+\begin{align*}
+    Var\left[\frac{a+\sum y_{i}}{a+b+n}\right] &= Var\left[\frac{\sum 
+    y_{i}}{a+b+n}\right]\\
+           &= \left(\frac{1}{a+b+n}\right)^{2}Var[\sum y_{i}] \\
+           &= \left(\frac{1}{a+b+n}\right)^{2}\cdot n\sigma^{2}
+\end{align*}
+
+
+\section{Exercise 2}
+Consider a single observation $(y_{1}, y_{2})$ drawn from a bivariate normal
+distribution with mean $(\theta_{1}, \theta_{2})$ and fixed, known $2\times 2$
+covariance matrix 
+\[
+\Sigma = 
+\begin{bmatrix}
+1 & .5\\ 
+.5 & 1
+\end{bmatrix}
+\]
+Consider a uniform prior on $\theta = (\theta_{1}, \theta_{2}):p(\theta_{1},
+\theta_{2}) \propto 1$.
+
+\subsection{a)}
+\begin{ex}
+    Derive the joint posterior for $\theta_{1}, \theta_{2}|y_{1},y_{2},
+    \Sigma$. Describe a direct sampler for this distribution.
+\end{ex}
+\begin{align*}
+    p(\vec \theta|\vec y, \Sigma) &\propto p(\vec \theta, \vec y, \Sigma)\\
+              &\propto p(\vec y|\vec \theta, \Sigma)p(\vec \theta, \Sigma)\\
+              &\propto p(\vec y|\vec \theta,\Sigma)p(\vec \theta)\\
+              &\propto p(\vec y|\vec \theta, \Sigma) \cdot 1 \\
+              &\sim MVN(\vec y, \Sigma)
+\end{align*}
+
+We see that this is the kernel of a multivariate normal distribution, but
+instead of being a function of $\vec y$ that returns $\vec \theta$, it is a
+function of $\vec \theta$ that returns $\vec y$. To directly sample, we can
+generate random $\vec y$ values, plug it directly into a bivariate normal
+distribution, and sample.
+
+\begin{note}
+    We removed $\Sigma$ from the distributions because it is a constant, and
+    therefore doesn't contribute to the randomness of a distribution.
+\end{note}
+
+
+\subsection{b)}
+\begin{ex}
+    Write down full conditionals $p(\theta_{1}|\theta_{2},y_{1},y_{2},\Sigma)$.
+    Write pseudo-code to describe a Gibbs sampling procedure.
+\end{ex}
+
+\subsection{c)}
+\begin{ex}
+    Will the direct sampler from part \textbf{a)} or the Gibbs sampler in part
+    \textbf{b)} have a higher ESS? Why?
+\end{ex}
+Option \textbf{a)} will have a lower ESS because Gibbs sampling uses MCMC, which
+will always introduce \textit{some} autocorrelation and thereby larger 
+effective sample size (ESS). If it is possible to directly sample from a
+posterior distribution, we will have lower ESS than with MCMC.
+
+\begin{note}
+    The effective sample size for a direct sampling is the number of samples 
+    that you took.
+\end{note}
+
+
+\pagebreak
+\section{Things to Study}
+We should study the following things:
+\begin{enumerate}
+    \item Identifying kernels of Normal and Multivariate Normal distributions
+    \item Constructing Gibbs Samplers and finding FCD.
+    \item Reading and interpreting MCMC traceplots/diagnostics
+    \item Properties of estimators (is the estimator biased, etc)
+    \item Prior and posterior predictive distributions
+        \begin{align*}
+            p(\tilde{y}) = \int p(\tilde{y},\theta) d\theta &=\int p(\tilde{y}|
+            \theta)p(\theta)d \theta\\
+            p(\tilde{y}|\vec y) = \int p(\tilde{y}, \theta|\vec y)d \theta &=
+            \int p(\tilde{y}|\theta,\vec y)p(\vec \theta|\vec y) d \theta =
+            \int p(\tilde{y}|\theta)p(\theta|\vec y)d \theta
+        \end{align*}
+    \item Heirarchical normal model (on the last homework)
+    \item Hoff chapters 4-8
+\end{enumerate}
+
+\end{document}

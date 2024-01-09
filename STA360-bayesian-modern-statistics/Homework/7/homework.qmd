@@ -1,0 +1,422 @@
+---
+format: pdf
+results: "hide"
+execute: 
+  warning: false
+  output: true
+---
+
+
+```{r}
+#| label: import-libraries
+library(tidyverse)
+library(coda)
+library(glue)
+library(MASS)
+library(mvtnorm)
+library(MCMCpack)
+library(reshape2)
+```
+
+# Question 1
+
+### a)
+```{r}
+#| label: question-1-data
+blue = read_csv("https://sta360-fa23.github.io/data/bluecrab.csv")
+orange = read_csv("https://sta360-fa23.github.io/data/orangecrab.csv")
+```
+
+```{r}
+#| label: q1a-sampler
+nu0 <- 4
+N <- 10000
+n <- nrow(blue)
+THETA_BLUE <- matrix(nrow = N, ncol = 2)
+THETA_ORANGE <- matrix(nrow = N, ncol = 2)
+
+SIGMA_BLUE <- list()
+SIGMA_ORANGE <- list()
+
+crabs <- list(blue, orange)
+is_blue <- T
+
+for (y in crabs) {
+  ybar <- mu <- mu0 <- c(mean(y$bodyDepth), mean(y$rearWidth))
+  Y_1 <- y$bodyDepth
+  Y_2 <- y$rearWidth
+  n_theta <- ncol(y)
+  lmd0 <- lmd <- S <- S0 <- cov(y)
+  
+  # starting theta and sigma
+  theta <- mvrnorm(2, mu0, lmd0)
+  sig <- riwish(v = nu0, S = solve(S0))
+  
+  THETA <- matrix(nrow = N, ncol = n_theta)
+  SIGMA <- list()
+  
+  ## GIBBS SAMPLER ##
+  for (i in 1:N) {
+    # sample new lambda and mu
+    lmd <- solve((solve(lmd0) + (n * solve(sig))))
+    rhs <- (solve(lmd0) %*% mu0) + (n * solve(sig) %*% ybar)
+    mu <- lmd %*% (solve(lmd0) %*% mu0 + n * solve(sig) %*% mu0)
+    
+    # sample new thetas
+    theta <- mvrnorm(mu = mu, Sigma = lmd)
+    
+    # get new S_theta
+    S_theta <- (t(y) - theta) %*% t(t(y) - theta)
+      
+    # sample new sigma
+    sig <- solve(rwish(nu0 + n, solve(S0 + S_theta)))
+    
+    # store results of theta and sigma per the problem
+    THETA[i,] <- theta
+    SIGMA[[i]] <- sig
+  }
+  if (is_blue) {
+    THETA_BLUE <- THETA
+    SIGMA_BLUE <- SIGMA
+    is_blue = F
+  } else {
+    THETA_ORANGE <- THETA
+    SIGMA_ORANGE <- SIGMA
+  }
+}
+```
+
+### b)
+
+```{r}
+THETA_BLUE |>
+  as_tibble(.name_repair = "unique") |>
+  rename(bodyDepth = `...1`, rearWidth = `...2`) |>
+  melt() |>
+  ggplot(aes(x = value, fill = variable)) +
+  geom_density(alpha = 0.4) +
+  labs(title = "Question 1B: Theta vector density of blue crabs",
+       x = "Value", y = "Density") +
+  theme_test()
+```
+
+```{r}
+THETA_ORANGE |>
+  as_tibble(.name_repair = "unique") |>
+  rename(bodyDepth = `...1`, rearWidth = `...2`) |>
+  melt() |>
+  ggplot(aes(x = value, fill = variable)) +
+  geom_density(alpha = 0.4) +
+  labs(title = "Question 1B: Theta vector density of orange crabs",
+       x = "Value", y = "Density") +
+  theme_test()
+```
+
+### c)
+
+```{r}
+rho_blue <- c()
+rho_orange <- c()
+
+for (s in SIGMA_BLUE) {
+  cor_matrix <- cov2cor(s)
+  cor_coef <- cor_matrix[upper.tri(cor_matrix, diag = FALSE)]
+  rho_blue <- c(rho_blue, cor_coef)
+}
+
+for (s in SIGMA_ORANGE) {
+  cor_matrix <- cov2cor(s)
+  cor_coef <- cor_matrix[upper.tri(cor_matrix, diag = FALSE)]
+  rho_orange <- c(rho_orange, cor_coef)
+}
+
+crabs <- tibble("blue" = rho_blue, "orange" = rho_orange) 
+crabs |>
+  melt() |>
+  ggplot(aes(x = value, fill = variable)) +
+  geom_density(alpha = 0.4) +
+  scale_fill_manual(values = list("blue" = "blue", "orange" = "orange")) +
+  labs(title = "Correlation coefficient density of blue and orange crabs",
+       fill = "Crab type") +
+  theme_test()
+```
+
+```{r}
+mean(crabs$blue < crabs$orange)
+```
+
+We arrive at a probability $p(\rho_{blue} < \rho_{orange} | \vec y_{blue}, y_{orange}) \approx .99$
+We additionally see that orange crabs appear to have a stronger correlation 
+between rear width and body depth than blue crabs do.
+
+\pagebreak
+
+# Question 2
+### a)
+Intuitively, I believe that $Var[y_i|\theta_i, \sigma^2]$ will be smaller
+because as $\mu$ and $\tau^2$ vary, they will introduce more uncertainty.
+However, $y_{i,j}|\theta_i, \sigma^2$ includes a $\theta_i$ term that 
+removes that uncertainty as $\theta$ was already selected, thus reducing
+variance.
+
+### b)
+I believe that $Cov[y_{i_1,j}, y_{i_2,j} | \theta_j, \sigma^2]$ will be zero,
+but $Cov[y_{i_1,j}, y_{i_2,j}|\mu, \tau]$ will be positive. Intuitively, if we
+know $\theta_i$, then the two data points can't give us any additional 
+information about $\theta$, thus a zero covariance. However, if we don't 
+know the exact value of  $\theta$, then additional data will give us some 
+information about the mean.
+
+\pagebreak
+
+
+# Question 3
+
+```{r}
+#| label: question-3-data
+for(i in 1:8) {
+  assign(paste0("school", i), 
+         read_csv(glue("https://sta360-fa23.github.io/data/school{i}.csv")))
+}
+```
+
+
+```{r}
+#| label: q3a-gibbs-sampler
+
+#########################
+##### GIBBS SAMPLER #####
+#########################
+
+## given parameters in the problem
+nu0 <- 2; s20 <- 15
+eta0 <- 2; t20 <- 10
+mu0 <- 7; g20 <- 5
+
+## format data 
+schools <- matrix(nrow = 0, ncol = 2)
+colnames(schools) <- c("school", "time")
+for (school in 1:8) {
+  school_data <- cbind(school, get(paste0("school", school)))
+  colnames(school_data) <- c("school", "time")
+  schools <- rbind(schools, school_data)
+}
+
+## begin lecture notes sampler
+Y <- list()
+J <- max(schools[, 1])
+n <- ybar <- ymed <- s2 <- rep(0, J)
+for (j in 1:J) {
+  Y[[j]] <- schools[schools[, 1] == j, 2]
+}
+
+## starting values
+m <- length(Y)
+n <- sv <- ybar <- rep(NA, m)
+for (j in 1:m)
+{
+  ybar[j] <- mean(Y[[j]])
+  sv[j] <- var(Y[[j]])
+  n[j] <- length(Y[[j]])
+}
+theta <- ybar
+sigma2 <- mean(sv)
+mu <- mean(theta)
+tau2 <- var(theta)
+
+## setup MCMC
+set.seed(1)
+S <- 5000
+THETA <- matrix(nrow = S, ncol = m)
+MST <- matrix(nrow = S, ncol = 3)
+
+## MCMC algorithm
+for (s in 1:S)
+{
+  # sample new values of the thetas
+  for (j in 1:m)
+  {
+    vtheta <- 1 / (n[j] / sigma2 + 1 / tau2)
+    etheta <- vtheta * (ybar[j] * n[j] / sigma2 + mu / tau2)
+    theta[j] <- rnorm(1, etheta, sqrt(vtheta))
+  }
+  
+  #sample new value of sigma2
+  nun <- nu0 + sum(n)
+  ss <- nu0 * s20
+  for (j in 1:m) {
+    ss <- ss + sum((Y[[j]] - theta[j]) ^ 2)
+  }
+  sigma2 <- 1 / rgamma(1, nun / 2, ss / 2)
+  
+  #sample a new value of mu
+  vmu <- 1 / (m / tau2 + 1 / g20)
+  emu <- vmu * (m * mean(theta) / tau2 + mu0 / g20)
+  mu <- rnorm(1, emu, sqrt(vmu))
+  
+  # sample a new value of tau2
+  etam <- eta0 + m
+  ss <- eta0 * t20 + sum((theta - mu) ^ 2)
+  tau2 <- 1 / rgamma(1, etam / 2, ss / 2)
+  
+  #store results
+  THETA[s, ] <- theta
+  MST[s, ] <- c(mu, sigma2, tau2)
+}
+
+mcmc1 <- list(THETA = THETA, MST = MST)
+```
+
+
+```{r}
+sizes <- c(effectiveSize(MST))
+if (all(sizes > 1000)) {print(sizes)}
+```
+
+
+```{r}
+#| label: q3b-diagnostics
+# MC error of mu, sigma2, tau2
+MCERR <- apply(MST,2,sd)/sqrt( effectiveSize(MST) )
+MCERR_print <- apply(MST,2,mean)
+names(MCERR_print) <- c("mu", "sigma^2", "tau^2")
+print(MCERR_print)
+
+# prior R
+prior_R <- c()
+prior_s2 <- c()
+prior_tau2 <- c()
+prior_mu <- c()
+for (i in 1:5000) {
+  s2 <- 1 / rgamma(1, nu0/2, (nu0 * s20)/2)
+  tau2 <- 1 / rgamma(1, eta0/2, (eta0 * t20)/2) 
+  mu <- rnorm(1, mu0, g20)
+  new_R <- tau2 / (s2 + tau2)
+  
+  prior_R <- c(prior_R, new_R)
+  prior_s2 <- c(prior_s2, s2)
+  prior_tau2 <- c(prior_tau2, tau2)
+  prior_mu <- c(prior_mu, mu)
+}
+
+ggs2 <- prior_s2 |>
+  as_tibble() |>
+  ggplot() +
+  geom_density(aes(x = value), fill = "firebrick1", alpha = 0.5) +
+  geom_density(aes(x = as_tibble(MST[,2])$value))
+
+quantile(MST[,1], probs = c(.025, .975))
+quantile(MST[,2], probs = c(.025, .975))
+quantile(MST[,3], probs = c(.025, .975))
+```
+
+
+```{r}
+print("MST means:")
+colMeans(MST)
+
+get_95_ci <- function(MST) {
+  return(quantile(MST, probs = c(0.025, 0.975)))
+}
+
+print("Confidence intervals:")
+print(apply(MST, 2, get_95_ci))
+```
+
+
+```{r}
+#| fig-height: 6
+mu_prior <- tibble(value = rnorm(S, mean = mu0, sd = sqrt(g20)))
+s2_prior <- tibble(value = 1 / rgamma(S, nu0/2, (nu0 * s20) / 2))
+tau2_prior <- tibble(value = 1 / rgamma(S, eta0 / 2, (eta0 * t20) / 2))
+priors <- cbind(mu_prior, s2_prior, tau2_prior)
+
+MST_prior <- cbind(MST, priors)
+colnames(MST_prior) <- c("mu_post", "s2_post", "tau_post", "mu_prior", "s2_prior",
+                         "tau_prior")
+MST_prior |>
+  gather(key = "key", value = "value") |>
+  separate(key, into = c("variable", "pre_post"), sep = "_") |>
+  ggplot(aes(x = value, fill = pre_post)) +
+  geom_density(alpha = 0.5 ) +
+  theme_test() +
+  facet_wrap(~ variable, ncol = 1, scales = "free") +
+  xlim(0,50) +
+  labs(title = "Prior vs. Posterior Densities", fill = element_blank())
+```
+
+### Brief discussion
+Starting with relatively diffuse priors, our posterior densities were much more
+centered around their modes, giving much higher confidence in the true 
+population $\mu$, $\sigma^2$, and $\tau^2$ after seeing the data.
+
+\pagebreak
+
+```{r}
+#| label: q3c-prior-R
+
+# plot R
+tau <- MST[, 3]
+sigma2 <- MST[, 2]
+R <- tau / (sigma2 + tau)
+R |>
+  as_tibble() |>
+  mutate(prior = prior_R) |>
+  ggplot(aes(x = R, fill = "post")) +
+  geom_density(alpha = 0.4) +
+  geom_density(aes(x = prior, fill = "prior"), alpha = 0.4) +
+  scale_fill_manual(values = c("post" = "firebrick1", "prior" = "blue"),
+                    labels = c("Posterior", "Prior")) +
+  labs(
+    x = "R",
+    y = "Density",
+    title = "Prior and Posterior Density of R",
+    fill = element_blank()
+  ) +
+  theme_test() +
+  theme(
+    panel.grid.major.y = element_line(linetype = "dashed", color = "gray")
+  )
+```
+
+```{r}
+#| label: q1d-theta-7
+p_smaller <- mean(THETA[,7] < THETA[,6])
+p_smallest <- mean(THETA[,7] == apply(THETA[, 1:8], 1, min))
+
+smaller_msg <- paste("The probability that theta_7 is smaller than theta_6 is",
+                    round(p_smaller, 3))
+
+smallest_msg <- paste("The probability that theta_7 is the smallest theta is",
+                      round(p_smallest, 3))
+
+cat(paste(smaller_msg, smallest_msg, sep = "\n"))
+```
+
+```{r}
+#| label: q1e-averages
+sample_y <- schools |>
+  as_tibble() |>
+  group_by(school) |>
+  summarise(y_bar = mean(time))
+
+THETA |>
+  as_tibble() |>
+  summarise(across(everything(), mean)) |>
+  pivot_longer(cols = everything()) |>
+  mutate(name = 1:8) |>
+  rename("school" = name, "theta_post" = value) |>
+  left_join(sample_y) |>
+  ggplot(aes(x = theta_post, y = y_bar)) +
+  geom_point(size = 5, color = "black", alpha = 0.6) +
+  labs(
+    x = "Posterior theta estimates",
+    y = "Sample averages",
+    title = "Posterior Theta Estimates Against Observed Sample Averages"
+  )+
+  theme_test() 
+
+mean(THETA)
+mean(schools[,2])
+```
+
