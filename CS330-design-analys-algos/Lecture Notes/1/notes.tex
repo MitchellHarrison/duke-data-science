@@ -1,0 +1,184 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 1 - Algorithms, Data Structures, and Asymptotic Analysis}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Introduction to Algorithms}
+
+\subsection{What is an algorithm?}
+There are many definitions for an algorithm. Some include,
+\begin{enumerate}
+    \item An explicit, precise, unambiguous, mechanically-executable sequence of
+        elementary steps intended to accomplish a specific purpose
+    \item An algorithm terminates after a finite number of steps, each of which
+        must be precisely defined, and all operations must be sufficiently 
+        basic
+    \item A well-defined effective procedure for computing desired output given
+        an input
+\end{enumerate}
+
+\subsection{What are design and analysis?}
+\subsubsection{Design}
+Design covers the "how" and "what" of an algorithm. Given a precise specification
+of the problem, we \textit{design} an algorithm to relate input to output to 
+help solve that problem. It also provides a precise description of the
+algorithm and its procedure.
+
+\subsubsection{Analysis}
+Analysis covers the "why" and "how well" of an algorithm, quanitifying its
+performance at scale, providing counter examples, and giving mathematical
+proofs.
+
+\subsection{Describing algorithms}
+In this course, we will mostly be working in pseudocode and precise English. We
+will also write code for some assignments, but English and pseudocode will be
+how we describe those algorithms. Our pseudocode will approximate our precise
+English.
+
+Even when we describe our algorithm with pseudocode, often accompanying it with
+and English-language description is helpful for most human readers.
+
+\pagebreak
+\section{Asymptotic runtime review}
+We will operate in the following abstract model of computation,
+\begin{enumerate}
+    \item We assume Random Access Memory (RAM). That is, memory searching is done
+        in constant time.
+    \item We assume that a \textit{constant time operation} is anything that
+        does not depend on the size of the input.
+    \item \textit{Runtime analysis} counts the number of constant time
+        operations as a function of the size of the input.
+\end{enumerate}
+
+We will be using asymptotic analysis by way of \textit{Big-O notation}. That is,
+ $T(N)$ is $O(g(N))$ if, for each $c$, $n_{0}$, such that for all $N \ge n_{0}$,
+ \[
+ T(N) \le c \cdot g(N).
+ \]
+\begin{note}
+    Recall the common complexity classes in order of slowest to fastest:
+    exponential, cubic, quadratic, nearly-linear, linear, logarithmic, and
+    constant.
+\end{note}
+ 
+Other asymptotic notations other than Big-$O$ are Big-$\Theta$ and Big-$\Omega$.
+They are similar to Big-$O$. $\Omega$ looks for lower bounds, such that
+\[
+T(N) \ge c \cdot g(N),
+\]
+and $\Theta$ looks for asymptotic equality,
+\[
+T(N) = c \cdot g(N).
+\]
+Thus, if an algorithm's Big-$O$ and Big-$\Omega$ are the same, then its
+Big-$\Theta$ is the same. Additionally, Big-$O$ must be \textit{at least} equal
+to Big-$\Theta$ and Big-$\Omega$ must be \textit{at most} equal to
+Big-$\Theta$.
+
+\pagebreak
+\section{Data structures review}
+The simplest data structure that we will use is the \textit{array}. That is, a
+fixed-length collection of numbers.We will also use array-based \textit{lists}
+that can grow by duplicating existing arrays' size if we need to add an
+additional element past the number of free slots available in that array.
+
+We also implement lists using \textit{linked lists}, where each node stores
+both a value and a pointer to the next element in the list. The upside is that
+adding elements is simpler, especially in the middle of the list. But we lose
+constant-time lookup.
+
+\textit{Binary heaps} are binary trees satisfying the following invariants:
+\begin{enumerate}
+    \item the \textbf{heap property}: every node is less than or equal to its
+        successors
+    \item the \textbf{shape property}: the tree is full at each layer except for
+        (optionally) the last one
+\end{enumerate}
+
+The \textit{binary search tree} is a binary tree with the additional property
+that each element of the left subtree of a node are less than the current one, 
+and the right subtree is strictly greater than the current node. This enables
+efficient search.
+
+A \textit{hash table} is similar to an array, but we use a hash function to
+determine both where to store an element and to lookup that element's location.
+Sometimes, two elements will hash to the same position in the table. The 
+simplest way to deal with this is that we can store arrays instead of individual
+elements. This solves the collision problem, but makes lookup proportional to
+the length of the array at a given position in the hash table.
+
+\begin{note}
+    By default, we will assuming \textit{worst-case} analysis. Because, with a
+    careful choice of a hash function, we can assume the expectated performance
+    of a hash table to be $O(1)$.
+\end{note}
+
+\end{document}

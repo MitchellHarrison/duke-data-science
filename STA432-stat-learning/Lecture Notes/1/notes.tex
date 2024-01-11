@@ -1,0 +1,215 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 1 - Background}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Background}
+
+\subsubsection{Discrete and continuous distributions}
+Recall that discrete and continuous distributions have CDFs and PDFs 
+respectively.
+
+\subsubsection{Random variables}
+We will recall that a random variable is represented by a distribution. For
+example, 
+\[
+X \sim Normal(\mu, \sigma^{2}).
+\]
+\subsubsection{Expectations and variances}
+We will need to be able to calculate means (i.e. expectations) and variances
+for probability distributions.
+
+\subsubsection{Laws of large numbers}
+We will be working with strong and weak laws of large numbers, which discuss
+how random variables behave when aggregated en masse.
+
+\subsubsection{Central limit theorems}
+Recall that CLTs discuss how random variables behave as $n \rightarrow \infty$.
+
+\subsubsection{Moment generating functions}
+A \textbf{moment} is an expectation. For example, for the normal distribution,
+\[
+    M(t) = exp\{t\mu + + \frac{1}{2}\sigma^{2}t^{2}\}.
+\]
+\subsubsection{Likelihood functions}
+Recall that likelihood functions help us describe how data is generated using
+a function
+\[
+L(\mu, \sigma^{2}) = f(x).
+\]
+\pagebreak
+\section{What are statistics?}
+A gentleman named Steve Stigler is the "unofficial historian of statistics." He
+describes the following seven pillars of statistical wisdom. They can also
+widely be applied to modern use in data science, etc.
+
+\subsection{The seven pillars of statistics}
+\subsubsection{Aggregation}
+How does one combine observations in order to arrive at insights? For example,
+adding $n$ observations and dividing by the number of observations (i.e. taking
+the mean) discards individual observations to gain insight about those same
+observations \textit{in aggregate}.
+
+\subsubsection{Information measurement}
+Say we take six observations of height. Do we expect the next six observations
+to tell us more, less, or the same amount of information as the first six? Not
+particularly. Once we arrive at an average, we don't expect large changes in
+that average. That is, not every observation is created equal, and variablity
+in future observations could be random chance.
+
+\subsubsection{Likelihood}
+Statistics takes the language of probability and tries to connect it to real
+data. We use the likelihood for this.
+
+\subsubsection{Intercomparison}
+Say I read many studies that conclude that average height is 5'8". We don't
+actually need to compare observed samples to that external truth. We could 
+instead just use our observed samples to make inferences.
+
+\subsubsection{Regression}
+This is covered in depth is previous courses, and will be less so in this one.
+
+\subsubsection{Design}
+Imagine that we collect coin flip data by tossing it six times and recording 
+the results. We could have instead collected data until the observed frequency
+was $\frac{1}{2}$ for heads/tails. Those are very different designs. The
+tools that we can use/data we can collect are very different for different
+designs.
+
+\pagebreak
+
+\subsubsection{Residual}
+There is much modern interest in using residual analysis. Say we are studying
+height. We know that parental height is relatively strongly correlated with
+offspring height. Say we collect parent/offspring height data. We can then
+take the residuals of the expected offspring height with the observed heights,
+and use our statistical tools on those residuals to gain insight.
+
+\subsection{Coin tosses}
+Our goal is \textbf{inference}. That is, given some model and some data, what
+can we learn about the model from the data? \textbf{Probability} is the tool
+for formalizing uncertainty.
+
+\begin{ex}
+    Say we have $n$ coin tosses, where each toss is independent of the others.
+    Each toss has the same probability $p$ of coming up heads (i.e. $H$). This 
+    is a \textbf{bernoulli trial}. We may want to find $p$.
+\end{ex}
+
+Let our sample space be the collection of all possible outcomes for $n$ trials.
+For example, say $n=2$. Our outcome space $\Theta$ is
+\[
+    \Theta = \{HH, HT, TH, TT\}.
+\]
+Now let $n=6$. Because we know that each toss is independent, we can do the
+following,
+\[
+\mathbb{P}(HTTHTHH|p) = \mathbb{P}(H|p)\mathbb{P}(T|p) \cdots \mathbb{P}(H|p).
+\]
+Also because of independence, we know that order does not matter. That is,
+\[
+\mathbb{P}(HTTHTHH|p) = \mathbb{P}(HHHHTTT|p).
+\]
+A \textit{random variable} may be a formalization of this. Let $X$ be the number
+of heads. Instead of saying $\mathbb{P}(HTTHTHH|p)$, we can say 
+ $\mathbb{P}(X=4|p)$. Because we know that this coin toss is a bernoulli
+ variable, we know
+ \[
+ \mathbb{P}(X=k|p) \sim binomial(n,p) = \binom{n}{k}p^{k}(1-p)^{n-k}.
+ \]
+A downstream analyst may not know $n$ or $p$. However, we will call $n$ our
+number of trials, and we will treat it as known. We will call $p$ our parameter
+of interest. Probability lets us look forward. For example, "you can expect this
+number of heads given your trial." Statistics lets us discuss $n$ and $p$ in the
+real world as it is (or was).
+
+\subsubsection{Estimates for $p$}
+Some possible estimates for $p$ may be $\hat p_{mean}=\bar X$ (the sample mean)
+or $\hat p_{fair}=\frac{1}{2}$ (giving equal probability to both sides). Next
+lecture, we will discuss what makes an estimator "good" or "bad." We spend 
+roughly one-third of this class choosing these estimates.
+
+\subsubsection{What is the uncertainty about estimates?}
+We have an intuitive feel that less information makes us less confident in our
+estimates. To quantify this, we could ask questions about the variance of
+a given $\hat p$. It turns out, that the variance (or the standard deviation)
+of $\hat p_{mean}$ is,
+\[
+\sqrt{Var(\hat p_{mean})} = \frac{\sqrt{\hat p_{mean}(1-\hat p_{mean})}}{n}.
+\]
+We will roughly spend the second third of the class evaluating these estimates.
+
+\subsubsection{Do we have evidence that $p \ne \frac{1}{2}$?}
+If we are gambling, our strategy changes wildly if we do or do not know if our
+coin is biased. This kind of hypothesis testing is thus widely useful. The 
+last third of this course will be evaluating hypotheses like this.
+
+\end{document}

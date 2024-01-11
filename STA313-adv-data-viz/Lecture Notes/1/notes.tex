@@ -1,0 +1,111 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 1 - Introductions}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{What, Why, and How?}
+
+\subsubsection{What?}
+This is \textit{the plot}. This is basically the choice of plot type for a 
+certain type of data. Lines for chronological, maps for geospacial, etc. are
+examples.
+
+\subsubsection{How?}
+This is the biggest portion of the course. It will cover design, pre-processing
+data, mapping data to aesthetics, making visual encoding decisions (e.g.
+making plots accessible), and post-processing for visual appeal and annotation.
+
+\subsubsection{Why?}
+This will tie together the "how" and "what" through the grammar of graphics
+theoretical framework.
+
+\pagebreak
+\section{Grammar of Graphics}
+\begin{definition}
+    \textbf{Data visualization} si the creation and study of the visual
+    representation of data. In this course, we will use R will \texttt{ggplot} 
+    mostly.
+\end{definition}
+
+The book that inspires the phrase "grammar of graphics" is the book
+\textit{Grammar of Graphics} by Leland Wilkinson. It is a theoretical framework
+that enables us to concisely desscribe the components of graphics using
+layers.
+
+\subsection{Accessability}
+The cheapest and easiest way to increase accessability is to use \textit{double
+encoding}, where differences in groups are shown with two different changes.
+For example, a scatter plot's groups may be differentiated by both 
+\textit{color} and \textit{shape}. That way, those with differences in visual
+ability can use either. Choosing colorblind-friendly colors (e.g. using
+\\ \texttt{ggthemes::scale\_color\_colorblind()}) is also more inclusive.
+
+\end{document}

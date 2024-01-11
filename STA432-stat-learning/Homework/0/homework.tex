@@ -1,0 +1,165 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Homework 0}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section*{Question 1}
+This is a Gaussian integral. It evaluates to $\sqrt{\pi}$.
+
+\section*{Question 2}
+\begin{align*}
+    \int x \cdot exp\{-x^{2}\} &= -\frac{1}{2}e^{-x^{2}} \\
+    \int_{-\infty}^{\infty}xe^{-x^{2}} &= 0 - 0 \\
+\Aboxed{\int_{-\infty}^{\infty}xe^{-x^{2}} &= 0}
+\end{align*}
+
+\section*{Question 3}
+Assuming a sufficiently large sample size, sample independence, and a finite
+mean and variance, the Central Limit Theorem states that the sample mean of
+any random sample will be approximately normally distributed.
+
+\section*{Question 4}
+Uncorrelated random variables could be dependent. If we let $X$ be any value
+between -10 and 10, and let $Y = |X|$, 
+\begin{align*}
+    Cov(X, Y) &= \mathbb{E}(XY) - \mathbb{E}(X)\mathbb{E}(Y) \\
+              &= 0 - 0 \\
+    Cov(X,Y) &= 0.
+\end{align*}
+With $Cov(X,Y) = 0$, $X$ and $Y$ are uncorrelated. However, because knowledge of
+ $X$ gives direct insights about $Y$, they are \textit{dependent}.
+
+\section*{Question 5}
+Two independent random variables could be correlated or uncorrelated. This gives
+rise to a spurious correlation. A brief Google search shows that the correlation
+between US spending on space exploration and number of suicides by hanging is
+ $r \approx 0.998$.
+
+\section*{Question 6}
+Since expectation is a linear operator, we can expand both terms,
+\begin{align*}
+    \mathbb{E}[(X+Y)^{2}] &= \mathbb{E}[X^{2} + 2XY + Y^{2}] \\
+                          &= \mathbb{E}(X^{2}) + 2\mathbb{E}(XY) + 
+                          \mathbb{E}(Y^{2}),
+\end{align*}
+and
+\begin{align*}
+    \mathbb{E}[(X+Y)]^{2} &= [\mathbb{E}(X) + \mathbb{E}(Y)]^{2} \\
+                          &= \mathbb{E}(X)^{2} + 2\mathbb{E}(X)\mathbb{E}(Y) + 
+                          \mathbb{E}(Y)^{2}.
+\end{align*}
+Thus, assuming independence and therefor $\mathbb{E}(XY) = \mathbb{E}(X)
+\mathbb{E}(Y)$,
+\begin{align*}
+    \mathbb{E}[(X+Y)^{2}] - \mathbb{E}[(X+Y)]^{2} &= \mathbb{E}(X^{2}) + 
+    2\mathbb{E}(XY)  + \mathbb{E}(Y^{2}) - \mathbb{E}(X)^{2} - 2\mathbb{E}(XY)
+    - \mathbb{E}(Y)^{2} \\
+    &= \mathbb{E}(X^{2}) - \mathbb{E}(X)^{2} + \mathbb{E}(Y^{2}) -
+    \mathbb{E}(Y)^{2}
+\end{align*}
+The variance of $X$ (which is the same for $Y$ or any other random 
+variable) is given by,
+\[
+Var(X) = \mathbb{E}(X^{2}) - [\mathbb{E}(X)]^{2}.
+\]
+Thus, assuming independence
+
+\section*{Question 7}
+We are given that $(X+Y)/2 = 1/2$, therefore $X + Y = 1$. That means that either
+ $X$ or $Y$ are 0 and the other is 1. However, since 
+ $X,Y\overset{\mathrm{iid}}{\sim}Bernoulli(p)$,
+\[
+\mathbb{E}\left(X \middle| \frac{X+Y}{2} = \frac{1}{2}\right) = \frac{1}{2}.
+\]
+
+\section*{Question 8}
+The variance for a continuous uniform distribution is given by the formula
+\[
+\frac{1}{12}(b-a)^{2}.
+\]
+For the bounds $[0,1]$, that gives a variance of $1/12$. Using that same
+formula for the bounds $[-3,3]$ we arrive at a variance of 3.
+
+\section*{Question 9}
+\[
+\mathbb{P}(A|B) = \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(B)}
+\]
+
+\section*{Question 10}
+The OLS estimator for the coefficient vector $\beta$ is given by
+\[
+\hat \beta_{OLS} = (X^{T}X)^{-1}X^{T}Y,
+\]
+which is unbiased estimator of $\beta$. Thus,
+\[
+\mathbb{E}(\hat \beta_{OLS}) = \beta.
+\]
+
+\end{document}

@@ -204,8 +204,10 @@ metropolis <- function(initial_alpha, initial_beta, S, x, y, proposal_std) {
     proposal_beta <- rnorm(1, mean = current_beta, sd = proposal_std)
 
     # find current/proposed posterior for use in accept/reject calculation
-    current_posterior <- log_likelihood(current_alpha, current_beta, x, y) + log_prior(current_alpha, current_beta)
-    proposal_posterior <- log_likelihood(proposal_alpha, proposal_beta, x, y) + log_prior(proposal_alpha, proposal_beta)
+    current_posterior <- log_likelihood(current_alpha, current_beta, x, y) +
+      log_prior(current_alpha, current_beta)
+    proposal_posterior <- log_likelihood(proposal_alpha, proposal_beta, x, y) +
+      log_prior(proposal_alpha, proposal_beta)
 
     # accept/reject proposal
     acceptance_ratio <- exp(proposal_posterior - current_posterior)
