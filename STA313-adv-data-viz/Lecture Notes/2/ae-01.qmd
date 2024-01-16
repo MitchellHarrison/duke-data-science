@@ -1,0 +1,77 @@
+---
+title: "The making of the lollipop chart"
+author: "Mitchell Harrison"
+format: html
+editor: visual
+execute: 
+  warning: false
+  message: false
+---
+
+# Setup
+
+-   Load packages:
+
+```{r}
+#| label: load-packages
+
+library(tidyverse)
+library(openintro)
+```
+
+*NOTE: We can set a theme for the entire plot as follows, including text size:*
+```{r}
+ggplot2::theme_set(ggplot2::theme_minimal(base_size = 14))
+```
+
+*NOTE: We can set up global knitr options (i.e. render options) globally.*
+```{r}
+knitr::opts_chunk$set(
+  fig.width = 7,          # 7" width
+  fig.asp = 0.618,        # the golden ratio
+  fig.retina = 3,         # dpi multiplier for displaying HTML output
+  fig.align = "center",   # center-align figures
+  dpi = 300
+)
+```
+
+-   Prep data:
+
+```{r}
+#| label: mean-area-decade
+
+duke_forest <- duke_forest %>%
+  mutate(
+    decade_built = (year_built %/% 10) * 10,
+    decade_built_cat = case_when(
+      decade_built <= 1940 ~ "1940 or before",
+      decade_built >= 1990 ~ "1990 or after",
+      TRUE ~ as.character(decade_built)
+    )
+  )
+
+mean_area_decade <- duke_forest |>
+  group_by(decade_built_cat) |>
+  summarise(mean_area = mean(area))
+
+mean_area_decade
+```
+
+# Lollipop chart
+
+Recreate the lollipop chart from the slides.
+```{r}
+## NOTE: I set the theme globally using the slides at the beginning of lecture
+
+mean_area_decade |>
+  ggplot(aes(x = mean_area, y = decade_built_cat)) +
+  geom_col(width = 0.04) + # use thin bars as the "sticks" of the lollipop
+  geom_point(size = 4) + # add points to the end of the "sticks"
+  labs(
+    x = "Mean area (square feet)", y = "Decade built",
+    title = "Mean area of houses in Duke Forest, by decade built"
+  )
+
+# save figure as a png with a white background
+ggsave("duke_forest_houses.png", bg = "white")
+```
