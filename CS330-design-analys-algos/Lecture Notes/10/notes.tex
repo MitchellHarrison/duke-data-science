@@ -1,0 +1,148 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 10 - Dynamic Programming and Graphs}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Matrix Chain Multiplication}
+
+Given matrices $A_{0}, \cdots , A_{n}$, we can change the order in which they
+are multiplied to reduce the number of scalar multiplications necessary to
+find the solution. The question then becomes \textit{what is the smallest
+number of scalar multiplications} required to compute $A_{0}A_{1} \cdots A_{n}$?
+
+We will solve this problem using dynamic programming. First, we must divide the
+problem. Let $MCM(i,j)$ be the minimum number of scalar multiplications to
+multiply $A_{0}A_{1} \cdots A_{n}$. We will store the dimensions of an 
+individual $A$ in an array $m[0, \cdots ,n]$. That is, matrix $A_{j}$ has
+dimensions $m[j] \times m[j+1]$.
+
+Then, for any $i\le k \le j$, $MCM(i,j)$ is at most
+\[
+    MCM(i,k) + MCM(k+1,j) + \left(m[i] \cdot m[k+1] \cdot m[j]\right),
+\]
+where the three terms being added are the cost to multiply matrices from $i$ to
+$k$, the cost to multiply matrices $k+1$ to $j$, and the cost to multiply the
+resulting two matrices respectively.
+
+If we think about storing all of our solutions to $MCM(i,j)$ in a table, then
+the \textbf{base cases} are when $i=j$. That is, they live on the diagonal. 
+Observe that they are equivalent to zero, and that the upper triangle stores 
+the only valid solutions because we never need a range where $i>j$.
+
+In this table, solution $i,j$ depends on the values in the table to the left of
+it in row $i$ and below it in column $j$. This has memory complexity $O(n^{2})$.
+
+\pagebreak
+\section{Graphs and Depth-First Search}
+
+\textbf{Graphs} can be used to represent any type of pairwise relations. This
+could be transportation networks, the internet, social networks, neural networks,
+citation networks, and many other possible systems.
+
+\subsection{Graph terminology}
+We will say that a \textbf{graph} $G = (V,E)$ consists of a set of vertices 
+(or nodes) $V$. A set of edges $E$ is between pairs of vertices 
+($E \subseteq V\times V$). Note that $0\le m \le n^{2}$.
+
+A graph $G' = (V', E')$ is a \textbf{subgraph} of $G = (V,E)$ if
+$V' \subseteq V$ and $E' \subseteq E$ between the same vertices.
+
+In an undirected graph, two nodes $a$ and $b$ are \textbf{neighbors} if they
+are connected. That are also considered \textbf{adjacent}. The \textbf{degree}
+of node $v$ is the number of neighbors of $v$.
+
+In a directed graph, node $a$ is a \textbf{predecessor} of node $b$ if there is
+an edge from $a$ to $b$. In this case, $b$ is a \textbf{successor} of $a$.
+The \textbf{in-degree} of node $v$ is its number of predecessors, and its
+\textbf{out-degree} is the number of sucessors.
+
+A \textbf{path} in a graph is a sequence of adjacent vertices. A path is
+\textbf{simple} if no vertices repeat. By default, when we discuss paths, we will
+assume that they are simple. Conversely, a \textbf{cycle} is a sequence of 
+adjacent vertices that begin and end at the same vertex.
+
+In graph theory, a \textbf{tree} is any connected acyclic graph. That is,
+there exists a pair between any pair of vertices, and there are no cycles. A
+\textbf{forest} is a set of trees, and a tree or forest is \textbf{spanning} if
+they include all vertices.
+
+We usually use one of two data structures to store a graph in memory. The less
+common one is the \textbf{adjacency matrix}, which is an $m\times m$ matrix
+(where there are $m$ nodes in a graph) that has a 1 if there is an edge between
+nodes $i$ and $j$, and 0 if not. Unfortunately, this takes $O(m^{2})$ memory
+complexity.
+
+Instead, we usually use an \textbf{adjacency list}. This is an array in which
+index $i$ points to a linked list that contains all of the edges connected to
+vertex $i$. This uses much less memory than an adjacency matrix at the cost of
+slower lookups of edges.
+
+\end{document}

@@ -1,0 +1,185 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 6 - Parallel Algorithms}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Introduction to Parallel Algorithms}
+
+Assume there are four people tasked with sorting a single stack of papers
+alphabetically. Those people report to a manager above them. In a non-parallel
+(i.e. \textit{serial}) methodology, the manager will just select a single 
+worker to sort the entire stack. This process is simple to reason about, but
+wastes manpower.
+
+In a parallel mindset, we could split the papers into four smaller stacks,
+distribute them for sorting, and them merge them later. However, this requires
+more thought by the manager. They must decide 
+\begin{enumerate}
+    \item how do divide the stack of papers, and
+    \item how to merge the results.
+\end{enumerate}
+
+This is \textbf{parallelism}. It requires more thought by the manager
+(programmer), but makes better use of workers (CPU cores).
+
+\subsection{Terms and computational model}
+\begin{definition}
+    A \textbf{processor core} handles instructions in serial (i.e. one at a
+    time).
+\end{definition}
+
+\begin{definition}
+    A \textbf{process} is an algorithm that executes on a core with its own
+    memory. A single process may have multiple \textbf{threads} of parallel
+    execution, in which case they may share memory.
+\end{definition}
+
+\begin{definition}
+    The \textbf{work} done by an algorithm is the total number of constant time
+    operations \textit{summed up over all cores}.
+\end{definition}
+
+\begin{definition}
+    The \textbf{span} is the \textit{maximum} number of constant time operations
+    happening on a single core if we had arbitrarily many cores to use.
+\end{definition}
+
+We will introduce new notation. Let $T_{p}(n)$ be proportional to the runtime
+of an algorithm of input size $n$ using $p$ cores. Notice that $T_{1}(n)$
+describes the \textbf{work} of an algorithm (treating it as if it is running
+on a single core) and $T_{\infty}(n)$ is the \textbf{span}, because we have
+arbitrarily many cores. Note that, even with infinitely many cores, there is
+always overhead for parallelized algorithms (for division of work and
+combination of result), so very rarely is $T_{\infty}(n)$ constant.
+
+\subsection{Parallelized example}
+We will introduce two new keywords into our pseudocode:
+\begin{enumerate}
+    \item \textbf{spawn} (a.k.a. fork) schedules a procedure to run in
+        parallel. Subsequent execution continues in the current thread. We can
+        assume a spawn can be scheduled in $O(1)$ time.
+    \item \textbf{sync} (a.k.a. join) causes a program to wait in place until
+        all threads previously spawned have finished.
+\end{enumerate}
+Normally, we will \textit{spawn} before a recursive call to an algorithm, and
+\textit{sync} before merging the results. Below is an example.
+\begin{algorithm}
+\caption{parallized divide and conquer algorithm for finding a maximum}
+\begin{algorithmic}[1]
+\Procedure{PMax}{$A,l,r$}
+    \If{$l=r$}
+    \State \Return $A[r]$
+    \Else
+        \State $m = \lfloor \frac{l+r}{2}\rfloor$
+        \State $a$ = \Call{PMax}{$A,l,m$}
+        \State \textbf{spawn} $b$ = \Call{PMax}{$A, m+1, r$}
+        \Comment{split into another thread}
+        \State \textbf{sync}
+        \Comment{combine results of all created threads}
+        \State \Return $max(a,b)$
+    \EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+Here, \Call{PMax}{} does $O(1)$ operations per call. Input size decreases by a
+factor of $\frac{1}{2}$, so the recursion tree has height $O(log(n))$. Total
+work can be summed up over \textit{all} of the calls. We can write it over the
+levels. $T_{1}(n) = 1 + 2 + \cdots + n$ is a geometric series, which is $O(n)$.
+The span is the maximum along any root-to-leaf path is 
+$T_{\infty} = 1 + 1 \cdots + 1$ (a total of $log(n)$ times). This is
+$O(log(n))$.
+
+\pagebreak
+\section{Reasoning about Parallel Speedup}
+There are two laws that we could reason about regarding work and span. 
+The \textbf{work law} states that
+\[
+T_{p}(n) \ge \frac{T_{1}}{p}.
+\]
+That is, at least one core has to do at least $1/p$ of the work. The \textbf{span
+law} states that
+\[
+T_{p} \ge T_{\infty}.
+\]
+That is, we never have infinite cores. The \textbf{speedup factor}
+\[
+\frac{T_{1}}{T_{p}}
+\]
+is the factor of speed we get when using $p$ cores. Combining the work and
+span laws, we imply that
+\[
+\frac{T_{1}}{T_{p}} \le p.
+\]
+That is, the best we can hope for from a speedup factor is \textit{linear}, in
+which case using $p$ cores will result in a $p$-fold increase in speed.
+
+\end{document}

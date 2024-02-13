@@ -1,0 +1,188 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 8 - Point Estimation cont'd}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+Recall that $\hat \theta_{n}$ is \textbf{consistent} for $\theta$ if, for all
+$\epsilon > 0$, 
+\[
+\lim_{n \to \infty} \mathbb{P}(|\hat \theta_{n}-\theta| < \epsilon) = 1.
+\]
+Also recall that \textit{all MLEs are consistent}. 
+
+Recall \textbf{Chebychev's inequality}. Letting $X$ be less than some random
+variable with mean $\mu$ and cariance $\sigma^{2}$. Then for all $\epsilon >0$,
+\[
+\mathbb{P}(|\bar X-\mu| > \epsilon) \le \frac{\sigma^{2}}{\epsilon^{2}}.
+\]
+\pagebreak
+\section{Point Estimation cont'd}
+
+\subsubsection{Proof of Chebychev's inequality}
+\begin{align*}
+    \mathbb{E}[(X-\mu)^{2}] &= \int_{-\infty}^{\infty}(X-\mu)^{2}f(x)dx \\
+                            &= \int_{-\infty}^{\mu-\epsilon}(X-\mu)^{2}f(x)dx +
+                            \int_{\mu-\epsilon}^{\mu+\epsilon}(X-\mu)^{2}f(x)dx+
+                            \int_{\mu+\epsilon}^{\infty}(X-\mu)^{2}f(x)dx \\
+                            &\ge \int_{-\infty}^{\mu-\epsilon}(X-\mu)^{2}f(x)dx+
+                            \int_{\mu+\epsilon}^{\infty}(X-\mu)^{2}f(x)dx \\
+                            &= \int_{|X-\mu| > \epsilon}(X-\mu)^{2}f(x)dx \\
+                            &\ge \int_{|X-\mu|>\epsilon}^{\mu+\epsilon}
+                            \epsilon^{2}f(x)dx \\
+                            &= \epsilon^{2}\int_{|X-\mu|>\epsilon}f(x)dx \\
+                            &= \epsilon^{2}\mathbb{P}(|X-\mu| > \epsilon)
+\end{align*}
+Note that by throwing out terms and using $\ge$ symbols \textit{does} lose us
+some information, but we are only lookng for the rough inequality rather than
+finding an exact solution to a problem, so we are happy to move things into the
+$\ge$ symbol.
+
+\subsubsection{Chebychev's example}
+Let $X \sim N(0,1)$, and let $\epsilon = 1$. We know immediately that
+\[
+    \mathbb{P}(|X-0|>\epsilon) \le \frac{1}{1^{1}} = 1.
+\]
+This is obviously correct, since all probabilities are upper bounded by one.
+Thus, even though there was no real calculation to be done, Chebychev wasn't
+particularly powerful here.
+
+\subsection{Fisher's approximation}
+If $X_{1}, \cdots ,X_{n} \overset{\mathrm{iid}}{\sim}f(x|\theta_{0})$, let
+$\hat \theta_{MLE}$ be the maximum likelihood estimate that can be found by
+solving 
+\[
+\frac{d}{d \theta}\ell(\theta) = 0.
+\]
+Then,
+\[
+    \sqrt{n}(\hat \theta_{MLE} - \theta_{0}) \rightarrow Normal\left(0, 
+    \frac{1}{\mathcal{I}(\theta)}\right),
+\]
+where $\mathcal{I}(\theta)$ is the \textit{Fisher information}. As
+$n \rightarrow \infty$, the MLE is efficient. That is,
+\[
+    \hat \theta_{MLE} \approx Normal\left(\theta_{0},
+    \frac{1}{n\mathcal{I}(\theta)}\right).
+\]
+\subsubsection{Example}
+Let $Y_{1}, \cdots ,Y_{n}\overset{\mathrm{iid}}{\sim}Bern(p)$.
+\begin{align*}
+    \mathcal{L}(p)
+    &= f(Y_{i}, \cdots , Y_{i} |p) \\
+    &= \prod_{i=1}^{n}f(y_{i}|p) \\
+    &= p^{\sum y_{i}}(1-p)^{n-\sum y_{i}} \\
+    \ell(p)
+    &= log \sum_{i=1}^{n}log(f(y|p)) \\
+    &= (\sum y_{i})log(p) + (n-\sum y_{i})log(1-p) \\
+    \ell'(p)
+    &= \frac{\sum y_{i}}{p} - \frac{n - \sum y_{i}}{1-p} \\
+    &= \frac{(1-p)\sum y_{i} - (n-\sum y_{i})p}{p(1-p)} \\
+    &= \frac{\sum y_{i}-np}{p(1=p)}
+\end{align*}
+Setting this equal to zero, we see that
+\begin{align*}
+    \frac{\sum y_{i}-np}{p(1-p)}  
+    &= 0 \\
+    \sum y_{i} - np &= 0 \\
+    \sum y_{i} &= np \\
+    \Aboxed{\hat p_{MLE} &= \frac{\sum y_{i}}{n}} 
+\end{align*}
+To find the Fisher information:
+\begin{align*}
+    \mathcal{I}(p) 
+    &= -\mathbb{E}\left[\frac{d^{2}}{dp^{2}}(ylog(p) + (1-y)log(1-p)\right] \\
+    &= -\mathbb{E}\left[\frac{-y}{p^{2}} - \frac{1-p}{(1-p)^{2}}\right] \\
+    &= -\left(-\frac{p}{p^{2}} - \frac{1-p}{(1-p)^{2}}\right) \\
+    &= -\frac{1}{p} - \frac{1}{1-p} \\
+    &= \frac{1}{p(1-p)}
+\end{align*}
+Recall that
+\[
+\sqrt{n}(\hat p_{MLE} - p_{0}) \rightarrow N(0,p(1-p)).
+\]
+Then,
+\[
+\hat p_{n} \approx N\left(p_{0}, \frac{p_{0}(1-p_{0})}{n}\right).
+\]
+\pagebreak
+\section{The Method of Moments}
+Let $X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim}f(x|\theta)$ and let
+$\mu_{j} = \mathbb{E}(X^{j})$ be the $j$th moment of $X$. That is,
+\[
+M_{j}^{n} = \frac{1}{n}\sum_{i=1}^{n}X_{i}^{j}.
+\]
+This approaches $\mathbb{E}[X^{j}] = \mu_{j}$ by the law of large numbers. If
+$f(x|\theta)$ is a normal distribution, $M_{j}^{n}=\bar X$, which approaches
+$\mu$.
+
+\end{document}

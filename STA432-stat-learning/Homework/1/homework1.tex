@@ -1,0 +1,100 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Homework 1}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section*{Question 1}
+We are given that $\hat \theta_{2} = \hat \theta + W$, $W$ is a zero-mean
+random variable (i.e. $\mathbb{E}(W) = 0$), and that $\hat \theta$ is an
+unbiased estimator for $\theta$ (i.e. $\mathbb{E}(\hat \theta) = \theta$).
+\begin{align*}
+    \mathbb{E}(\hat \theta_{2}) &= \mathbb{E}(\hat \theta+W) \\
+                                &= \mathbb{E}(\hat \theta)+\mathbb{E}(W) \\
+                                &= \mathbb{E}(\hat \theta) + 0 \\
+                                &= \theta
+\end{align*}
+Thus we have shown that $\mathbb{E}(\hat \theta_{2}) = \theta$. Therefore,
+$\boxed{\hat \theta_{2} \text{ is an unbiased estimator for }\theta}$
+
+\section*{Question 2}
+\subsubsection{a)}
+The PDF of $\hat \theta_{1}$ is
+
+\subsubsection{b)}
+\subsubsection{c)}
+\subsubsection{d)}
+\subsubsection{e)}
+\subsubsection{f)}
+\subsubsection{g)}
+\subsubsection{h)}
+\subsubsection{i)}
+
+
+\end{document}

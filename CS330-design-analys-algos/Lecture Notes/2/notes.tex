@@ -1,0 +1,142 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 2 - Proof by Induction and Iterative Algorithms}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Proof by Induction}
+
+\begin{definition}
+    \textbf{Induction} is useful when we want to prove something for every
+    kind of statement in a sequence. For example, if we want to show that we
+    can knock over all dominos in a line, we need only prove that one domino
+    makes the next fall and that we can knock over the first domino.
+\end{definition}
+
+In induction we first want to prove the base case $P(0)$, and then show that
+\[
+P(k-1) \rightarrow P(k).
+\]
+The general workflow for proving by induction is
+\begin{enumerate}
+    \item Prove the \textit{base case}. This is $P(0)$.
+    \item Show the inductive hypothesis for the problem. This usually takes the
+        form of \textit{suppose this is true}.
+    \item Take the \textit{inductive step}, showing that the inductive
+        hypothesis holds for any $k$ (or whichever variable we are proving for).
+\end{enumerate}
+
+There are only two ways to test correctness of an algorithm. We can either test
+experimentally or prove mathematically. The former option can never truly show
+that an algorithm works for all cases, but the latter may introduce bugs in its
+implementation that wouldn't be revealed until testing experimentally.
+
+Inductive proofs are common in algorithms because you can do induction over
+\textit{iterations} (for things like for loops) or \textit{sub-problems} for
+problems involving recurrsion.
+
+\pagebreak
+
+\subsubsection{Example}
+Take the following algorithm for finding the maximum in an array $A$:
+\begin{algorithm}
+\caption{Find the maximum}
+\begin{algorithmic}
+\Procedure{max}{$A,n$}
+\State $m = A[0]$
+\Comment{This is the base case.}
+\For{$i=1$ to $n-1$}
+\If{$A[i] > m$}
+\State $m = A[i]$
+    \EndIf
+\EndFor
+\State \Return $m$
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+We claim that $m_{k} = max(A[0], \cdots A[k])$ for all $0 \le k < n$. We 
+establish a \textit{base case} where we set $m = A[0] = max(A[0])$. The
+\textit{inductive hypothesis} tells us that 
+$m_{k-1} = max(A[0], \cdots ,A[k-1])$. To take the inductive step, we need to 
+consider two cases. Either
+\begin{enumerate}
+    \item $A[k] > m_{k-1}$ or
+    \item $A[k] \le m_{k-1}$.
+\end{enumerate}
+
+The math (shown in course slides) shows that $m_{k} = max(A[0], \cdots ,A[k])$
+for both cases.
+\begin{note}
+    No finite number of test cases can prove that an algorithm is \textit{always}
+    correct.
+\end{note}
+
+\end{document}

@@ -1,0 +1,244 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 4 - Point Estimation pt. 3}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Point Estimation}
+
+So far, we've established that for data $X_{1}, \cdots, X_{n}
+\overset{\mathrm{iid}}{\sim}f(x)$, we want to find a "good" estimator for
+an unknown parameter $\theta$. Recall that $T$ is \textit{sufficient} for
+ $\theta$ in $f_{\theta}(x)$ if $\mathbb{P}(X=x|T=t)$ does \textit{not}
+depend on $\theta$.
+
+Recall that Rao Blackwell states that if we let $\delta(X)$ be an estimator
+for $\theta$ and $T$ is a sufficient statistic, then $\tilde{\delta}= 
+\mathbb{E}[\delta(X)|T]$ is an estimator \textit{and} $MSE(\tilde{\delta}) \le
+MSE(\delta)$. That is, conditioning on a sufficient statistic will never make
+MSE worse.
+
+\subsubsection{Rao Blackwell example (Poisson)}
+We have customers that arrive at a rate $\theta$ per hour. We don't know
+ $\theta$, but we observe $X_{i}$, which is the number of arrivals during hour
+ $i$. Thus, 
+ \[
+ X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim}Poisson(\theta).
+ \]
+Our question, then, is \textbf{what is the probability that there are
+no arrivals in the next hour?} We want to find:
+\[
+    \mathbb{P}(X_{new} = 0) = \frac{exp\{-\theta\}\theta^{0}}{0!} =
+    exp\{-\theta\}.
+\]
+Lets take one possible estimator to be
+\[
+\delta(X_{1}, \cdots ,X_{n}) = 
+\begin{cases}
+    1 & X_{1} = 0 \\
+    0 & else
+\end{cases}
+\]
+We can intuitively see that this is not an excellent estimator because it 
+does not make use of all of our data. Let $T = \sum X_{i}$. Note that $T$ is
+sufficient.
+
+To Rao Blackwellize, recall that $\tilde{\delta} = \mathbb{E}[\delta(X)|T]$.
+Recall that our estimator can only take on two possible values, 0 and 1. Thus,
+\begin{align*}
+    \tilde{\delta} &= \mathbb{E}[\delta(X)|T=t] \\
+                   &= 1 \cdot \mathbb{P}(\delta(X) = 1 |T=t) + 0 \cdot
+                   \mathbb{P}(\delta(X) = 0|T=t) \\
+                   &= \mathbb{P}(\delta(X) = 1 | T=t) \\
+                   &= \mathbb{P}(X_{1} = 0 | T=t) \\
+                   &= \mathbb{P}(X_{1} = 0 | \sum_{i=1}^{n}X_{i} = t) \\
+                   &= \frac{\mathbb{P}(X_{1}=0, \sum_{i=1}^{n}X_{i} = t)}
+                   {\mathbb{P}(\sum_{i=1}^{n}X_{i}=t)} \\
+                   &= \frac{\mathbb{P}(X_{1}=0, \sum_{i=2}^{n}X_{i}=t}{
+                   \mathbb{P}(\sum_{i=1}^{n}X_{i}=t)} \\
+                   &= \frac{\mathbb{P}(X_{i} =0) \mathbb{P}(\sum_{i=2}^{n}X_{i})}
+                   {\mathbb{P}(\sum_{i=1}^{n}X_{i}=t)}
+\end{align*}
+Observe that $\mathbb{P}(X=0) \sim Poisson(\theta)$, 
+$\mathbb{P}(\sum_{i=2}^{n}X_{i}=t) \sim Poisson((n-1)\theta)$, and \\
+$\mathbb{P}(\sum_{i=1}^{n}X_{i}=t) \sim Poisson(n\theta)$. Using these to 
+continue our math by passing in the PDFs into our previous formula,
+\begin{align*}
+\tilde{\delta} &= \frac{\mathbb{P}(X_{i} =0)
+\mathbb{P}(\sum_{i=2}^{n}X_{i})}{\mathbb{P}(\sum_{i=1}^{n}X_{i}=t)} \\
+               &= exp\{-\theta\} \cdot \frac{[(n-1)\theta]^{t}
+               exp\{-(n-1)\theta\} / t_{!}}{(n\theta)^{t}exp\{-n\theta\}/t!}
+               \\
+               &= \frac{(n-1)^{t}}{n^{t}} \\
+               &= (1 - \frac{1}{n})^{t} \\
+               &= (1 - \frac{1}{n})^{\sum_{i=1}^{n}X_{i}}
+\end{align*}
+Observe that when $n$ is large, we approach $exp\{-\theta\}$.
+
+\pagebreak
+
+\section{Likelihood}
+Let $X_{i} \sim Normal(2, 1)$. We observe $X_{i} = 2$. We will say that
+$f_{2} = Normal(2, 1)$, $f_{3} = Normal(3, 1)$, and $f_{4} = Normal(4,1)$. If
+we observed $X_{i}=2$, we can find the density of $f_{2}(2)$, $f_{3}(2)$, and
+$f_{4}(2)$. If we plot these values on a grid where the $x$-axis represents
+$\theta$ (i.e. the center of our moving normal distribution), and the $y$-axis
+represents the density of $f_{x}$ for a given $X$. What results is a new curve
+that represents the \textbf{likelihood} of a given $\theta$ being the.
+
+\begin{definition}
+    The \textbf{likelihood} $\mathcal{L}(\theta) = = f(\vec X|\theta)$, where
+    $\vec X$ all have pdf $f(\vec X|\theta)$. This \textit{should not} be 
+    interpreted as a probability distribution.
+\end{definition}
+For the forseeable future, the likelihood function will be a very close ally of
+ours. The likelihood captures all of the information about the data. In this
+example, we know for certain that the mean of the underlying distribution is 2
+because we drew up a toy example. Note that in real examples, the chances of 
+drawing the exact mean of an underlying normal distribution is 0.
+
+We will almost always see the \textit{log-likelihood} instead of the pure
+likelihood. It helps with computational efficiency and prevents underflow. 
+Because $log$ is monotonic, the maximum of the likelihood is the same as that
+of the log-likelihood. The log-likelihood is notated by
+\[
+    \ell(\theta) = \ln(\mathcal{L}(\theta)).
+\]
+\subsubsection{Score functions}
+
+\begin{definition}
+    The \textbf{score function} is defined as
+    \[
+    S(\theta) = \frac{d}{d\theta}\ell(\theta).
+    \]
+    The score function gives one very nice property in particular:
+    \[
+        \mathbb{E}_{X|\theta}[S(\theta)] = 0.
+    \]
+\end{definition}
+The score function is crucial because, even though the gradient of our score
+function may be non-zero over any single trial, \textit{on average} over many
+independent trials, the gradient will be 0.
+
+\subsubsection{Fisher information}
+
+\begin{definition}
+    \textbf{Fisher information} is the "amount" of information about $\theta$
+    in the random variable $X$ that has a particular distribution. It is given
+    by
+    \[
+        \mathcal{I}(\theta) = -\mathbb{E}\left[\frac{d}{d\theta}
+        S(\theta)\right].
+    \]
+    This is equal to a second derivative of the likelihood:
+    \[
+    \mathcal{I}(\theta) = -\mathbb{E}\left[\frac{d^{2}}{d\theta^{2}}
+        log(f(X|\theta))\right].
+    \]
+\end{definition}
+The Fisher information lets us say that the variance of our score function
+is the expected value of our score function squared. That is,
+\[
+    Var(S(\theta)) = \mathbb{E}[S(\theta)^{2}].
+\]
+Thus, we see our crucial finding
+\[
+    \boxed{Var(\theta) \ge \frac{1}{\mathcal{I}(\theta)}}.
+\]
+
+Therefore, Fisher information tells us how "good" any estimator can be. In
+particular, if you contruct an estimator $\hat \theta$ such that
+ $Var(\hat \theta) = 1 / \mathcal{I}(\theta)$, you've found an estimator that
+ is \textit{as good as possible} for a class of problems.
+
+\subsubsection{Fisher information example}
+Let $X \sim Normal(\theta, \sigma^{2})$, where $\theta$ is unknown but
+ $\sigma^{2}$ is known.
+\begin{align*}
+    \mathcal{L}(\theta) &= log(f(X|\theta)) \\
+        &= - \frac{1}{2}log(2\pi\sigma^{2}) - \frac{(X-\theta)^{2}}{2\sigma^{2}}
+        \\
+    \frac{d \ell(\theta)}{d \theta} &= \frac{2(X-\theta)}{2\sigma^{2}} \\
+                                    &= \frac{X-\theta}{\sigma^{2}} \\
+    \left(\frac{d \ell(\theta)}{d \theta}\right)^{2} &= 
+    \frac{(X-\theta)^{2}}{\theta^{n}} \\
+    \mathcal{I}(\theta) &= \mathbb{E}\left[\frac{(X-\theta)^{2}}{\sigma^{n}} 
+    \right]\\
+                        &= \frac{1}{\sigma^{2}}
+\end{align*}
+Therefore, because $\vec X \overset{\mathrm{iid}}{\sim} 
+Normal(\theta, \sigma^{2}$, we know that $\mathcal{I}_{n}(\theta) =
+n\mathcal{I}(\theta)$. We see that
+\[
+Var(\bar X) = \frac{1}{\mathcal{I}(\theta)}.
+\]
+Thus, it is the best possible unbiased estimator (minimal variance).
+
+\end{document}

@@ -1,0 +1,171 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 3 - Divide and Conquer pt. 2}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Quicksort}
+
+Say there in something in our array $A$ that is left to be sorted. We first
+choose a \textbf{pivot}, which is an element of our array. We use this pivot
+to partition our array into two sub-arrays. We create those sub-arrays by
+putting all elements smaller than our pivot into one sub-array, and all elements
+larger into another. These sub-arrays are not necessarily sorted. We then
+recurse over the two sub-arrays until we are left with sub-arrays of length
+1. Because we sort in-place, what is left is a completely sorted array $A$.
+
+\begin{algorithm}
+\caption{Quicksort}
+\begin{algorithmic}[1]
+\Procedure{Quicksort}{$A,l,r$}
+\If{$l < r$}
+\State p = \Call{Partition}{$A,l,r$}
+\State \Call{Quicksort}{$A,l,p-1$} 
+\State \Call{Quicksort}{$A,p+1,r$} 
+\EndIf
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+But we have not defined the \Call{Partition}{} procedure. One possible method
+for partitioning required more memory than the other. This involves creating
+two lists, one to store values less than the pivot and another, and then copy
+back to $A$. The issue here is that we would need to use about as much memory
+for these lists as we do for $A$. This is problematic on low-memory machines
+sorting memory-intensive elements.
+
+Instead, we can partition in place. Let $i$ be the next element to examine, 
+and $p$ be the next available position. We loop over the array $A$, swapping
+elements smaller than the pivot back to the next available position. This keeps
+an invariant where every element before $p$ is smaller than the pivot. Once we
+get to the end of the array (where we normally choose our pivots), we swap
+the pivot with the element of position $p$. This method is visualized in the
+course slides, and the pseudocode is below.
+
+\begin{algorithm}
+\caption{Partitioning in place}
+\begin{algorithmic}[1]
+\Procedure{Partition}{$A,l,r$}
+    \State p=l
+    \For{$i = l$ to $r-1$}
+        \If{$A[i] < A[r]$}
+            \State swap $A[p]$ and $A[i]$
+            \State $p = p + 1$
+        \EndIf
+        \State swap $A[r]$ and $A[p]$
+    \EndFor
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+\begin{note}
+    Because we are choosing to take the last element to always be the pivot
+    in this example, our pivot is always at index $r$.
+\end{note}
+
+\subsection{Prove quicksort}
+
+Once we show the correctness of \Call{Partition}{}, showing the correctness of
+\Call{Quicksort}{} is not difficult. We \textbf{claim} that our sorting
+algorithm sorts array $A$ from $l$ to $r$. Our base case is for an array of
+length $n=1$. It is sorted by definition. \textbf{Suppose} that 
+\Call{Quicksort}{$A,l,r$} sort any range of size $<n$. Consider an arbitrary
+range of size $n$. Then consider two arbitrary elements at distinct indices
+$l \le i < j \le r$ after running \Call{Quicksort}{$A,l,r$}. There are then
+three \textbf{cases}:
+\begin{enumerate}
+    \item $i < j< p$. Then $A[i] \le A[j]$ after the recursive call on line 4
+        by the inductive hypothesis.
+    \item $j > i > p$. Then $A[i] \le A[j]$ after recursive call on line 5 by
+        the induction hypothesis.
+    \item $i<p$ and $j\ge p$. Then $A[i]\le A[j]$ after the \Call{Partition}{}
+        call per the previous lemma.
+\end{enumerate}
+Thus, \Call{Quicksort}{} is correct.
+
+\pagebreak
+\section{Randomization}
+\subsection{Quicksort runtime}
+The best case runtime for quicksort is if the pivot happens to be the median of 
+the array. In that case, both recursive calls to quicksort operates on a
+sub-array of size $n/2$. But, if we happen to pivot on either the maximum or
+the minimum of $A$, the recursive call is only on size $n-1$. Thus, if we 
+call quicksort on a sorted array (and we continue to use the last element as
+our pivot), we get the worst possible runtime of $O(n^{2})$.
+
+\subsection{Randomization and Quicksort}
+Randomness can be implemented in two ways for quicksort. Either we can shuffle
+the input (i.e. randomize $A$ before calling quicksort) or we could choose our
+pivot at random. Since we want to handle the randomness from \textit{inside}
+our algorithm, we will choose to randomly select our pivot. While we 
+\textit{may} get unlucky and choose a maximum or minimum at some point, the
+\textit{expected} performance of our algorithm will be ideal.
+
+\end{document}

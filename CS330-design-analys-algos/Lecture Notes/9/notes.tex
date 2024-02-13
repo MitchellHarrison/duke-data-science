@@ -1,0 +1,151 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 9 - Dynamic Programming cont'd}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Dynamic Programming Problem-Solving Guide}
+Solving dynamic programming problems generally takes on the following workflow;
+\begin{enumerate}
+    \item Consider some examples of the problem, debelop recursive intuition. 
+        For example, "if someone told me the answer to part of this problem..."
+        and then consider cases.
+    \item Define subproblems.
+    \item Develop a recurrence using 1) and 2).
+    \item Determine a valid iteration order using 3).
+    \item Write the iterative algorithm using 3) and 4).
+    \item (Maybe) optimize space and time complexity using 5).
+\end{enumerate}
+
+\subsection{LCS example cont'd}
+Recall that a \textit{longest common subsequence} is the collection of letters
+whose order is shared between two strings. Characters can be removed, but not
+re-ordered. Our dynamic algorithm involved filling a table of $m \times n$
+dimension, where $n$ and $m$ are the length of the two strings. Tracing this
+algorithm iteratively, we can see that some cells of that table depend on 
+entries to the left of the current element, and some are to the upper-left. We
+can fill a matrix $P$ that contains "back-pointers" that point to the element
+in our data table $T$ depend on. This allows us to \textit{backtrack} from the
+last subproblem, accumulating chatacters that "match" on the \textit{diagonal}
+case.
+
+\pagebreak
+\section{The Knapsack Problem}
+We will look at the 0/1 knapsack problem. Given $n$ items
+$0, 1, \cdots n$ with costs $c[0], \cdots , c[n-1]$. Our goal is to choose a
+set of items with total cost of \textit{at most} $B$ of maximum total value. In
+this 0/1 version of this problem, there is only one of each item on the shelf,
+so we have either zero or one of each.
+
+Take the issue of \textbf{participatory budgeting}, where public leaders are
+trying to choose how to allocate funding between multiple public improvement
+projects. The value of each item may be complex, but in this case we can think
+of them simply as projects. So given a budget constraint, choosing the optimal
+public works project is an applied knapsack problem.
+
+Let us define our subproblems and think recursively. We will call our procedure
+\Call{ks}{}. We want \Call{ks}{$i,b$} to return the maximum value using items
+$0, \cdots ,i$ and budget $b$. The obvious base cases are
+\begin{enumerate}
+    \item There is no budget left. That is, $b \le 0$.
+    \item There are no items left. That is, $i=0$.
+\end{enumerate}
+Once we have our base case, there are two possible other non-base cases.
+\begin{enumerate}
+    \item If the current cost is higher than our budget (i.e. $c[i]>b$), then
+        we cannot buy it (i.e. returning \Call{ks}{i-1,b}).
+    \item We can afford the current item. We then buy the item if 
+        \[
+            v[i] + \text{\Call{ks}{$i-1, b-c[i]$}}
+        \]
+        is greater than \Call{ks}{$i-1,b$}. If it is not, we check the next
+        item as before.
+\end{enumerate}
+Combining these steps make the following algorithm trivial to write.
+\Call{ks}{} has runtime complexity of $O(nB)$ and space complexity $O(B)$.
+
+\begin{algorithm}
+\caption{knapsack problem}
+\begin{algorithmic}[1]
+\Procedure{ks}{$i,b$}
+    \If{$b\le0$ \textbf{or} $i<0$}
+        \State \Return 0
+    \ElsIf{$c[i]>b$}
+        \State \Return \Call{ks}{$i-1,b$}
+    \Else
+    \State include = $v[i] +$ \Call{ks}{$i-1,b-c[i]$}
+    \State exclude = \Call{ks}{$i-1,b$}
+    \EndIf
+    \State \Return \Call{max}{include, exclude}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\end{document}

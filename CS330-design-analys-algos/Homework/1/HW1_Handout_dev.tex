@@ -1,0 +1,241 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amsfonts}
+\usepackage[noend]{algpseudocode}
+\usepackage{algorithm}
+\usepackage{lmodern}
+\usepackage[parfill]{parskip}
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
+\usepackage{hyperref}
+\usepackage[english]{babel}
+\usepackage[autostyle]{csquotes}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\definecolor{color1}{rgb}{0.7, 0.2, 0.2}
+\definecolor{color2}{rgb}{0.0, 0.4, 0.0}
+\definecolor{color3}{rgb}{0.2, 0.4, 0.7}
+
+%--------------------------------------------------------%
+
+
+\title{\vspace{-0.5in}Compsci 330 Design and Analysis of Algorithms \\Assignment 1, Spring 2024 Duke University}
+\author{TODO: Add your name(s) here}
+\date{Due Date: Thursday, January 25, 2024}
+
+%--------------------------------------------------------%
+
+\begin{document}
+
+\maketitle
+
+\newcommand{\vsp}{\vspace{0.5em}}
+
+
+%--------------------------------------------------------%
+
+\paragraph{How to Do Homework.} We recommend the following three step process for homework to help you learn and prepare for exams.
+\begin{enumerate}
+	\item Give yourself ~15-20 minutes per problem to try to solve on your own, without help or external materials, as if you were taking an exam. Try to brainstorm and sketch the algorithm for applied problems. Don't try to type anything yet.
+	\item After a break, review your answers. Lookup resources or get help (from peers, office hours, Ed discussion, etc.) about problems you weren't sure about.
+	\item Rework the problems, fill in the details, and typeset your final solutions.
+\end{enumerate}
+
+\paragraph{Typesetting and Submission.} Your solutions should be typed and submitted as a single pdf on Gradescope. Handwritten solutions or pdf files that cannot be opened will not be graded. \LaTeX \footnote{If you are new to \LaTeX, you can download it for free at \href{https://www.latex-project.org}{latex-project.org} or you can use the popular and free (for a personal account) cloud-editor \href{https://www.overleaf.com}{overleaf.com}. We also recommend \href{https://www.overleaf.com/learn}{overleaf.com/learn} for tutorials and reference.} is preferred but not required. %If you use another editor for your solutions (such as Microsoft Word), you should convert the final document to a pdf, confirm that the symbolic math from the equation editor is properly formatted, and submit the pdf. 
+You must mark the locations of your solutions to individual problems on Gradescope as explained in \href{https://help.gradescope.com/article/ccbpppziu9-student-submit-work#submitting_a_pdf}{the documentation}. Any applied problems will request that you submit code separately on Gradescope to be autograded. 
+
+\paragraph{Writing Expectations.} If you are asked to provide an algorithm, you should clearly and unambiguously define every step of the procedure as a combination of precise sentences in plain English or pseudocode. If you are asked to explain your algorithm, its runtime complexity, or argue for its correctness, your written answers should be clear, concise, and should show your work. Do not skip details but do not write paragraphs where a sentence suffices.
+
+\paragraph{Collaboration and Internet.} If you wish, you can work with a single partner (that is, in groups of 2), in which case you should submit a single solution \href{https://help.gradescope.com/article/m5qz2xsnjy-student-add-group-members}{as a group on gradescope}. You can use the internet, but looking up solutions or using large language models is unlikely to help you prepare for exams. See the \href{https://sites.duke.edu/spring24compsci330/policies/}{course policies webpage} for more details.
+
+\paragraph{Grading.} Theory problems will be graded by TAs on an S/U scale (for each sub-problem). Applied problems typically have a separate autograder where you can see your score. The lowest scoring problem is dropped. See the \href{https://sites.duke.edu/spring24compsci330/assignments/}{course assignments webpage} for more details.
+
+
+
+%--------------------------------------------------------%
+
+\newpage
+
+\paragraph{Problem 1 (Asymptotics).} 
+
+For each of the following statements, decide whether the statement is true or false, and briefly explain your reasoning.
+
+\begin{enumerate}[(a)]
+    \item $3n$ is $O(n)$.
+    
+    \item $n^2 + 2n$  is $\Omega(n)$.
+
+    \item $n^2 + 2n$  is $\Theta(n)$.
+    
+	\item $n^2 \log(n)$ is $O(n^3)$.
+    
+    \item $n\log(n^3)$ is $\Theta(n \log(n))$.
+
+    \item $2^n$ is $\Theta(n^2)$.
+
+    \item If Algorithm A has runtime complexity $\Theta(n)$ and Algorithm B has runtime complexity $\Theta(n)$, then the empirical runtime of the algorithms will be approximately equal for a given input size $n$.
+
+    \item If Algorithm A has runtime complexity $\Theta(n^2)$, then doubling the input size should roughly double the empirical runtime of the algorithm for large input sizes $n$.
+\end{enumerate}
+
+\paragraph{Solution 1.}
+
+\begin{enumerate}[(a)]
+	\item True. In asymptotic reasoning, we do not care about coefficients. $3n$ is still on the order of linear growth, and so we can say that it is $O(n)$.
+	\item True. $\forall n$ there will be some linear function that is always less than $n^2 + 2n$ - in this case, we don't even need to define a point $n_0$ where this takes effect, since it will always be true. Since this function is bounded below by a linear-order function, it is $\Omega(n)$.
+	\item False. In order to be $\Theta(n)$, the function would need to be $O(n)$ and $\Omega(n)$. However, this function is $O(n^2)$, since it increases in quadratic complexity. We cannot remove this term, and so we are bounded by $O(n^2)$ and the function cannot be $\Theta(n)$.
+	\item True. While it could be bounded by a lower complexity ($O(n^2\text{log}(n))$), it is certainly upper-bounded by $n^3$ which is greater than $n^2\text{log}(n)$.
+    \item True. Another way to write $n\text{log}(n^3)$ would be $3n\text{log}(n)$. From this, we can clearly see that this function is $O(n\text{log}(n))$, and it is $\Omega(n\text{log}(n))$ as well (we can find constants $c$ such that it is bounded above and below by functions on that order). Thus, the function is $\Theta(n\text{log}(n))$.
+	\item False. $2^n$ is $O(2^n)$, which is greater than $O(n^2)$. Thus, this function cannot be upper-bounded by a function on the quadratic order, and we therefore cannot say it is $\Theta(n^2)$.
+	\item Not necessarily. A bound of $\Theta(n)$ merely says that they should grow at the same rate (e.g., doubling the size of the input should roughly double the empirical runtime). However, $\Theta$ notation excludes coefficients and other implementation differences that could cause the two algorithms to have wildly different empirical runtimes.
+	\item False. If Algorithm A has complexity $\Theta(n^2)$, then doubling the input size should roughly increase the empirical runtime of the algorithm by a factor of 4.
+\end{enumerate}
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 2 (Iteration and Induction).}
+Consider an array $A$ storing $n$ integers. Consider the following algorithm for sorting from least to greatest. Note that it sorts the same array passed as input in place; there is no return value.
+
+\begin{algorithmic}[1]
+\Procedure{sort}{$A$}
+    \For{$i=0$ to $n-2$}
+        \State $m = i$
+        \For{$j=i+1$ to $n-1$}
+            \If{$A[j] < A[m]$}
+                \State $m = j$
+            \EndIf
+        \EndFor
+        \State temp $=A[i]$
+        \State $A[i] = A[m]$
+        \State $A[m] =$ temp
+    \EndFor
+\EndProcedure
+\end{algorithmic}
+
+\begin{enumerate}[(a)]
+    \item Derive the asymptotic runtime complexity of the \Call{Sort}{} algorithm as a function of $n$. Briefly explain your answer.
+    
+    \item Prove that the \Call{Sort}{} procedure is correct using mathematical induction. You may assume that for a given iteration $i$ of the outer loop, lines $3-9$ swap the minimum value from $A[i], \dots, A[n-1]$ with $A[i]$.
+\end{enumerate}
+
+
+\paragraph{Solution 2.}
+
+\begin{enumerate}[(a)]
+	\item This algorithm is $O(n^2)$. It starts with a loop from $i = 0$ to $n - 2$, which is $n - 1$ iterations (call it $O(n)$ for the sake of argument). Then, at each of these $n - 1$ iterations, it runs a loop from $j = i + 1$ to $n - 1$, which is again $n - 1$ iterations in the worst case. All other actions (comparisons, array accesses, variable assignment, etc) run in constant time, so we are left with $O(n^2)$, which could also more strongly be defined as $\Theta(n^2)$, since it could be bounded above and below by some quadratic functions.
+    \item For purposes of this mathematical proof, let us use 1-indexing instead of 0-indexing. Then the loop on line 2 runs from $i = 1$ to $n - 1$ and the loop on line 4 from $j = i + 1$ to $n$. This is for mathematical simplicity. Then we can prove as follows: \begin{itemize}
+        \item \textbf{Lemma:} we would like to prove that \Call{Sort}{A} returns an array $A$ sorted from least to greatest. To do so, we will prove that it is correct at any arbitrary step $k \in \mathbb{Z}$ s.t. $1 \leq k \leq n - 1$.
+        \item \textbf{Naive base case:} if $n \leq 1$, then the \Call{Sort}{} procedure will never run. An array of size $n \in \{0, 1\}$ is already sorted from least to greatest.
+        \item \textbf{Practical base case:} let $n = 2$. Then $m = 1$, and the outer loop only runs for the single iteration. We are given that lines 3-9 swap the minimum value from $A[i], \dots, A[n]$ with $A[i]$ (here, $i = m = 1)$.  Thus, if $A[1] \leq A[2]$, then the minimum value on that interval is already $A[1]$ and no swap is made; if $A[1] > A[2]$ then the minimum value is $A[2]$, and this is swapped with $A[1]$. In either case, we return an array of length $n = 2$ that is sorted correctly from least to greatest.
+        \item \textbf{Inductive hypothesis:} let $k$ be an integer s.t. $1 \leq k < n$. Suppose the \Call{Sort}{} procedure has worked thus far; i.e., the first $k - 1$ elements of $A$ are the least $k - 1$ elements in $A$, and they are sorted from least to greatest. 
+        \item \textbf{Inductive step:} using the fact given, just as in the base case, lines 3-9 of the code will search over the interval $A[k], \dots, A[n]$, and swap $A[k]$ with the minimum value on that interval (which may already be $A[k]$). Since the first $k - 1$ elements of $A$ are the least $k - 1$ elements, $A[k]$ must be the next-lowest element in $A$ (i.e., $A[k] \geq A[k - 1]$ and $A[k] \leq A[k + 1], \dots, A[n]$). Thus, at any arbitrary step $k$, the element $A[k]$ will be the next-greatest element from $A[k - 1]$, and by induction, \Call{Sort}{A} must return the correctly sorted array.
+    \end{itemize}
+\end{enumerate}
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 3 (Tree Recursion and Induction).}
+Consider a binary search tree $T$ storing $n$ integers. Each node $r$ has attributes $r$.value storing the integer element at that node, as well as references $r$.left and $r$.right to the left and right child nodes in the tree respectively. If there is no child node, the reference will be NULL.
+\begin{enumerate}[(a)]
+    \item Given integers $a$ and $b$ where $a < b$, describe an efficient recursive algorithm that returns the number of elements of $T$ between $a$ and $b$ (inclusive).
+    
+    \item Use induction to prove that your algorithm is correct. Consider using the size of a tree for your induction variable, and note that a subtree of a binary search tree is itself a binary search tree.
+    
+    \item Derive the worst-case asymptotic runtime complexity of your algorithm as a function of $n$, the size of $T$. Make no assumptions about the shape of the binary search tree or the number of elements of $T$ between $a$ and $b$.
+    
+    \item Let $m$ be the number of elements in $T$ between $a$ and $b$ (inclusive). Suppose that $T$ is perfect, that is, every internal node has 2 children and the leaf nodes are all at the same depth (intuitively, a perfectly balanced tree). Derive the runtime complexity of your algorithm as a function of $n$ and $m$. For an efficient algorithm, this runtime should be smaller than in the previous step when $m$ is much smaller than $n$.
+\end{enumerate}
+
+\paragraph{Solution 3.}
+
+\begin{enumerate}[(a)]
+	\item \begin{algorithmic}[1]
+	    \Procedure{Search}{node curr, int a, int b}
+            \If{curr == NULL}
+                \State \Return 0
+            \EndIf
+            \If{curr.value $\geq a$ \&\& curr.value $\leq b$}
+                \State \Return 1 + \Call{Search}{curr.left, a, b} + \Call{Search}{curr.right, a, b}
+            \ElsIf{curr.value $ < a$}
+                \State \Return \Call{Search}{curr.right, a, b}
+            \Else
+                \State \Return \Call{Search}{curr.left, a, b}
+            \EndIf
+        \EndProcedure
+	\end{algorithmic}
+	\item Let $T_0$ be the subtree of $T$ containing all nodes $r$ of $T$ s.t. $\forall r \in T_0$, $a \leq r.\text{value} \leq b$. This algorithm is correct if it can outline this subtree $T_0$ whose size is the total number of elements of $T$ between $a$ and $b$ inclusive. \vsp
+ 
+    The base case is that $|T| = 0$; that is, that $T$ is a BST of size 0. In that case, \Call{Search}{} returns 0, which is indeed the number of elements between $a$ and $b$.\vsp
+
+    
+	\item
+	\item
+\end{enumerate}
+
+%--------------------------------------------------------%
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 4 (Hash Table and Probability).}
+Consider a hash table $T$ with $m$ positions indexed from $0$ to $m-1$ and a hash function $h(x) = |x| \mod m$. The hash table stores an element $x$ in position $h(x)$ and resolves collisions by linear chaining (that is, by storing a linked list at each position for all elements mapped to that index). You also have an array $A$ of $n$ integers, not necessarily unique. Consider the following algorithm for counting the number of unique integers in $A$ using $T$.
+
+\begin{algorithmic}[1]
+\Procedure{CountUnique}{$A, T$}
+    \State $c = 0$;
+    \For{$i=0$ to $n-1$}
+        \State $x = A[i]$
+        \If{$x \notin T[h(x)]$}
+            \State $c = c + 1$
+            \State Add $x$ to $T[h(x)]$
+        \EndIf
+    \EndFor
+    \State \Return $c$
+\EndProcedure
+\end{algorithmic}
+
+\begin{enumerate}[(a)]
+    \item What is the \textit{worst-case} asymptotic runtime complexity of the \Call{CountUnique}{} algorithm? Do not make any assumptions about the values in $A$. Briefly explain your answer.
+    
+    \item Suppose that $A$ consists of $n$ integers drawn independently and uniformly at random from $\{0,1,\dots,km-1\}$ for some integer $k>0$. For a given index $0 \leq i \leq m-1$,  what is the probability that \textit{none} of the $n$ elements of $A$ are hashed to $T[i]$? What is the probability that \textit{all} of the the $n$ elements of $A$ are hashed to $T[i]$? Briefly explain your answers.
+
+    \item Again suppose that $A$ consists of $n$ integers drawn independently and uniformly at random from $\{0,1,\dots,km-1\}$ for some integer $k>0$. For a given index $0 \leq i \leq m-1$, what is the \textit{expected} number of elements of $A$ (counting possible duplicates) that hash to $T[i]$? Based on your answer, derive the expected asymptotic runtime complexity of the \Call{CountUnique} procedure as a function of $n$ and/or $m$, under this random input assumption.
+\end{enumerate}
+
+\paragraph{Solution 4.}
+
+\begin{enumerate}[(a)]
+	\item The worst case asymptotic runtime complexity is $O(n^2)$. This is because, in specific cases, all elements of $A$ will hash to the same position in $T$, and be linearly chained together. Thus, we already must traverse the array (reaching each element is in total $O(n)$), and for each one we may have to look through a list of $i - 1$ integers, which in the worst case is $O(n)$. Thus, the worst-case runtime is $O(n^2)$. 
+	\item The number of elements bucket $i$ can be described by a Binomial distribution, where $n = n$ and $p = \frac{1}{m}$. Then the probability that \textit{none} of the $n$ elements are hashed to $T[i]$ is the product of each one not being hashed to $T[i]$, i.e. $\prod_{i = 0}^{km} 1 - \frac{1}{m} = (1 - \frac{1}{m})^{km}$. The probability that \textit{all} of the $n$ elements are hashed to $T[i]$ is the product of each one being hashed to $T[i]$, i.e. $\prod_{i = 0}^{km} \frac{1}{m} = (\frac{1}{m})^{km}$.
+	\item For $n$ independent integers across $m$ buckets (each following the same Binom($n, \frac{1}{m}$) distribution), we expect the number of elements from $A$ that hash to each $T[i]$ to be $\frac{n}{m}$. Earlier, it was noted that the worst-case runtime was $O(n^2)$, because for each of the $n$ indices in $A$, we might have to traverse $n$ possibilities to see if the element were already contained there. However, we only expect to see $\frac{n}{m}$ elements in each bucket in this procedure. Thus, in the expected case, this function is $O(\frac{n^2}{m})$.
+\end{enumerate}
+
+%--------------------------------------------------------%
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 5 (Applied Problem).}
+Given a sorted array $A$ of size $N$ ($1 \leq N \leq 5\cdot10^{5}$), and two numbers $x,y$ $(0 \leq x \leq y \leq N)$, determine the number of elements of $A$ in the range $[x,y]$ (inclusive). Language-specific details follow. You can use whichever of Python or Java you prefer.
+
+Your solution's efficiency will be checked by comparing if its empirical runtime is within constant factors of an $O(\log(N))$ reference solution. Your submission will be automatically graded against test cases for correctness and efficiency. You will be able to see your score and you can resubmit as many times as you like up to the deadline. \textbf{NOTE:} Unlike the theory problems, the applied problem grade \textbf{is the raw score shown on Gradescope}. See the \href{https://sites.duke.edu/spring24compsci330/assignments/}{course assignments webpage} for more details. 
+
+\begin{itemize}
+	\item \textbf{Python.} You should submit a file called \texttt{range.py} to the Gradescope item ``Homework 1 (Python)." The file should define (at least) a top level function \texttt{range\_count} that looks like: 
+    \begin{itemize}
+        \item \verb|def range_count(A:[int], x:int, y:int)|
+    \end{itemize}
+
+	and returns the number of elements of $\texttt{A}$ in the range $\texttt{[x,y]}$
+	
+    \item \textbf{Java.} You should submit a file called \texttt{Range.java} to the Gradescope item ``Homework 1 (Java)." The file should define (at least) a top level function \texttt{rangeCount} that looks like: 
+    \begin{itemize}
+        \item \verb|public int rangeCount(int[] A, int x, int y)|
+    \end{itemize}
+    where $\texttt{A}$ is a sorted \verb|int[]| and \verb|[x,y]| is the range of our query. Return the number of elements of \verb|A| in the range \verb|[x,y]| 
+\end{itemize}
+
+\end{document}

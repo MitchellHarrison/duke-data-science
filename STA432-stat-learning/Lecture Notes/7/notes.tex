@@ -1,0 +1,230 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 7 - Maximum Likelihood (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+Let $X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim} f(x|\theta)$. Our 
+likelihood is $\mathcal{L}(\theta) = f(x_{1}, \cdots ,x_{n}|\theta)$. The
+log-likelihood is $\ell(\theta)$. For example, letting $f(x|\theta) = 
+Norm(\mu,1)$, the log-likelihood is $\ell(\mu) = \sum_{i=1}^{n}(x_{i}-\mu)^{2}$.
+
+We have also discussed relative \textbf{efficiency}. That is, given that two
+estimators have the same bias (usually 0), those with lower variance is more
+efficient. We then discussed the Comer-Rao lower bound, which tells us the
+lowest possible variance for a family of estimators. For some estimators, the
+variance matches the CRLB, in which case we are happy (or happy-ish). Recall
+that the CRLB is
+\[
+Var(\hat \theta) = \frac{g'(\theta)^{2}}{\mathcal{I}(\theta)}, 
+\]
+where $\mathbb{E}(\hat \theta) = g(\theta)$.
+
+We've also noted that the MLE is \textit{invariant}. That is, if $\hat \theta$
+is the MLE for $\theta$, then $g(\hat \theta)$ is the MLE for $g(\theta)$.
+
+In a previous homework (homework 2), we discussed the expected value of various
+estimators for the variance of a normal (i.e. $\mathbb{E}(\sigma^{2})$.
+
+\pagebreak
+\section{Estimation}
+\begin{definition}
+    An estimator $\hat \theta_{n} = \delta(X)$ is \textbf{consistant} for
+    $\theta$ if it converges to $\theta$ in probability $\hat \theta_{n}
+    \rightarrow \theta$. That is, for any $\epsilon > 0$,
+    \[
+    \lim_{n \to \infty} \mathbb{P}(|\hat \theta_{n} - \theta| < \epsilon) = 1.
+    \]
+    Effectively, this tells us that eventually, if we can collect enough data,
+    we \textit{will} arrive at an estimator that will be within any arbitrarily
+    small error term that we can select.
+\end{definition}
+
+The question now becomes, provided that an estimator is asymptotically
+consistent, whether or not it is also asymptotically unbiased. Some estimators
+are finitely unbiased, in which case it will remain so asymptotically. But,
+for example, if an estimator is $\hat \theta = \bar X + 1/n$, it is 
+asymptotically both consistent \textit{and} unbiased, even though it is 
+finitely biased. However, not all unbiased estimators are consistent. That is
+to say, \textbf{consistancy implies unbiasedness, but unbiasedness does not
+imply consistancy}. For example, if an estimator is $\hat \theta = X_{1}$, it
+is unbiased but inconsistent.
+
+\subsubsection{Consistancy example}
+Let $X_{1}, \cdots ,X_{n} \overset{\mathrm{iid}}{\sim}Uniform(0, \theta)$. Also
+let $\hat \theta_{n} = X_{max}$ be the MLE. \textbf{Is it consistant?}
+
+The CDF of $\hat \theta_{n}$ is the following,
+\begin{align*}
+    F(x) &= \mathbb{P}(X_{max} \le x) \\
+         &= \prod_{i=1}^{n} \mathbb{P}(X_{i} \le x) \\
+         &+ \left(\frac{x}{\theta}\right)^{n}.
+\end{align*}
+Then, our PDF must be
+\[
+f(x) = F'(x) = \frac{nx^{n-1}}{\theta^{n}}.
+\]
+To find consistancy, we observe that
+\begin{align*}
+    \mathbb{P}(|\hat \theta_{n} - \theta| < \epsilon) &= \mathbb{P}(\theta -
+    \epsilon < \hat \theta_{n} < \epsilon) \\
+                  &= \mathbb{P}(\theta - \epsilon < \hat \theta_{n} < \theta).
+\end{align*}
+We are able to remove the last $\epsilon$ in the second step because $\hat 
+\theta$ must necessarily be less than $\theta$ alone, by definition of the
+maximum. To solve, we find
+\begin{align*}
+    \mathbb{P}(\theta - \epsilon < \hat \theta < \theta)
+    &= \int_{\theta-\epsilon}^{\theta} \frac{nx^{n-1}}{\theta^{n}} \\
+    &= \frac{\theta^{n}}{\theta^{n}} - \frac{(\theta-\epsilon)^{n}}{\theta^{n}}\\
+    &= 1 - \left(\frac{\theta-\epsilon}{\theta}\right)^{n}.
+\end{align*}
+As $n \rightarrow \infty$, we find that the entire equality simplifies to
+$1=1$. Thus, \textbf{our estimator is consistant}.
+
+\subsection{Chebychev's inequality}
+Let $X$ be less than a random variable with mean $\mu$ and finite variance
+$\sigma^{2}$. Chebychev's inequality states that for all $\epsilon>0$,
+\[
+\mathbb{P}(|x-\mu| > \epsilon) < \frac{\sigma^{2}}{\epsilon^{2}}.
+\]
+This is not always helpful, as it requires to have both mean and variance, but
+it is frequently a helpful tool that is fairly commonly used.
+
+\subsubsection{Chebychev example}
+We currently have two estimators that are consistant from previous exmaples. It
+would be tedious to have to re-show it every time we find a new MLE. Fortunately,
+\textit{all MLEs are consistant}. We can show that here.
+
+Let $\hat \theta_{n}$ be the the estimator that maximizes $\ell_{n}(\theta)$,
+which is $\ell(\theta) = \mathbb{E}(\ell_{n}(\theta))$. We've said that the 
+expected derivative of $\ell(\theta)$ at the true value of $\theta$ is 0. T
+hat is, the truth maximizes that expectation. The law of large numbers tells us
+that as $n \rightarrow \infty$, $\ell_{n}(\theta) \rightarrow \ell(\theta)$.
+
+\subsection{Fisher's approximation theorem}
+In some cases, the variance of our estimator shrinks far too slow to be useful.
+For us to approximate truth only after $n = 10,000,000,000$ observations, for
+example, than our estimator may not be as useful in practice as we thought.
+\begin{definition}
+    \textbf{Fisher's Approximation} states that if $X_{1}, \cdots , X_{n}
+    \overset{\mathrm{iid}}{\sim}f(x|\theta)$, then $\hat \theta_{MLE}$ is the
+    solution
+    \[
+    \frac{d}{d \theta}\ell_{n}(\theta) = 0.
+    \]
+    Then, 
+    \[
+    \sqrt{n}(\hat \theta_{MLE} - \theta_{0}) \rightarrow Normal\left(0, 
+        \frac{1}{\mathcal{I}(\theta_{0}}\right).
+    \]
+    Crucially, this approaches a normal distribution \textit{regardless of the
+    distribution of} $f(x|\theta)$.
+\end{definition}
+
+Fisher's approximation is not only powerful, it is arguably one of the most
+important facts in all of mathematical statistics. Also note that it works for
+vector versions of $\hat \theta_{MLE}$ and $\theta_{0}$.
+
+\subsubsection{Example 1}
+Let $X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim}Normal(\mu,1)$. We know
+that $\hat \mu_{MLE}= \bar X$, and that the variance of $\bar X$ is $1/n$.
+Plugging into Fisher, we see that
+\[
+\sqrt{n}(\bar X - \mu_{0}) \rightarrow Normal(0, 1).
+\]
+This basically re-creates the central limit theorem.
+
+\subsubsection{Example 2}
+Let $y_{1}, \cdots , y_{n} \overset{\mathrm{iid}}{\sim}Bern(\mu)$. Then, the
+density is 
+\[
+p(p) = p^{y_{i}}(1-p)^{1-y_{i}},
+\]
+and the likelihood is given by the product of $n$ of these, which is
+\[
+\mathcal{L}(p) = p^{\sum y}(1-p)^{n-\sum y}.
+\]
+Then the log-likelihood is given by,
+\[
+    \ell_{n}(p) = [\sum y_{i}]log(p) + (n - \sum y_{i})log(1-p).
+\]
+We then find the derivative of the log-likelihood, which is
+\[
+\ell_{n}' = \frac{\sum y_{i}}{p} - \frac{n - \sum y_{i}}{1-p}.
+\]
+Setting equal to zero and solving, we arrive at $\hat p$.
+\[
+\boxed{\hat p = \frac{\sum_{i=1}^{n} y_{i}}{n}}.
+\]
+
+\end{document}

@@ -1,0 +1,164 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 5 - Likelihoods}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+Recall that \textit{Fisher information} is given by
+\[
+    \mathcal{I}(\theta) = \mathbb{E}\left[\frac{d}{d \theta}S(\theta)\right],
+\]
+where $S(\theta)$ is the \textit{score function}. There is a nice mathematical
+property here where this is equivalent to
+\[
+    \mathcal{I}(\theta) = Var(S(\theta)) = \mathbb{E}[S(\theta)^{2}].
+\]
+\pagebreak
+\section{Fisher Information and Estimators}
+\begin{definition}
+    The \textbf{Cramer-Rao lower bound} (CRLB) states that if $\hat \theta$ is
+    unbiased for $\theta$, then,
+    \[
+    Var(\hat \theta) \ge \frac{1}{\mathcal{I}(\theta)},
+    \]
+    where $\mathcal{I}(\theta)$ is the Fisher information in $n$ samples. This
+    gives us a floor for how low the variance of an unbiased estimator can
+    possibly go.
+\end{definition}
+
+\begin{definition}
+    The \textbf{Cauchy-Schwarz inequality} states that
+    \[
+    |Cov(X,Y)|^{2} \le Var(X) \cdot Var(Y).
+    \]
+    This gives us an upper bound to possible covariance between two random
+    variables.
+\end{definition}
+
+These two inequalities combine to tell us something powerful about our 
+estimators. That is, the closer our estimator comes to the above inequalities
+(or ideally, being equal to them), it becomes increasingly ideal, as long as it
+is unbiased.
+
+\subsection{Example}
+We are given data $X_{1}, \cdots ,X_{n} \overset{\mathrm{iid}}{\sim}N(\mu,
+\sigma^{2})$ where $\sigma^{2}$ is known. We then know that $Var(\bar X)=
+\frac{\sigma^{2}}{n}$. We have
+\begin{align*}
+    \ell(\mu) &= \frac{1}{2}log\left[2\pi\sigma^{2}- \frac{(x-\mu)^{2}}
+    {2\sigma^{2}}\right]  \\
+    \ell'(\mu) &= \frac{2(x-\mu)}{2\sigma^{2}}\\
+    \ell''(\mu)&= -\frac{1}{\sigma^{2}} \\
+    \mathcal{I}(\mu) &= -\mathbb{E}[\ell''(\mu)] \\
+                     &= \frac{1}{\sigma^{2}}
+\end{align*}
+Thus we have shown that $\bar X$ reaches the CRLB.
+
+\pagebreak
+\section{Maximum Likelihood Estimation (MLE)}
+\begin{note}
+    This is in the textbook section 7.5
+\end{note}
+\begin{definition}
+    The \textbf{Maximum likelihood estimate} (MLE) is given by $\delta(X) = 
+    \hat \theta_{MLE}$ that maximizes $\mathcal{L}(\theta) = f(X_{1}, \cdots 
+    ,X_{n};\theta)$ for an observed dataset $X_{1}, \cdots ,X_{n}$.
+\end{definition}
+
+\subsection{MLE example}
+
+Let us have
+\[
+    f(\vec X|\theta) = \theta^{3}exp\{-\theta \sum_{i=1}^{3}X_{i}\}.
+\]
+This is the joint pdf of three $Exp(\theta)$ random variables with mean
+$1/\theta$. To find the MLE,
+\begin{align*}
+    \ell(\theta) &= log(\mathcal{L}(\theta)) = 3log(\theta)
+    -\theta \sum_{i=1}^{3}X_{i} \\
+    S(\theta) &= \frac{d}{d \theta}\ell(\theta) = \frac{3}{\theta} - 
+    \sum_{i=1}^{3} X_{i}.
+\end{align*}
+To find the maximum, we set the derivative equal to 0.
+\begin{align*}
+    \frac{3}{\theta} - \sum X_{i} &= 0 \\
+    \frac{3}{\theta} &= \sum X_{i} \\
+    \hat \theta_{MLE} &= \frac{3}{\sum X}.
+\end{align*}
+To show that this is a maximum and not a minimum, we look for a negative
+second derivative:
+\[
+\ell''(\theta) = -\frac{3}{\theta^{2}} < 0.
+\]
+Therefore, $\hat \theta_{MLE}$ is a maximum in this case.
+
+\end{document}

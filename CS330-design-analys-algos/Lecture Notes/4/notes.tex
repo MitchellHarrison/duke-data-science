@@ -1,0 +1,215 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 4 - Divide and Conquer pt. 1}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Divide and Conquer}
+
+\begin{definition}
+    A \textbf{divide and conquer} algorithm is a recursive algorithm that makes
+    \textit{non-overlapping} recursive calls. That is, all sub-problems are
+    disjoint subsets.
+\end{definition}
+
+Divide and conquer algorithms are great for parallel algorithms (covered later
+in the course), and sometimes more efficient non-parallel algorithms (covered
+later this week).
+
+Take the following algorithm to find the maximum value in an array:
+\begin{algorithm}
+\caption{Divide and conquer maximum-finding}
+\begin{algorithmic}
+\Procedure{DCMax}{$A,l,r$}
+    \If{$l = r$}
+    \State \Return $A[r]$
+    \Comment{base case}
+    \Else
+        \State $m = \lfloor \frac{l+r}{2} \rfloor$
+        \State $a = $ \Call{DCMax}{$A, l, m$}
+        \State $b = $ \Call{DCMax}{$A, m+1, r$}
+        \If{$a>b$}
+            \State \Return $a$
+        \Else
+            \State \Return $b$
+        \EndIf
+    \EndIf
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+Our \textbf{base case} is when the left value is equal to the right value (i.e.
+$l=r$). Observe that the recurssion tree is non-linear-- it branches left and
+right into disjoint subtrees. That it, \textit{it is a divide-and-conquer
+algorithm}.
+
+In our base case (as is often the case with divide and conquer algorithms), the
+asymptotic runtime is $O(1)$ because we are just returning a constant. Each
+recursive call operates on a sub-problem that is half the size of the previous
+one. Because there is a maximum of two calls on an input of size $n/2$, we
+say that 
+\[
+T(n) - 2T\left(\frac{n}{2}\right) + c
+\]
+where $c$ is some unknown constant. To solve the recurrence relations, we can
+use substitution:
+\begin{align*}
+    T(n) &\le 2T(n/2)+ c \\
+         &\le 2[2T(n/2) + c] + c \\
+         &= 4T(n/4) + 3c \\
+         &\vdots\\
+         &\le nT(1) + (n-1)c.
+\end{align*}
+This has $O(n)$ runtime complexity. This is not a formal proof but a good way
+to quickly get an educated guess informally (possible on exam).
+
+\section{Mergesort}
+Let's say that we've designed an algorithm that runs in $O(n^{2})$ time. One
+way to improve is to make a linear algorithm split subproblems geometrically
+instead, which will allow much faster exploration of possible subproblems.
+Enter \textbf{mergesort}.
+
+Mergesort splits an array in half, and recursively sorts the left and right
+halves. It then splits again until it is sorting sub-arrays of size $n=1$.
+Once each half is sorted, they are merged again in sorted order. Interestingly,
+the \textit{merge} step of mergesort requires a separate algorithm. The beauty
+of mergesort is that you can reduce the problem of sorting array into a smaller
+problem of merging two sorted arrays.
+
+\subsection{Merge procedure}
+Given two sorted arrays, we want to merge them into one with all values from
+both, in sorted order. First, we look at the first element of each sub-array. We
+take the smallest element of the two, copy it into our merged array, and
+incriment the index of the sub-array we pulled it from. We continue comparing
+in this way, incrimenting the index of whichever array we pull the smallest 
+value from, to arrive at a final sorted list.
+
+\subsection{Mergesort pseudocode}
+\begin{algorithm}
+\caption{Mergesort}
+\begin{algorithmic}
+\Procedure{Mergesort}{$A, l, r$}
+    \If{$l < r$}
+        \State $m = \lfloor (l+r) / 2 \rfloor$
+        \State \Call{Mergesort}{$A, l, m$} 
+        \State \Call{Mergesort}{$A, m+1, r$} 
+        \State \Call{Merge}{$A,l,m,r$} 
+    \EndIf
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+\begin{algorithm}
+    \caption{Merge two sorted arrays into a new sorted array}
+\begin{algorithmic}
+\Procedure{Merge}{$A,l,m,r$}
+    \State $n = r - l + 1$
+    \State $B$ is new array of size $n$
+    \State $i=l$
+    \State $j = m+1$
+    \For{$k=0$ to $n-1$}
+        \If{$i>m$}
+        \State $B[k] = A[j]$
+        \State $j = j+1$
+        \ElsIf{$j>r$}
+        \State $B[k]= A[i]$
+        \State $i = i+1$
+        \ElsIf{$A[i] \le A[j]$}
+        \State $B[k] = A[i]$
+        \State $i = i+1$
+        \Else
+        \State $B[k] = A[j]$
+        \State $j = j+1$
+        \EndIf
+        \State $k = k+1$
+    \EndFor
+    \For{$k=0$ to $n-1$}
+    \State $A[l+k] = B[k]$
+    \EndFor
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+\pagebreak
+
+\subsection{Correctness of Mergesort}
+Because \Call{Merge}{} doesn't depend on \Call{Mergesort}{}, but 
+\Call{Mergesort}{} \textit{does} depend on \Call{Merge}{}. Thus, it is 
+common to start with showing that \Call{Merge}{} is correct. Once we do, the
+argument for the correctness of \Call{Mergesort}{} is relatively trivial. This is
+a good general workflow for recursive procedure:
+\begin{enumerate}
+    \item Show that all sub-procedures are correct until you arrive at a
+        procedure with no dependencies.
+    \item Show that, given the sub-procedures are correct, a higher-level
+        procedure is correct.
+    \item Repeat until the main procedure is proved correct.
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,254 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 3 - Point Estimation pt. 2}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Point Estimation}
+Let our data be $X = (X_{1}, \cdots , X_{n})$. Our goal is to estimate
+something about the data generative process. Let our unknown parameter be 
+$\theta$.
+
+Let our estimator be $\hat \theta = \delta(X)$. We want our estimator to be
+\begin{enumerate}
+    \item Accurate. That is, $\mathbb{E}[\delta(X)|\theta] - \theta$ is small.
+    \item Precise. That is, $Var[\delta(X)|\theta]$ is small.
+\end{enumerate}
+
+We also defined the \textbf{mean squared error} (MSE) as a common way of
+analyzing an estimator. It is given by
+\[
+    \mathbb{E}[(\delta(X) - \theta)^{2}] = Var(\delta(X)|\theta) +
+    bias(\delta(X) | \theta)^{2}.
+\]
+\subsection{Bias-variance tradeoff}
+We can often pay a little bit of variance to reduce bias or pay in bias to
+improve variance. We are tasked with choosing ways of optimizing these two. One
+common method is minimizing MSE, but there are infinitely many possible methods.
+
+\subsubsection{Bias example}
+We are a scientist. We are confident that our machine is working, and it is
+spitting out data that shows the following distribution:
+\[
+X_{1}, .., X_{n} \overset{\mathrm{iid}}{\sim} Exp(\theta).
+\]
+We know that the expected value of an exponential is $\mathbb{E}[X] = 1/\theta$.
+We also know that the PDF of an exponential is given by
+\[
+f_{\theta}(x) = \theta e^{-\theta x}.
+\]
+\textbf{Our goal is to study $\theta$.} We can re-arrange algebraically to 
+see that
+\[
+\theta = \frac{1}{\mathbb{E}(X)}.
+\]
+We can then guess at some estimators. Let's start with
+\[
+\hat \theta_{1} = \frac{1}{\bar X} = \frac{n}{\sum_{i=1}^{n} X}.
+\]
+\textbf{Is $\hat \theta_{1}$ unbiased?}
+
+\begin{definition}
+    \textbf{Jensen's inequality}. Let $g(\cdot)$ be a convex function (i.e. it
+    has a positive second derivative). In that case,
+    \[
+        \mathbb{E}[g(X)] \ge g(\mathbb{E}(X)),
+    \]
+    with equality if $g$ is linear.
+\end{definition}
+
+Jensen's inequality tells us that
+\[
+    \mathbb{E}\left[\frac{1}{\bar X}\right] > \frac{1}{\mathbb{E}[X]}.
+\]
+That is,
+\[
+    \mathbb{E}[\hat \theta_{1}|\theta] > \theta.
+\]
+Therefore, $\boxed{ \text{$\hat \theta_{1}$ is biased}}$. Because the sum of
+exponential random variables is gamma-distributed, we see that
+\[
+y = \sum_{i=1}^{n}X_{i} \sim Gamma(n, \theta).
+\]
+And the PDF of $y$ (i.e. a gamma distribution) is known. What we want now is
+the expectation of $y$. To solve for $\mathbb{E}(1/y)$, we need to solve the
+integral
+\[
+    \mathbb{E}\left[\frac{1}{y}\right] = \int pdf(y)dy
+\]
+where $pdf(y)$ is the PDF of a gamma distribution. Solving that integral is an
+exercise in factoring out constants from the PDF. What is left is an integral
+that evaluates to 1. The final solution becomes
+\[
+    \mathbb{E}\left[\frac{1}{y}\right] = \frac{\theta}{n-1}.
+\]
+Therefore, $\mathbb{E}[\hat \theta_{1}] = \frac{\theta n}{n-1}$. Our bias is
+therefore
+\[
+    bias(\hat \theta_{1})=\mathbb{E}[\hat \theta-\theta] =\frac{\theta n}{n-1} - 
+    \frac{\theta(n-1)}{n-1} = \boxed{\frac{\theta}{n-1}}.
+\]
+Crucially, we see that as the number of experiments grows (i.e. as 
+ $n \rightarrow \infty$), our bias goes to 0. Thus, if we can repeat our
+ experiment enough times, bias matters less and less. Thus, we turn to variance.
+
+We say that, if $\hat \theta_{1}$ and $\hat \theta_{2}$ are two different point
+estimators, $\hat \theta_{1}$ is \textit{more efficient} than
+ $\hat \theta_{2}$ if its variance is lower. Let
+\begin{align*}
+    \hat \theta_{1} &= \bar X \\
+    \hat \theta_{2} &= X_{1}
+\end{align*}
+Intuitively, it feels like $\hat \theta_{1}$ would be a better estimate because
+it uses more of the data. Note that both of these estimators are unbiased, but
+$Var(\hat \theta_{1}) < Var(\hat \theta_{2})$. Thus, it is correct that
+$\hat \theta_{1}$ is more efficient. In fact, given all unbiased estimators,
+$\bar X$ (i.e. the sample mean) will always be the most efficient.
+
+\begin{definition}
+    \textbf{Sufficiency}. Let $T = T(X_{X_{1}, \cdots X_{n}})$ be a statistic
+    where $X_{i}$ is a random asmple from a distribution with parameter
+    $\theta$. $T$ is a \textbf{sufficient statistic} for this distribution
+    if $P(X_{1}, \cdots , X_{n} | T = t)$ does not depend on $\theta$.
+\end{definition}
+
+We can now see that $\hat \theta_{2} = X_{1}$ is \textit{not sufficient}. 
+Because it does not take all of our data into consideration, then there is
+likely some dependency on $\theta$ inside of $\mathbb{P}(X_{1}, \cdots X_{n} |
+T = \hat \theta_{1})$.
+
+\subsection{Sufficiency example}
+Let $X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim} Poisson(\theta)$. 
+Because the sum of Poisson random variables is Poisson-distributed, we can let
+\[
+T = \sum_{i=1}^{n}X_{i} \sim Poisson(n\theta)
+\]
+be a statistic. For an individual $X_{i}$, we know the PDF is
+\[
+\mathbb{P}(X=x|\theta) = \prod_{i=1}^{n} \frac{exp(-\theta)\theta^{x_{i}}}
+{x_{i}!}.
+\]
+We can then find $\mathbb{P}_{T}(\cdot)$, which is
+\[
+    \mathbb{P}_{T}(\cdot) = \frac{exp\{-n\theta\}(n\theta)^{t}}{t!}.
+\]
+When we solve for $\mathbb{P}(X_{x}|T-t, \theta)$, we see that there is no
+ $\theta$ in that solution. Therefore, because no dependence on $\theta$ remains,
+ $\boxed{ \text{$T$ is sufficient}}$.
+
+\begin{definition}
+    \textbf{Fisher-Neyman factorization}.
+    A statistic $T(X)$ is \textit{sufficient} if and only if we can write the
+    likelihood $\ell(\theta)$ (i.e. the PDF) as
+    \[
+    \ell(\theta) = u(x) v(T(X),\theta).
+    \]
+\end{definition}
+
+Before, we intuitively thought that $\hat \theta_{2} = X_{1}$ is a poor estimator
+because it doesn't use all of the available data. However, if we could inject
+a sufficient statistic into $\hat \theta_{2}$, we may be able to improve its
+performance.
+
+\subsection{Improving $\hat \theta_{2} = X_{1}$ example}
+
+Our \textbf{goal} is to improve $\hat \theta = X_{1}$ via sufficiency. Let
+ $\delta(X)$ be an estimator for $\theta$, and let $T(X)$ be a sufficient
+statistic. We define
+\[
+    \delta_{new}(X) = \mathbb{E}[\delta(X)|T=t],
+\]
+which is a statistic that is free from $\theta$. This is frequently written as
+ $\bar \delta(T) = \delta_{new}(X)$ because it is a function of $T$. How do we
+ know if it is better or worse? Intuitively, we would expect performance to
+ improve because we are now using all of our data.
+
+\subsection{Rao Blackwell theorem}
+Let $\delta(X)$ be an estimator for $\theta$, and let $T$ be sufficient. Let
+\[
+    \delta(T) = \mathbb{E}[\delta(X)|T],
+\]
+then
+\[
+    MSE_{\bar \delta} = \mathbb{E}[(\bar \delta(T)-\theta)^{2}] \
+    le \mathbb{E}[(\delta(X) - \theta)^{2}] = MSE_{\delta}.
+\]
+This shows that conditioning on a sufficient statistic cannot make an estimator
+\textit{worse} in terms of MSE.
+\subsubsection{Proof}
+\begin{align*}
+    \mathbb{E}[(\mathbb{E}[\delta(X)|T] - \theta)^{2}] &= \mathbb{E}[(
+    \mathbb{E}[\delta(X)\theta|T])^{2}] \\
+           &\le \mathbb{E}[\mathbb{E}[(\delta(X) - \theta)^{2}|T] \\
+           &= \mathbb{E}[(\delta(X) - \theta)^{2}].
+\end{align*}
+
+
+\end{document}

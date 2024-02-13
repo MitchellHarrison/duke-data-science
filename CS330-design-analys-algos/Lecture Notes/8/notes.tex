@@ -1,0 +1,245 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 8 - Dynamic Programming pt. 1}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Intro to Dynamic Programming}
+
+Recall that \textit{Fibonacci numbers} take the form
+\[
+f(n) = 
+\begin{cases}
+    1 & 1 \le n \le 2 \\
+    f(n-1) + f(n-2) & \text{else}
+\end{cases}
+\]
+The problem with computing these numbers is that in practice, computing
+these numbers recursively very quickly (factors of dozens) approach computation
+times nearing the lifetime of the universe. 
+
+Recall that we have so far been dealing with \textit{independent} recursive 
+calls. That is, the two sub-problems are disjoint. However, Fibonacci numbers
+are not disjoint; each depends on the results of the previous two calls. Thus,
+we cannot divide and conquer or parallelize. In fact, recursively calculating
+Fibonacci numbers is $\Omega(2^{n/2})$, so \textit{at least} exponential.
+
+The reason calculating these numbers is slow is that there is an exponential
+number of recursive calls. The problem is, we don't "remember" the previous 
+sub-problems. That is, we re-compute $f(n)$ every time $f(m>n)$ is called. To
+avoid this, we can have an auxiliary data structure for remembering past
+sub-problem solutions (hash table, array, etc.). Then, we can first check to
+see if we already have the answer to a given sub-problem in our data structure.
+We will call this data structure the \textbf{memo}, and the process in which
+we save results into a memo to speed up a solution \textbf{memoization}. Below
+is \Call{MFib}{}, which uses an array $\mathcal{M}$ as the memo.
+
+\begin{algorithm}
+\caption{Memoized Fibonacci number calculator}
+\begin{algorithmic}[1]
+\Procedure{MFib}{$n,\mathcal{M}$}
+    \If{$n\le 2$}
+        \State \Return 1
+    \Else
+        \If{$n \notin \mathcal{M}$}
+            \State $\mathcal{M}(n) = $ \Call{MFib}{$n-1,\mathcal{M}$} + 
+            \Call{MFib}{$n-2,\mathcal{M}$}
+        \EndIf
+        \State \Return $\mathcal{M}[n]$
+    \EndIf
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+Alternatively, we can find these numbers \textbf{bottom-up}, iteratively. This
+method starts at a base case and works up from the bottom instead of starting at
+the top and working down to the base case. The key property in bottom-up 
+iteration is thet we \textit{iterate in an order so that sub-problems on which
+the current iteration depends on already-solved sub-problems}. Below is 
+\Call{DPFib}{}, which is a bottom-up iteration approach.
+
+\begin{algorithm}
+\caption{bottom-up iteration Fibonacci calculator}
+\begin{algorithmic}[1]
+\Procedure{DPFib}{$n$}
+    \State $F = $ new array of length $n+1$
+    \State $F[1] = F[2] = 1$
+    \For{$i = 2$ to $n$}
+        \State $F[i] = F[i-1] + F[i-2]$
+    \EndFor
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+And in the next following \Call{DPFib2}{} algorithm, much less memory is used,
+as we discard all but the previous two solutions. This is a substantial memory
+savings as $n$ gets large.
+
+\begin{algorithm}
+\caption{Memory-saving Fibonacci calculator}
+\begin{algorithmic}[1]
+\Procedure{DPFib2}{$n$}
+    \State $F = $ new array of length 2
+    \State $F[0] = F[1] = 1$
+    \For{$i = 3$ to $n$}
+        \State $x = F[0] + F[1]$
+        \State $F[0] = F[1]$
+        \State $F[1] = x$
+    \EndFor
+    \State \Return $F[1]$
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Longest Common Subsequence problems}
+The \textbf{Longest Common Subsequence} (LCS) is a type of problem in which we
+find the length of the longest string (for example) that is a subsequence of
+$a$ and $b$. For example, the longest common subsequence of "GATAC" and "ACGTC"
+is "ATC" of length 3. A brute-force solution to find an LCS is given below.
+
+\begin{algorithm}
+\caption{find longest common subsequence (brute force)}
+\begin{algorithmic}[1]
+\Procedure{bruteLCS}{$a,b$}
+    \State $c=0$
+    \For{subsequence $s$ of $a$}
+        \If{$s$ is a subsequence of $b$}
+            \State $c =$ \Call{max}{$c$, \Call{length}{$s$}}
+        \EndIf
+    \EndFor
+    \State \Return $c$
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+The problem with the brute force method is that it runs in \textit{exponential
+time}, and thus we must use a better solution. We will do this using dynamic
+programming. 
+
+Suppose that (using the recursion fairy), we could magically get
+the LCS of a \textit{prefix} of the strings. Then we have some possible cases:
+\begin{enumerate}
+    \item The last characters of the two substrings are the same. In this case,
+        the LCS would certainly end with this. So the overall LCS is the LCS
+        of the prefixes + 1.
+    \item The last characters are not the same. In this case, then the LCS 
+        cannot possibly end with both characters. Thus, the overall LCS is
+        the LCS of one substring and the prefix of the other. Thus, there
+        are only two possibilities in this case.
+\end{enumerate}
+Unfortunately, this process will involve a lot of recurrence, which can be
+extremely slow. However, we've already discussed some methods for combatting
+that slowness.
+
+Let \Call{lcs}{$i,j$} be the length of the longest common subsequence between
+$a_{0}, a_{1}, \cdots , a_{i}$ and $b_{0}, b_{1}, \cdots ,b_{j}$. Then, there
+are $mn$ subproblems, one for each $0\le i < m$ and $0 \le j < n$. Thus,
+\[
+LCS(i,j) =
+\begin{cases}
+    0 & i < 0 \text{ or } j < 0 \\
+    1 + LCS(i-1,j-1) & i \ge 0, j \ge 0, a[i] = b[j] \\
+    max(LCS(i-1,j), LCS(i,j-1) & i \ge 0, j \ge 0, a[i] \ne b[j]
+\end{cases}
+\]
+Suppose we store subproblems in a table where row $i$ and column $j$ contains
+\Call{LCS}{$i,j$}. Then, our subproblem dependencies say we need to have the 
+answers to subproblems in smaller row and column indices. We could then keep a
+static $i$ and iterate $j$, and then incriment $i$ and repreat. This is the "easy 
+case," row-by-row, filling left to right. Here is that algorithm.
+
+\begin{algorithm}
+\caption{fast LCS finding}
+\begin{algorithmic}[1]
+\Procedure{dplcs}{$a,b$}
+    \State Let $m,n$ be the lengths of $a,b$.
+    \State Let $T$ be a new $m$-by-$n$ table.
+    \For{$i=0$ to $m-1$}
+        \For{$j=0$ to $m-1$}
+            \If{$a[i] = b[j]$}
+                \State $T[i][j] = 1 + T[i-1][j-1]$
+                \Comment{"diagonal" case}
+            \Else
+                \State $T[i][j] = max(T[i-1][j], T[i][j-1])$
+                \Comment{"left/up" case}
+            \EndIf
+        \EndFor
+    \EndFor
+    \State \Return $T[m-1][n-1]$
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+This \Call{dplcs}{}, we fill a table and draw back arrows to the 
+\textit{maximizing previous subproblem}, breaking ties arbitrarily. The runtime
+for \Call{dplcs}{} is $O(mn)$, far better than the exponential-time brute force
+solution.
+
+\end{document}

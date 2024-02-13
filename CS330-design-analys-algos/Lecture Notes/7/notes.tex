@@ -1,0 +1,178 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 7 - Parallel Algorithms pt. 2}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Determinacy Races}
+
+This is a new error that is unique to parallel algorithms. Say we have a
+function that returns the sum of all elements in an array $A$. It is given
+below
+
+\begin{algorithm}
+\caption{sum all elements in an array incorrectly}
+\begin{algorithmic}[1]
+\Procedure{PSum}{$A,l,r$}
+    \If{$l=r$}
+    \State \Return $A[r]$
+    \Else
+    \State $m = \lfloor \frac{l+r}{2}\rfloor$
+    \State $s=0$
+    \State \textbf{spawn} $s = s + $ \Call{PSum}{$A,l,m$}
+    \State $s = s +$ \Call{PSum}{$A, m+1, r$}
+    \State \textbf{sync}
+    \State \Return $s$
+    \EndIf
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+Lines 7 and 8 introduce a \textbf{determinacy race}. These occur when two
+different threads running in parallel make changes to shared memory. These bugs
+are called \textit{determinacy races} because the final output of the function
+is not deterministic. That is, they can vary with different runs of the alorithm
+as threads access memory in different orders. A determinacy race occurs when
+\begin{enumerate}
+    \item Two or more logically parallel instructions read from the same
+        memory, \textit{and}
+    \item one or more of those instructions write to that memory.
+\end{enumerate}
+
+To fix the determinacy race, we make the following change to our algorithm,
+
+\begin{algorithm}
+\caption{sum all elements in an array correctly}
+\begin{algorithmic}[1]
+\Procedure{PSum}{$A,l,r$}
+    \If{$l=r$}
+    \State \Return $A[r]$
+    \Else
+    \State $m = \lfloor \frac{l+r}{2}\rfloor$
+    \State \textbf{spawn} $a = $ \Call{PSum}{$A,l,m$}
+    \State $b =$ \Call{PSum}{$A, m+1, r$}
+    \State \textbf{sync}
+    \State \Return $a + b$
+    \EndIf
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+This fix is common to parallel algorithms. First, we spawn two \textit{separate}
+variables in memory, do some work on them, \textbf{sync}, and then combine them.
+This removes the possibility of overwriting shared memory.
+
+\pagebreak
+\section{Parallel Matrix Multiplication}
+
+The goal of this problem is to find the product of two $n\times n$ matrices
+$A$ and $B$. The product matrix $C$ is also $n\times n$, where $c_{ij}$ is the
+inner product of row $i$ in $A$ and column $j$ in $B$. That is,
+\[
+    C = AB \text{ where } c_{ij} = \sum_{k=1}^{n} a_{ik} \times b_{kj}.
+\]
+We \textit{could} solve this problem with a relatively simple iterative
+iterative algorithm.
+\begin{algorithm}
+\caption{multiply matrices iteratively}
+\begin{algorithmic}[1]
+\Procedure{MMultiply}{$A,B,n$}
+    \State $C = $ new $n$-by-$n$ matrix
+    \For{$i = 1$ to $n$}
+        \For{ $j = 1$ to $n$}
+            \State $c_{ij} = 0$
+            \For{$k=1$ to $n$}
+                \State $c_{ij } = c_{ij + (a_{ik}b_{kj})}$
+            \EndFor
+        \EndFor
+    \EndFor
+    \State \Return $C$
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+Note that this algorithm is $O(n^{3})$. But in practice, it will be sub-cubic.
+To parallelize, we must observe that we are only ever \textit{reading} from
+$A$ or $B$, but never writing to them. We are only ever \textit{writing} to
+$C$ (i.e. finding $c_{ij}$).
+
+\subsection{Parallel "for" loops}
+We will use \textbf{parallel for} to indicate a loop where each iteration of
+that loop can be computed in parallel, syncing when all iterations are complete.
+\textbf{Warning:} it is very easy to introduce a determinacy race in a 
+parallel for loop by accident.
+
+In \Call{MMultiply}{}, we can parallelize the \textit{for} loops on lines 3 and
+4, but \textit{not} the one on line 6. Because line 7 (inside the inner-most
+\textit{for} loop) makes changes to a shared variable in memory, parallelizing
+the inner-most loop would cause a determinacy race. This would not occur in the
+outer two loops.
+
+\end{document}

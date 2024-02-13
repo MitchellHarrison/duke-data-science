@@ -1,0 +1,346 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amsfonts}
+\usepackage[noend]{algpseudocode}
+\usepackage{algorithm}
+\usepackage[parfill]{parskip}
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
+\usepackage{hyperref}
+\usepackage[english]{babel}
+\usepackage[autostyle]{csquotes}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\definecolor{color1}{rgb}{0.7, 0.2, 0.2}
+\definecolor{color2}{rgb}{0.0, 0.4, 0.0}
+\definecolor{color3}{rgb}{0.2, 0.4, 0.7}
+
+\algblockdefx{Pfor}{EndPfor}[1]%
+  {\textbf{parallel for }#1 \textbf{do}}%
+  {\textbf{end parallel for}}
+  
+%--------------------------------------------------------%
+
+
+\title{\vspace{-0.5in}Compsci 330 Design and Analysis of Algorithms \\Assignment 3, Spring 2024 Duke University}
+\author{Dav King, Mitch Harrison}
+\date{Due Date: Thursday, February 8, 2024}
+
+%--------------------------------------------------------%
+
+\begin{document}
+
+\maketitle
+
+
+%--------------------------------------------------------%
+
+\paragraph{How to Do Homework.} We recommend the following three step process for homework to help you learn and prepare for exams.
+\begin{enumerate}
+	\item Give yourself ~15-20 minutes per problem to try to solve on your own, without help or external materials, as if you were taking an exam. Try to brainstorm and sketch the algorithm for applied problems. Don't try to type anything yet.
+	\item After a break, review your answers. Lookup resources or get help (from peers, office hours, Ed discussion, etc.) about problems you weren't sure about.
+	\item Rework the problems, fill in the details, and typeset your final solutions.
+\end{enumerate}
+
+\paragraph{Typesetting and Submission.} Your solutions should be typed and submitted as a single pdf on Gradescope. Handwritten solutions or pdf files that cannot be opened will not be graded. \LaTeX \footnote{If you are new to \LaTeX, you can download it for free at \href{https://www.latex-project.org}{latex-project.org} or you can use the popular and free (for a personal account) cloud-editor \href{https://www.overleaf.com}{overleaf.com}. We also recommend \href{https://www.overleaf.com/learn}{overleaf.com/learn} for tutorials and reference.} is preferred but not required. %If you use another editor for your solutions (such as Microsoft Word), you should convert the final document to a pdf, confirm that the symbolic math from the equation editor is properly formatted, and submit the pdf. 
+You must mark the locations of your solutions to individual problems on Gradescope as explained in \href{https://help.gradescope.com/article/ccbpppziu9-student-submit-work#submitting_a_pdf}{the documentation}. Any applied problems will request that you submit code separately on Gradescope to be autograded. 
+
+\paragraph{Writing Expectations.} If you are asked to provide an algorithm, you should clearly and unambiguously define every step of the procedure as a combination of precise sentences in plain English or pseudocode. If you are asked to explain your algorithm, its runtime complexity, or argue for its correctness, your written answers should be clear, concise, and should show your work. Do not skip details but do not write paragraphs where a sentence suffices.
+
+\paragraph{Collaboration and Internet.} If you wish, you can work with a single partner (that is, in groups of 2), in which case you should submit a single solution \href{https://help.gradescope.com/article/m5qz2xsnjy-student-add-group-members}{as a group on gradescope}. You can use the internet, but looking up solutions or using large language models is unlikely to help you prepare for exams. See the \href{https://sites.duke.edu/spring24compsci330/policies/}{course policies webpage} for more details.
+
+\paragraph{Grading.} Theory problems will be graded by TAs on an S/U scale (for each sub-problem). Applied problems typically have a separate autograder where you can see your score. The lowest scoring problem is dropped. See the \href{https://sites.duke.edu/spring24compsci330/assignments/}{course assignments webpage} for more details.
+
+
+%--------------------------------------------------------%
+\newpage
+\paragraph{Problem 1 (Parallel Prefix Sums).} Given an array $A$ of $n$ integers, we want to compute an array $B$ of the prefix sums of $A$. That is, for $0 \le i < n$, $B[i] = \sum_{j=0}^{i} A[j]$. For example, if $A = [1, 2, 5]$ then the prefix sums would be $B = [1, 3, 8]$.
+
+Describe a parallel algorithm for computing $B$ with $O((\log(n))^2)$ span and $O(n \log(n))$ work. Analyze the total work and span of the algorithm. Prove the correctness of the serialized (non-parallel) algorithm.
+
+\textit{Hint.} Be careful to note both the work and span requirement; if you try to compute each prefix sum independently the result will likely have quadratic work. Instead consider a divide and conquer algorithm and try to parallelize it. 
+
+
+\paragraph{Solution 1 (Algorithm)}
+
+\begin{algorithmic}[1]
+    \Procedure{prefixSums}{A}
+        \If{A.length == 1}
+            \State \Return A[0]
+        \EndIf
+        \State mid = $\lfloor \frac{A.\text{length}}{2} \rfloor$
+        \State \textbf{spawn} left = \Call{prefixSums}{subArray(A, from = 0, to = mid)}
+        \State right = \Call{prefixSums}{subArray(A, from = mid + 1, to = A.length - 1)}
+        \State lmax = left[mid]
+        \State \textbf{sync}
+        \For{i = 0 to r - (mid + 1) \textbf{in parallel}}
+            \State right[i] += lmax
+        \EndFor
+        \State \Return \Call{concatenate}{left, right}
+        \Comment{could also be implemented with l and r}
+    \EndProcedure
+\end{algorithmic}
+
+\paragraph{Solution 1 (Span)}
+
+The \Call{prefixSums}{} algorithm continually splits the size of the array A in half, and then calls itself again on each of these subarrays (in two different threads). This results in any one thread having at most O(log(n)) calls. Then, within any call, there is one \textbf{parallel for} that increments all elements in the right subarray by 1. This parallel for loop requires O(log(n)) time to schedule and O(1) to implement (as seen in class). Thus, at every O(log(n)) step, there are O(log(n)) actions performed, resulting in a span of $O(\text{log}(n))^2)$.
+
+\paragraph{Solution 1 (Work)}
+
+Just as described in the span, the \Call{prefixSums}{} algorithm continually splits into two halves, for a recursion tree of maximum depth O(log(n)). At each level of this recursion tree, $n / 2$ (on the order of $n$ elements of A are incremented, for a total work of $O(n \text{log}(n))$.
+
+\paragraph{Solution 1 (Proof)}
+
+\begin{enumerate}
+    \item We wish to \textbf{prove} that \Call{prefixSums}{} returns an array of prefix sums, i.e. that in the returned A for some index k, A[k] = A[0] + A[1] + ... + A[k - 1] + $\text{A}_{\text{orig}}$[k].
+    \item In the \textbf{base case}, the array we are looking at is of length 1, in which case \Call{prefixSums}{} returns A[0]. This is trivially correct, since
+        there are no prefixes for an array of length 1.
+    \item \textbf{Suppose} at iteration $j$, \Call{prefixSums}{} has worked so far. That is, the left will be the prefix subarray of the left half of A, and right will be the prefix subarray of the right half of A. Then, at this step, all of the elements of right are prefixes in that element A[k] = A[mid + 1] + A[mid + 2] + ... + A[k - 1] + $\text{A}_{\text{orig}}$[k]. Then, for these elements to be proper prefixes, they only need to add A[0] + A[1] + ... + A[mid]. Fortunately, this is what left[mid] is equal to, so the \textbf{parallel for} loop can implement the correct summation, since both halves are disjoint subsets of $A$. Everything in the left subarray is already a proper prefix, with nothing to add. \Call{prefixSums}{} thus returns left and right (concatenated), which is a correct prefix array for this step $j$.
+\end{enumerate}
+
+%--------------------------------------------------------%
+\newpage
+\paragraph{Problem 2 (Parallel Binary Tree Paths).} You are given a binary tree rooted at at node $r$. Each node in the tree has a left and right child node reference; a NULL reference indicates there is no child. Say that the \textit{distance} between two distinct nodes is one more than the number of nodes on the simple (not repeating nodes) path between them. In the example drawn below, the distance between $x$ and $y$ is $4$ (via the path going through the root) whereas the distance between $y$ and $z$ is $2$ (via the path through their mutual parent). 
+
+\vspace{-0.125in}
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.3\textwidth]{tree.png}
+\end{figure}
+\vspace{-0.125in}
+
+Describe a parallel divide and conquer algorithm to compute the maximum distance between any two nodes in the binary tree rooted at $r$ with $O(h)$ span (where $h$ is the height of the tree) and $O(n)$ work (where $n$ is the number of nodes in the tree). Analyze the total work and span of the algorithm. Prove the correctness of the serialized (non-parallel) algorithm.
+
+\textit{Hint.} Does the greatest distance path necessarily go through the root?  
+
+
+\paragraph{Solution 2 (Algorithm)}
+
+\begin{algorithmic}[1]
+    \Procedure{getMax}{r}
+        \State result = \Call{maxDist}{r}
+        \State \Return result[1]
+    \EndProcedure
+\end{algorithmic}
+
+\begin{algorithmic}[1]
+    \Procedure{maxDist}{r}
+        \If{r is null}
+            \State \Return [0, 0]
+        \EndIf
+        \If{r.left is null and r.right is null}
+            \State \Return [1, 0]
+        \EndIf
+        \State \textbf{spawn} leftCase = \Call{maxDist}{r.left}
+        \State rightCase = \Call{maxDist}{r.right}
+        \State \textbf{sync}
+        \State d1 = leftCase[0]; d2 = rightCase[0]
+        \State maxL = max(leftCase[1], rightCase[1])
+        \If{d1 + d2 $>$ maxL}
+            \State \Return [max(d1, d2) + 1, d1 + d2]
+        \Else
+            \State \Return [max(d1, d2) + 1, maxL]
+        \EndIf
+    \EndProcedure
+\end{algorithmic}
+
+\paragraph{Solution 2 (Work)}
+
+\Call{maxDist}{} (which is what does all meaningful work in this procedure) does O(n) work. It recurses down to the base case (a leaf, or a null child of a leaf) by visiting each node and calling \Call{maxDist}{} on its left and right children. Within each call, the only actions performed are all O(1) (variable assignment, comparison). Thus, by traversing all $n$ nodes and performing constant time operations at each, the total work in this algorithm is O(n).
+
+\paragraph{Solution 2 (Span)}
+
+\Call{maxDist}{}, as mentioned before, recurses down to the base case by visiting left and right children of each node. It \textbf{spawns} a new thread to tackle the left and right children, meaning that the maximum number of nodes that any one individual thread can reach is O(h) (the height of the tree). Within each thread, at each node there are only constant time operations performed, leaving us with the final answer of O(h).
+
+\paragraph{Solution 2 (Proof)}
+Let our \textbf{base case} be a leaf node. That is, a node that has no left or
+right child nodes. In this case, we return $d=1$ and $\ell=0$. This is trivially
+correct.
+
+\textbf{Assume} that in any given iteration $k-1$, our algorithm has returned 
+$d$ such that $d$ is the maximum depth from a given node and $\ell$ such that
+$\ell$ is a the length of the maximum path length at or below a given node.
+
+There are two possible \textbf{cases} at iteration $k$.
+\begin{enumerate}
+    \item The current node $r$ is not part of the longest path seen so far. In
+        this case, we add one to the current depth maximum depth of the left
+        and right child nodes and does not change the value of $\ell$. This is
+        correct.
+    \item The current node $r$ is in the longest path seen so far. In this case,
+        $r$ is the root node of the longest path so far. We add one to the
+        current max depth, and because $r$ must be the root of the longest
+        path so far, we set $\ell$ to be the combined depths of both subtrees,
+        which is the longest path rooted at $r$. This is correct behavior.
+\end{enumerate}
+Because our algorithm is correct in the base case and all possible cases for
+iteration $k$, our algorithm is correct.
+
+%--------------------------------------------------------%
+\newpage
+\paragraph{Problem 3 (Parallel Rearrange).} Consider an array $A$ of length $n$ in which $m \leq n$ elements are positive numbers, and the remaining elements are 0. 
+
+Describe a parallel algorithm with $O((\log(n))^2)$ span and $O(n \log(n))$ work to rearrange the elements in A such that all the $m$ positive numbers are in the first $m$ positions of the array (in any order) with zeros following. For example, if the input is $A = [0, 1, 0, 3, 2, 0, 0]$ then the rearranged array could be $[1, 3, 2, 0, 0, 0, 0]$.
+
+Analyze the total work and span of the algorithm. You do not need to prove the correctness of the algorithm, but be sure to explain it clearly.
+
+\textit{Hint.} Consider first devising a divide-and-conquer strategy for the problem, and then think about how you might parallelize this approach.
+
+\paragraph{Solution 3 (Algorithm)}
+
+\begin{algorithmic}[1]
+    \Procedure{pArrange}{A}
+        \If{A.length = 1}
+            \If{A[0] = 0}
+                \State \Return A[0], 0 \Comment{return index of first zero}
+            \Else
+                \State \Return A[0], 1 \Comment{practically, could be implemented as first/last element of array}
+            \EndIf
+        \EndIf
+        \State mid = $\lfloor \frac{\text{A.length}}{2} \rfloor$
+        \State left, lindex = \textbf{spawn} \Call{pArrange}{A[0:mid]} \Comment{subarray for simplicity}
+        \State right, rindex = \Call{pArrange}{A[mid + 1:A.length - 1]} \Comment{could implement with l/r}
+        \State \textbf{sync}
+        \State B = new array of length A.length
+        \For{i in 0:lindex \textbf{in parallel}} \Comment{exclusive}
+            \State B[i] = left[i]
+        \EndFor
+        \For{i in lindex:(rindex + lindex) \textbf{in parallel}}
+            \State B[i] = right[i - lindex]
+        \EndFor
+        \For{i in (rindex + lindex):A.length \textbf{in parallel}}
+            \State B[i] = 0
+        \EndFor
+        \State \Return B, (rindex + lindex)
+    \EndProcedure
+\end{algorithmic}
+
+\paragraph{Solution 3 (Explanation)}
+
+The algorithm works as follows:
+
+\begin{enumerate}
+    \item If the size of the array being considered is 1, this algorithm returns A[0]. It also returns an index (either 0 or 1), indicating whether this element is a 0 or not.
+    \item If the size of the array being considered is greater than 1, the array is split in half, and \Call{pArrange}{} is called on each half.
+    \item Once the two halves (and the indices of the first zero element in each half) have been returned, a new array B is created (with the same length as A).
+    \item In parallel, the first (lindex - 1) elements of the left half are added to the first (lindex - 1) spots in B. This corresponds to all of the non-zero numbers in the left half.
+    \item Likewise, in parallel, the first (rindex - 1) elements of the right half are added to the next (rindex - 1) spots in B. This corresponds to all of the non-zero numbers in the right half.
+    \item The remaining open slots in B are filled with 0.
+    \item B is returned, with nonzero elements preceding all zero elements.
+\end{enumerate}
+
+\paragraph{Solution 3 (Span)}
+
+In this algorithm, we are given an input A. If the length of A is larger than 1, we continually split it in half (each half on a different thread). Consistently splitting a length-n array in half results in a recursion tree with depth O(log(n)). At each level of this recursion tree, there are multiple \textbf{parallel for} loops, which in tandem cover all $n$ elements of A. These loops require O(log(n)) time to schedule, meaning at each O(log(n)) level of the recursion tree, an individual thread needs to do up to O(log(n)) work. This gives a maximum span of $O((\text{log}(n))^2)$.
+
+\paragraph{Solution 3 (Work)}
+
+Just as discussed in the span analysis, \Call{pArrange}{} creates a recursion tree of depth O(log(n)). At each level of this recursion tree, the threads must (altogether) copy over all $n$ elements of the original array into their new arrays B. This occurs in all $n$ threads in the base case (only simple comparisons and returns, which are constant time operations), and continues to occur in higher levels (e.g., the next level, with $n / 2$ threads each copying 2 elements into B). Thus, the total work of this algorithm is $O(n \text{log}(n))$.
+
+%--------------------------------------------------------%
+\newpage
+\paragraph{Problem 4 (Parallel Maximal Points).} You are given an array $P = [(x_0, y_0), \dots, (x_{n-1}, y_{n-1})]$ of $n$ unique points in the two-dimensional Euclidean plane sorted by $x$-coordinates with ties broken by $y$-coordinate (that is, $x_1 \leq x_2 \leq \cdots x_n$, and if $x_i = x_{i+1}$ then $y_{i} < y_{i+1}$). A point \( (x_i, y_i) \) \textit{dominates} another point \( (x_j, y_j) \) if \( x_i > x_j \) and \( y_i \geq y_j \) or \( x_i \geq x_j \) and \( y_i > y_j \) (that is, if it is up and to the right). A point is \textit{maximal} if it is not dominated by any other point.
+
+See below for an illustration where the red points $A,B,C,D$ are all maximal points in the diagram.
+\begin{center}
+\begin{tikzpicture}[scale=0.8]
+  % Draw axes
+  \draw[->] (0,0) -- (11,0) node[right] {};
+  \draw[->] (0,0) -- (0,6) node[above] {};
+  
+  % Define points
+  \coordinate (A) at (2,5);
+  \coordinate (B) at (5,4.7);
+  \coordinate (C) at (8,4.2);
+  \coordinate (D) at (10,3);
+
+  \fill[black] (5,3) circle (2pt);
+  \fill[black] (3,3) circle (2pt);
+  \fill[black] (2,1) circle (2pt);
+  \fill[black] (8,1) circle (2pt);
+  \fill[black] (7,3) circle (2pt);
+  \fill[black] (4,2) circle (2pt);
+  \fill[black] (2,4) circle (2pt);
+  \fill[black] (6,2) circle (2pt);
+  \fill[black] (3.3,4.3) circle (2pt);
+  % Draw points
+
+  \foreach \point in {A, B, C, D} {
+    \fill[red] (\point) circle (2pt);
+  }
+  
+  % Label all points
+  \foreach \point in {A, B, C, D} {
+    \node[above right] at (\point) {$\point$};
+  }
+\end{tikzpicture}
+\end{center}
+
+Describe a \textit{parallel} algorithm to compute all maximal points in $P$ with $O((\log(n))^3)$ span and $O(n (\log(n))^2)$ work. Analyze the work and span of your algorithm. You do not need to prove the correctness of the algorithm, but be sure to describe it clearly.
+
+\textit{Hint.} Note that the input is assumed to be sorted. See last week's homework and think about how to parallelize it. Be careful not to introduce a determinancy race.
+
+\paragraph{Solution 4 (Algorithm)}
+
+\begin{algorithmic}[1]
+    \Procedure{findMax}{P, l, r}
+        \If{l = r}
+            \State \Return P[l]
+        \EndIf
+        \State m = $\lfloor \frac{l + r}{2} \rfloor$
+        \State \textbf{spawn} LC = \Call{findMax}{P, l, m}
+        \State RC = \Call{findMax}{P, m + 1, r}
+        \State \textbf{sync}
+        \State Ymax = \textbf{parallel} max $y_i \in$ RC \Comment{using alg. defined in lecture}
+        \State Ln = \Call{parallelFilter}{LC, Ymax}
+        \State \Return Ln + RC \Comment{for the sake of argument, implemented w/ some sort of list}
+    \EndProcedure
+\end{algorithmic}
+
+\begin{algorithmic}[1]
+    \Procedure{parallelFilter}{P, thresh}
+        \If{P.length = 1}
+            \If{P[0].y $>$ thresh}
+                \State \Return P  
+            \EndIf
+            \State \Return null
+        \EndIf
+        \State m = $\lfloor \frac{\text{P.length}}{2} \rfloor$
+        \State \textbf{spawn} L = \Call{parallelFilter}{subArray(P, from = 0, to = m)}
+        \State R = \Call{parallelFilter}{subArray(P, from = m + 1, to = P.length - 1)}
+        \State \textbf{sync}
+        \State \Return L + R \Comment{again, implemented w/ some sort of list}
+    \EndProcedure
+\end{algorithmic}
+
+\paragraph{Solution 4 (Explanation)}
+
+The \Call{findMax}{} algorithm works as follows:
+
+\begin{enumerate}
+    \item If the length of the input being considered is greater than 1, the input is split in half to be run on two separate threads.
+    \item Once the length of the input considered is 1, we return that point.
+    \item All points in the right subarray are (locally) maximal points.
+    \item We define Ymax as the maximal y-value in the right subarray. All points in the left subarray must have a greater y-value in order to be maximal. We use the parallel maximum algorithm from the lecture notes to implement this.
+    \item We call \Call{parallelFilter}{} to return only the points in the left subarray that are maximal (i.e., greater than this threshold).
+    \item We return only the maximal points - the filtered left subarray and the full right subarray. For the sake of argument, suppose P is implemented as some sort of a list (e.g., an ArrayList in Java), which makes concatenation a constant time operation.
+\end{enumerate}
+
+The \Call{parallelFilter}{} algorithm works as follows:
+
+\begin{enumerate}
+    \item If the length of the input being considered is greater than 1, the input is split in half on two separate threads.
+    \item If the length of the input is equal to 1, we return the input (if the y-value is greater than the required threshold Ymax), or null otherwise.
+    \item We return only the points meeting the criterion, concatenating the left and right subarrays (again, implemented as some sort of a list).
+\end{enumerate}
+
+\paragraph{Solution 4 (Span)}
+
+The \Call{findMax}{} algorithm continually divides the input P in half on separate threads, so that each thread snakes down a recursion tree of maximum depth O(log(n)). Then, at each of the O(log(n)) levels, it must find the maximum y value in the right candidates (in parallel; this runs in O(log(n)) time to schedule), and also calls \Call{parallelFilter}{}. \Call{parallelFilter}{} also continually divides the input in half for O(log(n)) depth on each thread, and then performs constant time operations. Performing O(log(n)) actions at each O(log(n)) depth in \Call{findMax}{} means that \Call{findMax}{} has a span of $O((\text{log}(n))^2)$.
+
+\paragraph{Solution 4 (Work)}
+
+The \Call{findMax}{} algorithm continually cuts its input in half, for a recursion tree of depth O(log(n)). At each of these steps, another O(log(n)) actions are performed for both the \textbf{parallel max} and the \Call{parallelFilter}{} actions, leaving us with $O((\text{log}(n))^2)$ actions. These are applied to all $n$ of the points in P, leaving us with a total work of $O(n(\text{log}(n))^2)$.
+
+\end{document}

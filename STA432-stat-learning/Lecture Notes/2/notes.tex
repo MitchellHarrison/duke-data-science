@@ -1,0 +1,271 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 2 - Point Estimators pt. 1}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Intro to Point Estimation}
+
+We have some data $X$ that are being collected, and we want to learn something
+about from where the data are generated. First, we need to aggregate our data.
+
+\begin{definition}
+    Let $X_{1}, \cdots , X_{n}$ be observable random variables of interest. Then
+    $T = \delta$ is some function of $X_{1}, \cdots , X_{n}$ is a
+    \textbf{statistic} where $\delta$ is a real-values function.
+    \begin{note}
+        Statistics \textit{cannot} be a function of unknowns.
+    \end{note}
+\end{definition}
+
+\subsection{Statistics}
+Let $X \sim N(\mu, \sigma^{2})$. $X$ \textit{is} a statistic, because the
+function $\delta = X$ (i.e. the identity function) returns $X$. Thus, random
+variables are statistics. Crucially, all statistics are also random variables.
+
+Let $X_{1}, \cdots , X_{n} \sim N(\theta, \sigma^{2})$. Say we know $\sigma^{2}$,
+but $\theta$ is unknown. Let $\bar X$ be the mean,
+\[
+\bar X = \frac{1}{n}\sum_{i=1}^{n}X_{i}.
+\]
+This is also a statistic, as it is a real-valued function of known quantities.
+Similarly, the \textit{median} is a statistic. However, the function
+\[
+\frac{\hat X - \mu}{\sigma / \sqrt{n}}
+\]
+is \textbf{not} a statistic. Because $\mu$ is unknown in our case, a function
+that contains it cannot be a statistic. However, if there was no $\mu$ in the
+function, because $\sigma$ and $n$ are know, that would be a statistic. 
+\begin{note}
+    \textit{Constants} (e.g. 7) are statistics as well, just not typically very
+    useful ones.
+\end{note}
+
+\subsection{Point estimation}
+\begin{definition}
+    \textbf{Point estimation} of parameters $\theta$, where $\theta$ is assumed
+    to be unknown but has a \textit{true} fixed value. We construct these using
+    estimators for $\theta$ that take the form
+    \[
+    \theta = \hat \theta = \delta(X),
+    \]
+    where $\delta$ is a function of the data $X$.
+\end{definition}
+
+\subsubsection{Point estimator example}
+Let $X_{1}, \cdots , X_{n} \sim N(\mu, \sigma^{2})$. Our unknown parameter of
+interest $\theta$ is $\mu$. One possible estimator of $\theta$ is $\bar X$, the
+mean of the observed data. Another would be a firm integer guess, like 5. Thus
+we can say
+\begin{align*}
+    \delta_{1}(X) &= \bar X\\
+    \delta_{2}(X) &= 5.
+\end{align*}
+But how do we know which of these estimators is "better"? We need to calculate
+both \textit{accuracy} and \textit{precision} for each and compare.
+\begin{definition}
+    \textbf{Accuracy} tells us how often, on average, we get the correct value
+    of $\theta$. That is,
+    \[
+        \mathbb{E}[\delta(X)|\theta] - \theta
+    \]
+    should be as small as possible.
+\end{definition}
+
+\begin{definition}
+    \textbf{Variance} describes the variability of our estimator. This is
+    represented by,
+    \[
+    Var(\delta(X)|\theta),
+    \]
+    and should also be as small as possible.
+\end{definition}
+
+However, because both accuracy and variance are conditional on the true
+parameter $\theta$, these quantities are not calculable directly. Thus, we need
+to introduce the concept of \textbf{loss}. 
+
+\subsection{Loss}
+We want estimators that are close to the unknown true parameter $\theta$. But
+there could be any number of possible values for $\theta$, so we seek to be as
+close as possible to a range of possible true values of $\theta$.
+
+\begin{definition}
+    \textbf{Closeness} describes how much we are willing to pay to be
+    $\ell(\theta,a)$ away from the true value of $\theta$. Here,
+    \[
+    \ell(\theta, a)
+    \]
+    is the \textbf{loss function}.
+\end{definition}
+
+For example, if we set $\ell$ to be
+\[
+\ell(\theta,a) = (\theta-a)^{2},
+\]
+this is the \textit{squared-error loss} function. The expected value of this
+function is the \textbf{mean-squared error} (MSE). Also importantly,
+\textbf{risk} is defined as
+\[
+    R_{\delta}(\theta) = \mathbb{E}_{X|\theta}[\ell(\theta, \delta(X))].
+\]
+That is, the expected loss given a loss function $\ell$.
+
+\subsubsection{Accuracy/precision example}
+Let $X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim} N(\mu, \sigma^{2})$. We
+are interested in $\mu$, and $\sigma^{2}$ is known. Thus, $\theta = \mu$. Recall
+that
+\begin{align*}
+    \delta_{1}(X) &= \bar X\\
+    \delta_{2}(X) &= 5.
+\end{align*}
+First, we find the expected value of $\delta_{1}(X)$.
+\begin{align*}
+    \mathbb{E}[\delta_{1}(X)|\theta) &= \mathbb{E}(X|\mu) \\
+                                     &= \frac{1}{n} \sum_{i=1}^{n}
+                                     \mathbb{E}(X_{i}|\mu) \\
+                                     &= \frac{1}{n}\sum_{i=1}^{n}\mu \\
+                                     &= \mu
+\end{align*}
+Because $\mathbb{E}(\delta_{1}(X)) = \mu$, we know that the accuracy is
+\[
+    \mathbb{E}[\delta_{1}(X)|\theta] - \mu = \mu - \mu = \boxed{0}.
+\]
+That is, it is perfectly accurate. However, we need to find $Var(\delta_{1}(X))$,
+\begin{align*}
+    Var[\delta_{1}(X)|\theta] &= Var\left(\frac{1}{n}\sum X_{i}\right) \\
+                              &= \frac{1}{n^{2}}\sum Var(X_{i}) \\
+                              &= \frac{\sigma^{2}}{n}.
+\end{align*}
+That is, it has a non-zero variance. This should not be suprising. Now, we find
+the same expected value and variance of $\delta_{2}(X)$. Finding variance of a
+constant is trivial, since it is always zero. Similarly simply, the accuracy is
+simply $5-\mu$. Thus, $\delta_{2}(X)$ has less variability but also less
+accuracy.
+
+\subsection{Mean squared error (MSE)}
+\begin{definition}
+    The \textbf{mean squared error} (MSE) is
+    \[
+        \mathbb{E}[(\delta(X) - \theta)^{2}] = \int_{-\infty}^{\infty}
+        (\delta(X) - \theta)^{2}f(X|\theta)dx.
+    \]
+    That is, it is the expected squared error between an estimator $\delta(X)$ 
+    and the true parameter $\theta$.
+\end{definition}
+Note that after step 1, we will drop the $X$ to remain as terse as possible.
+\begin{align*}
+    \mathbb{E}[(\delta(X) - \theta)^{2}] &= \mathbb{E}[(\delta(X) - 
+    \mathbb{E}(\delta(X)) + \mathbb{E}(\delta(X)) - \theta)^{2}] \\
+                         &= \mathbb{E}[(\delta - \mathbb{E}\delta)^{2} + 
+                         (\mathbb{E}\delta - \theta)^{2} + 2(\delta - 
+                         \mathbb{E}\delta)(\mathbb{E}\delta-\theta)]
+\end{align*}
+Note that from here, we see that $Var(\delta) = (\delta - \mathbb{E}\delta)^{2}$
+and $bias(\delta)^{2} = (\mathbb{E}\delta - \theta)^{2}$ are in our formula.
+Thus,
+\begin{align*}
+    \mathbb{E}[(\delta - \theta)^{2}] &= Var(\delta) + bias(\delta)^{2} + 
+    2\mathbb{E}[(\delta - \mathbb{E}\delta)(\mathbb{E}\delta-\theta)] \\
+                                      &= Var(\delta) + bias(\delta)^{2} + 
+                                      2(\mathbb{E}\delta-
+                                      \theta)\mathbb{E}[\delta - 
+                                      \mathbb{E}\delta]
+\end{align*}
+Note that $\mathbb{E}(\delta - \mathbb{E}\delta) = 0$. Thus, the MSE of 
+ $\delta(X)$ is,
+\[
+\boxed{\mathbb{E}[\delta(X) - \theta)^{2}] = Var(\delta) + bias(\delta)^{2}}. 
+\]
+\subsection{Efficiency}
+\begin{definition}
+    Let $\hat \theta_{1}$ and $\hat \theta_{2}$ be unbiased estimators of
+    $\theta$. If $Var(\hat \theta_{1}) < Var(\hat \theta_{2})$, the we say that
+    $\hat \theta_{1}$ is more \textbf{efficient} than $\hat \theta_{2}$.
+\end{definition}
+If we restrict ourselves to unbiased estimators (i.e. with perfect accuracy), 
+we compare variance to find efficiency. A class of these unbiased estimators are
+any $\hat \theta$ where the following holds,
+\[
+    \hat \theta_{a} = \sum_{i=1}^{n}a_{i}X_{i} \text{  where  } \sum_{i=1}^{n}
+    a_{i} = 1.
+\]
+\begin{note}
+    In the above class of unbiased estimators, if each $a_{i} = 1/n$, the
+    resulting $\hat \theta = \bar X$. If they are different weights that sum to
+    1, it is not $\bar X$, but is some other unbiased estimator.
+\end{note}
+Once we arrive at multiple unbiased estimators, we can find the variance of
+each of them. As variances get smaller, estimator become increasingly
+\textit{efficient}. It turns out, variance is minimized when all $a_{i}$ are
+equal. That is, the \textit{mean} is the most efficient unbiased estimator in 
+this specific class of estimator.
+
+\end{document}

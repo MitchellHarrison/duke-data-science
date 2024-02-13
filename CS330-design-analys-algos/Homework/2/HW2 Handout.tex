@@ -1,0 +1,482 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amsfonts}
+\usepackage[noend]{algpseudocode}
+\usepackage{algorithm}
+\usepackage[parfill]{parskip}
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
+\usepackage{hyperref}
+\usepackage[english]{babel}
+\usepackage[autostyle]{csquotes}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\definecolor{color1}{rgb}{0.7, 0.2, 0.2}
+\definecolor{color2}{rgb}{0.0, 0.4, 0.0}
+\definecolor{color3}{rgb}{0.2, 0.4, 0.7}
+
+%--------------------------------------------------------%
+
+
+\title{\vspace{-0.5in}Compsci 330 Design and Analysis of Algorithms \\Assignment 2, Spring 2024 Duke University}
+\author{Dav King, Mitch Harrison}
+\date{Due Date: Thursday, February 1, 2024}
+
+%--------------------------------------------------------%
+
+\begin{document}
+
+\maketitle
+
+
+%--------------------------------------------------------%
+
+\paragraph{How to Do Homework.} We recommend the following three step process for homework to help you learn and prepare for exams.
+\begin{enumerate}
+	\item Give yourself ~15-20 minutes per problem to try to solve on your own, without help or external materials, as if you were taking an exam. Try to brainstorm and sketch the algorithm for applied problems. Don't try to type anything yet.
+	\item After a break, review your answers. Lookup resources or get help (from peers, office hours, Ed discussion, etc.) about problems you weren't sure about.
+	\item Rework the problems, fill in the details, and typeset your final solutions.
+\end{enumerate}
+
+\paragraph{Typesetting and Submission.} Your solutions should be typed and submitted as a single pdf on Gradescope. Handwritten solutions or pdf files that cannot be opened will not be graded. \LaTeX \footnote{If you are new to \LaTeX, you can download it for free at \href{https://www.latex-project.org}{latex-project.org} or you can use the popular and free (for a personal account) cloud-editor \href{https://www.overleaf.com}{overleaf.com}. We also recommend \href{https://www.overleaf.com/learn}{overleaf.com/learn} for tutorials and reference.} is preferred but not required. %If you use another editor for your solutions (such as Microsoft Word), you should convert the final document to a pdf, confirm that the symbolic math from the equation editor is properly formatted, and submit the pdf. 
+You must mark the locations of your solutions to individual problems on Gradescope as explained in \href{https://help.gradescope.com/article/ccbpppziu9-student-submit-work#submitting_a_pdf}{the documentation}. Any applied problems will request that you submit code separately on Gradescope to be autograded. 
+
+\paragraph{Writing Expectations.} If you are asked to provide an algorithm, you should clearly and unambiguously define every step of the procedure as a combination of precise sentences in plain English or pseudocode. If you are asked to explain your algorithm, its runtime complexity, or argue for its correctness, your written answers should be clear, concise, and should show your work. Do not skip details but do not write paragraphs where a sentence suffices.
+
+\paragraph{Collaboration and Internet.} If you wish, you can work with a single partner (that is, in groups of 2), in which case you should submit a single solution \href{https://help.gradescope.com/article/m5qz2xsnjy-student-add-group-members}{as a group on gradescope}. You can use the internet, but looking up solutions or using large language models is unlikely to help you prepare for exams. See the \href{https://sites.duke.edu/spring24compsci330/policies/}{course policies webpage} for more details.
+
+\paragraph{Grading.} Theory problems will be graded by TAs on an S/U scale (for each sub-problem). Applied problems typically have a separate autograder where you can see your score. The lowest scoring problem is dropped. See the \href{https://sites.duke.edu/spring24compsci330/assignments/}{course assignments webpage} for more details.
+
+
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 1 (Binary Search Trees).} You are given two binary search trees $A$ and $B$, each storing a set of $n$ integer elements. Each node in the trees contains the integer element and a left and right child node reference; a NULL reference indicates there is no child.
+
+Describe an $O(n)$ runtime algorithm that returns a binary search tree with height $O(\log(n))$ containing the union of the elements in $A$ and $B$. Briefly explain the runtime complexity of your algorithm. Prove the correctness of the algorithm.  
+
+\textit{Hint.} Consider breaking the algorithm down into three steps: (i) traverse $A$ and $B$ to get their elements in sorted order, (ii) merge the elements, and (iii) construct a balanced binary search tree of the merged elements. If you use the merge procedure from mergesort, you can assume its correctness without proof.
+
+\paragraph{Solution 1 (Algorithm).}
+There are two helper procedures that we will use. \Call{Traverse}{} and
+\Call{Construct}{}, which create sorted arrays from binary search trees and
+create BSTs from sorted arrays respectively. We will use the \Call{Merge}{}
+procedure from \Call{MergeSort}{}, for which we are told to assume correctness.
+
+Let \texttt{node} be a node that has child nodes \texttt{node.left} and \texttt{node.right} and contains an integer \texttt{node.value} 
+\begin{algorithm}
+\caption{traverse a BST to create a sorted array $A$}
+\begin{algorithmic}[1]
+\Procedure{Traverse}{node}
+\State $A = [\;]$
+\If{node.left and node.right are \texttt{NULL} }
+\Comment{node is a leaf}
+    \State append node.value to $A$
+\Else
+\If{node.left exists}
+    \State append \Call{Traverse}{node.left}
+    \State append node.value to $A$
+\EndIf
+\If{node.right exists}
+    \If{!node.left exists}
+        \State append node.value to $A$
+        \Comment{in case only right child exists}
+    \EndIf
+    \State append \Call{Traverse}{node.right} to $A$
+    \Comment{left subtree has already been appended}
+\EndIf
+\EndIf
+\State \Return $A$
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{convert sorted array $A$ into a BST}
+\begin{algorithmic}[1]
+\Procedure{Construct}{$A,l,r$}
+    \State mid = $\lfloor \frac{l+r}{2} \rfloor$
+    \If{mid $=0$}
+    \State \Return node($A[0]$)
+    \EndIf
+    \State root = node($A[mid])$
+    \State root.left = \Call{Construct}{$A, l, mid-1$}
+    \State root.right = \Call{Construct}{$A, mid+1, r$}
+    \State \Return root
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+Assuming for now that these functions are correct, our final function
+\Call{MergeBST}{$A,B$} will be as follows, where $n$ is the combined number
+of elements in both starting trees $A$ and $B$.
+
+\begin{algorithm}
+\caption{merge two BSTs into one larger one}
+\begin{algorithmic}[1]
+\Procedure{MergeBST}{$A,B$}
+    \State $arrA$ = \Call{Traverse}{$A$}
+    \State $arrB$ = \Call{Traverse}{$B$}
+    \State $merged$ = \Call{Merge}{$arrA,arrB$}
+    \Comment{merge procedure from mergesort}
+    \State \Return \Call{Construct}{$merged, 0, n-1$}
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+\pagebreak
+
+We will now prove that both \Call{Traverse}{} and \Call{Construct}{} are
+correct. Once we do, showing that \Call{MergeBST}{} will be trivial.
+
+\textbf{To prove:} \Call{Traverse}{} creates an ordered array $A$ from a given
+binary search tree.
+
+Let \texttt{node} be a single node in a binary search tree. It may or may not
+have a child node to the left or right.
+
+\textbf{Base case:} \texttt{node} is a leaf. That is, it has no child nodes. In
+that case, \Call{Traverse}{} returns \texttt{node} itself. Since leaf nodes
+have no left or right sub-trees, this is correct.
+
+\textbf{Suppose} that for any step $k-1$, \Call{Traverse}{} has correctly
+created $A$, a sorted array of the elements that \Call{Traverse}{} has seen
+thus far. This is our inductive hypothesis (IH).
+
+\textbf{Cases:} At step $k$, there are three possible cases.
+\begin{enumerate}
+    \item \texttt{node}  is a leaf. This is the base case, and is known to be
+        correct.
+    \item \texttt{node} has a left child node. In that case, \Call{Traverse}{}
+        creates a sorted array of the values in the left subtree of \texttt{node} 
+        per the induction hypothesis. The values of \texttt{node.value} is then
+        appended to that sorted array. Since all values in the left subtree are
+        less than \texttt{node.value}, this behavior is correct.
+    %\item \texttt{node} has a right child node. For this to be the case, 
+        %\texttt{node }must also have a left child (by the structure of a binary
+        %search tree). After the traversal of the left subtree has taken place
+        %per case 2), \Call{Traverse}{} creates a sorted array of the values in
+        %the right subtree per the induction hypothesis, and appends it to the
+        %array returned by \Call{Traverse}{}. Since these values are all
+        %strictly greater than \texttt{node.value}, the final array returned
+        %by \Call{Traverse}{} is sorted. This is correct behavior.
+    \item \texttt{node} has a right child node. In this case, after the traversal of the left subtree has taken place (if it exists), \Call{Traverse}{} creates a sorted array of the values in the right subtree per the induction hypothesis (after appending \texttt{node.value}, if the left subtree does not exist), and appends it to the array returned by \Call{Traverse}{}. Since these values are all strictly greater than \texttt{node.value}, the final array returned by \Call{Traverse}{} is sorted. This is correct behavior.
+\end{enumerate}
+
+For the base case and all possible steps, \Call{Traverse}{} is correct.
+Therefore, \Call{Traverse}{} returns a sorted array $A$ of all elements in
+binary search tree $B$.
+
+We will now prove the correctness of the \Call{Construct}{} procedure. 
+
+\textbf{To prove:} the \Call{Construct}{} procedure takes a single sorted
+array $A$ and converts it into a binary search tree $B$.
+
+\textbf{Suppose} that at any given step, \Call{Construct}{} has constructed a
+binary search tree using the elements in $A[l:r]$. The root of this BST is
+necessarily $A[mid]$.
+
+\textbf{Base case:} when $mid=0$ (i.e. $l=r$), there is only a single element
+in $A$. In this case, a single node with value $A[0]$ is returned. This is 
+trivially a binary search tree, since it is a tree of a single node.
+
+Our inductive hypothesis allows us to assume that \Call{Construct}{} correctly
+constructs the left subtree using $A[l:mid-1]$ and the right subtree using
+$A[mid:r]$. In order to show that it creates a complete BST using $A[l:r]$, 
+we show three \textbf{cases:}
+
+\begin{enumerate}
+    \item \texttt{node} is a leaf. This is the base case, and is shown to be
+        true.
+    \item \texttt{node} has a left subtree. By the induction hypothesis, 
+        \Call{Construct}{} will return a BST using the sorted elements
+        $A[l:mid-1]$. \Call{Construct}{} will make this BST the left subtree
+        of \texttt{node}, which has value $A[mid]$. Since $A$ is sorted,
+        $A[l:mid-1] < A[mid]$. Therefore, the left subtree of \texttt{node} is
+        correct.
+    \item \texttt{node}  has a right subtree. By the induction hypothesis,
+        \Call{Construct}{} will return a BST using the sorted elements
+        $A[mid+1:r]$. Since $A$ is sorted, $A[mid+1:r]>A[mid]$ and the right
+        subtree of \texttt{node} is correct. Since this case can only occur
+        if \texttt{node} also has a left subtree, the BST returned is correct
+        for $A[l:r]$.
+\end{enumerate} 
+
+Since we have shown that \Call{Construct}{} is correct for all possible 
+$A[l:r]$, then \Call{Construct}{} is correct.
+
+Finally (and trivially), we can show that our final algorithm \Call{MergeBST}{}
+is correct. This will not require induction.
+
+\textbf{To prove:} the \Call{MergeBST}{} procedure combines the elements of
+two binary search trees into a single binary search tree.
+
+The algorithm first converts the two binary search trees $A$ and $B$ to sorted
+arrays using the \Call{Traverse}{} procedure, which we have proven to be correct.
+Then, those arrays are merged using the \Call{Merge}{} procedure from 
+\Call{MergeSort}{}, for which we are told to assume correctness. Finally,
+that single merged array is used to build a binary search tree using the
+\Call{Construct}{} procedure, for which we have also proven correctness.
+
+Therefore, for any binary search trees, $A$ and $B$, \Call{MergeBST}{} will
+combine them into a single, larger BST.
+
+To analyze the \textbf{runtime complexity} of our algorithm, we can obesrve
+that \Call{Traverse}{} does $n$ total work each time it is called in 
+\Call{MergeBST}{}, for a total of $2n$ work. The \Call{Merge}{} procedure from
+\Call{MergeSort}{} runs in $O(nlog(n))$, and since each element of $A$ is
+processed exactly once in \Call{Construct}{}, it also runs in $O(n)$. This 
+leaves us with our final runtime,
+\[
+O(n) + O(n) + O(n) + O(nlog(n)) = 3O(n) + O(nlog(n)).
+\]
+Since the $O(nlog(n))$ term dominated as $n \rightarrow \infty$, the
+asymptotic complexity of \Call{Construct}{} is 
+\[
+    \boxed{O(nlog(n))}.
+\]
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 2 (Median).} You are given an array $A$ of $n$ unique integers, not necessarily sorted. 
+
+Describe an efficient randomized algorithm to compute the median value of the elements of $A$. By efficient, the algorithm should have an \textit{expected} runtime that is $O(n)$. Analyze the expected runtime complexity of your algorithm. Prove the correctness of the algorithm.
+
+\textit{Hint.} Remember the median is the element that would be ``in the middle'' of an array if it were sorted (the element itself or the average of two if $n$ is even). Think about adapting the quicksort algorithm. Solving a recurrence relation might \textit{not} be the easiest way to analyze the runtime. If you use the same \Call{partition}{} procedure from lecture/book, you can assume its correctness.
+
+\paragraph{Solution 2 (Algorithm)}
+
+\begin{algorithmic}[1]
+    \Procedure{findMedian}{A, l, r}
+        \If{l == r}
+            \If{$n$ is odd}
+                \State \Return A[l];
+            \ElsIf{l == $\frac{n}{2}$}
+                \State \Return (A[l - 1] + A[l]) / 2
+            \Else 
+                \State \Return (A[l] + A[l + 1]) / 2
+            \EndIf
+        \EndIf
+        \If{l $>$ r}
+            \State \Return (A[l] + A[r]) / 2
+        \EndIf
+        \State d = random int $\in [l, r]$
+        \State \Call{swap}{A[d], A[r]}
+        \State p = l
+        \State \Call{partition}{A[l to r inclusive], pivot = p} \Comment{p updates}
+        \If{p $>$ (n - p - 1)}
+            \State \Return \Call{findMedian}{A, l, p - 1}
+        \ElsIf{p $<$ (n - p - 1)}
+            \State \Return \Call{findMedian}{A, p + 1, r}
+        \Else
+            \State \Return A[p]
+        \EndIf
+    \EndProcedure
+\end{algorithmic}
+
+\paragraph{Solution 2 (Proof)}
+
+\begin{itemize}
+    \item We wish to \textbf{prove} that \Call{findMedian}{} returns the correct median of an array. The logic of this method differs between odd- and even-length arrays. In either case, it will suffice to say that the search range [l, r] is of size 1 and that it is correctly the median of the array (or one of the two bookends, for even $n$).
+    \item The \textbf{base case} is when our search range [l, r] contains at most 1 element (except for in the special case where l $>$ r). Then there are several possible cases: \begin{enumerate}
+        \item l == r and $n$ is odd. In this case, we have correctly found the singular median of the array, and we return it.
+        \item l == r and l = $\frac{n}{2}$. In this case, we have correctly found the upper bookend of the median of an even-length array. We return the midpoint of this element and the one immediately preceding it in the array, which will be the lower bookend.
+        \item l == r and l $\neq \frac{n}{2}$. In this case, we have correctly found the lower bookend of the median of an even-length array. We return the midpoint of this element and the one immediately following it in this array, which will be the upper bookend.
+        \item l $>$ r. In this case, we have found both the upper bookend (l) and lower bookend (r) of an even-length array. We return the midpoint of these two bookends.
+        \item After partitioning, 2p = $n - 1$. In this case, the partition procedure found the correct median A[p] of an odd-length array, and we return it.
+    \end{enumerate}
+    \item \textbf{Suppose} that, on the $k^{th}$ call, the algorithm has been correct for $k - 1$ steps. That is, the median value (or at least one bookend) is contained on the interval [l, r], where every value $<$ l is below the median, and every value $>$ r is above the median. Then, after partitioning around a random pivot d, we have index p being evaluated as a median, where all values less than A[p] are at indices lower than p, and all values greater than A[p] are at indices greater than p. Then, testing to see whether A[p] is the median, we have one of three options: \begin{enumerate}
+        \item p $>$ (n - p - 1). In this case, p must be greater than the midpoint of an array (or equal to the upper bookend, which is handled in the base cases) since there are more elements in range [0, p - 1] than there are in range [p + 1, n - 1]. Thus, p must be greater than the true median, and so the search range of \Call{findMedian}{} can be reduced to [l, p - 1] (in which range the median must lie).
+        \item p $<$ (n - p - 1). In this case, p must be less than the midpoint of an array (or equal to the lower bookend), since there are more elements in range [p + 1, n - 1] than there are in range [0, p - 1]. Thus, p must be less than the true median, and so the search range of \Call{findMedian}{} can be reduced to [p + 1, r] (in which range the median must lie).
+        \item p = n - p - 1. This means that p is the exact midpoint, and we return A[p] as mentioned in base case 5.
+    \end{enumerate}
+    \item In any of these cases, we either return the correct median of the array, or restrict the range in which the midpoint must lie (without needing to sort the entire array, except in the worst possible case).
+\end{itemize}
+
+\paragraph{Solution 2 (Runtime)}
+
+Assume, for lack of more directed guidance, that the elements of A are drawn randomly from some more or less uniform distribution. Then, as we select a random pivot d from [l, r], we partition A around the pivot d. If d does not result in the correct median, we call \Call{findMedian}{} on A, ranging over only [l, p - 1] or [p + 1, r]. Thus, on every call, we \textbf{expect} the size of our input in the next call to \Call{findMedian}{} to be half the size of the input of our current call. On every iteration of \Call{findMedian}{} except for the base case, we need to call \Call{partition}{}, which runs in O($n$) time. Thus, we have \textbf{expected} recurrence relation
+
+\begin{equation*}
+    T(n) = T \left ( \frac{n}{2} \right ) + O(n)
+\end{equation*}
+
+This is a common recurrence relation, and its solution is O(n). Thus, we know that, in the \textbf{expected} case, the runtime of \Call{findMedian}{} is
+
+\begin{equation*}
+    \boxed{O(n)}
+\end{equation*}
+
+%--------------------------------------------------------%
+\newpage
+\paragraph{3. Maximal Points.} You are given an array $P = [(x_0, y_0), \dots, (x_{n-1}, y_{n-1})]$ of $n$ unique points in the two-dimensional Euclidean plane. A point \( (x_i, y_i) \) \textit{dominates} another point \( (x_j, y_j) \) if \( x_i > x_j \) and \( y_i \geq y_j \) or \( x_i \geq x_j \) and \( y_i > y_j \) (that is, if it is up and to the right). A point is \textit{maximal} if it is not dominated by any other point.
+See below for an illustration where the red points $A,B,C,D$ are all maximal points in the diagram.
+\begin{center}
+\begin{tikzpicture}[scale=0.8]
+  % Draw axes
+  \draw[->] (0,0) -- (11,0) node[right] {};
+  \draw[->] (0,0) -- (0,6) node[above] {};
+  
+  % Define points
+  \coordinate (A) at (2,5);
+  \coordinate (B) at (5,4.7);
+  \coordinate (C) at (8,4.2);
+  \coordinate (D) at (10,3);
+
+  \fill[black] (5,3) circle (2pt);
+  \fill[black] (3,3) circle (2pt);
+  \fill[black] (2,1) circle (2pt);
+  \fill[black] (8,1) circle (2pt);
+  \fill[black] (7,3) circle (2pt);
+  \fill[black] (4,2) circle (2pt);
+  \fill[black] (2,4) circle (2pt);
+  \fill[black] (6,2) circle (2pt);
+  \fill[black] (3.3,4.3) circle (2pt);
+  % Draw points
+
+  \foreach \point in {A, B, C, D} {
+    \fill[red] (\point) circle (2pt);
+  }
+  
+  % Label all points
+  \foreach \point in {A, B, C, D} {
+    \node[above right] at (\point) {$\point$};
+  }
+\end{tikzpicture}
+\end{center}
+Describe an efficient algorithm to compute all maximal points in $P$.  Derive and solve a recurrence relation to analyze the runtime complexity of the algorithm. Prove the correctness of the algorithm.
+
+\textit{Hint.} The input is not sorted, though you could sort it in $O(n \log(n))$ time using, for example, mergesort, if that would be helpful for your algorithm (you do not need to repeat how mergesort works if you use it for this problem and you can assume its correctness).
+
+\paragraph{Solution 3 (algorithm)}
+
+\begin{algorithmic}[1]
+    \Procedure{FindMaxR}{P}
+        \If{P.length == 1}
+            \State \Return P
+        \EndIf
+        \State mid = $ \lfloor \text{P.length} / 2 \rfloor $
+        \State LC = \Call{findMaxR}{$P[0:mid-1]$}
+        \State RC = \Call{findMaxR}{$P[mid:length(p)-1]$}
+        \State combined = \Call{MergeMaximals}{LC, RC}
+        \State \Return combined
+    \EndProcedure
+\end{algorithmic}
+
+\begin{algorithm}
+\caption{Merge two arrays of maximal points}
+\begin{algorithmic}[1]
+\Procedure{MergeMaximals}{$LC, RC$}
+    \State $M = [\;]$
+    \State $i=0$
+    \State $j=0$
+    \State $y_{prev} = -\infty$
+    \Comment{keep track of previously appended $y$ value}
+    \While{$i < length(LC)$ \textbf{or} $j < length(RC)$}
+    \State $p_{curr}$ is either $LC[i]$ or $RC[j]$, whichever has larger $x$
+    \If{$p_{curr}.y > y_{prev}$}
+        \State append $p_{curr}$ to $M$
+        \State $y_{prev} = p_{curr}.y$
+    \EndIf
+    \If{$p_{curr}$ is $LC[i]$}
+    \Comment{incriment counters in all cases}
+        \State $i = i +1$
+    \Else
+        \State $j = j + 1$
+    \EndIf
+    \EndWhile
+    \State \Return $M$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+%--------------------------------------------------------%
+
+We will now prove the correctness of \Call{FindMaxR}{} by first proving the
+correctness of \Call{MergeMaximals}{}, which finds the maximal points among 
+two subarrays of points $LC$ and $RC$ that have been sorted by decreasing
+$x$ value.
+
+\textbf{To prove:} the \Call{MergeMaximals}{} procedure returns an array of
+maximal points, sorted by $x$ value, from points inside of subarrays $LC$ and
+$RC$.
+
+\textbf{Base case:} if $LC$ and $RC$ are both empty lists, an empty list is
+returned. This is trivially correct.
+
+\textbf{Suppose} that \Call{MergeMaximals}{} correctly finds maximal points
+from two sublists of size $k-1$ and sorts them by descending $x$ value. This is our inductive hypothesis.
+
+When finding whether or not point $i$ is maximal, there are three possible
+\textbf{cases}:
+\begin{enumerate}
+    \item Point $i$ has the largest $x$ value among both subarrays. In this case,
+        $i$ is maximal by definition. Setting $y_{prev} = -\infty$ makes this
+        case correct, as the first point's $y$ value will always be greater
+        than $-\infty$.
+    \item Point $i$ has a smaller $x$ value than the previous maximal point. If
+        its $y$ value is greater than the previous maximal, $i$ is maximal. If
+        this is the case, the conditional statement at line 8 appends $i$ to
+        $M$, which is correct.
+    \item Point $i$ has a smaller $x$ and $y$ value than the previous maximal.
+        In this case, $i$ is not maximal. In this case, the conditional at line
+        8 will not be true, and the point will not be appended. This is correct.
+\end{enumerate}
+
+Because we assumed that $LC$ and $RC$ correctly contained all previous maximal
+points, and have shown than in all cases, \Call{MergeMaximals}{} correctly 
+merges $LC$ and $RC$, we have shown that \Call{MergeMaximals}{} is correct.
+
+Now we are able to prove the correctness of \Call{FindMaxR}{}. We want
+\textbf{to prove} that given an array of points $P$, \Call{FindMaxR}{} returns
+an array of maximal points.
+
+\textbf{Base case:} If $P$ is length 1, \Call{FindMaxR}{} returns $P$. This is
+trivially correct, as any single point is automatically maximal.
+
+\textbf{Suppose} that previous $k-1$ recursive calls return an array $P$ of
+appropriate size. This is our inductive hypothesis.
+
+At step $k$, for all arrays $P$ of length $>1$, \Call{FindMaxR}{} creates two
+subarrays $LC$ and $RC$ containing elements $P[0:mid-1]$ and $P[mid:length(P)
+-1$ respectively. Together, these two subarrays make up disjoint partitions of
+$P$, which is correct.
+
+Those subarrays are then merged to find the maximal points in each, using the
+\Call{MergeMaximals}{} procedure, for which we have already proved correctness.
+
+\textbf{Therefore}, for a list of points $P$ of any length, \Call{FindMaxR}{}
+returns an array of all maximal points in $P$. \Call{FindMaxR}{} is correct.
+
+We can now solve a recurrence relation to analyze the runtime of 
+\Call{FindMaxR}{}. At each step, the array $P$ is cut into to equal (or
+off-by-one in the case of odd-number lengths). \Call{FindMaxR}{} is then called
+on both of those halves. This is $2T(\frac{n}{2})$. At each iteration,
+\Call{MergeMaximals}{} does $n$ work, iterating through both subarrays of $P$.
+This leaves us with a total recurrence relation of
+\[
+2T\left(\frac{n}{2}\right) + n = O(nlog(n)).
+\]
+This makes sense, as we are effectively performing a modified \Call{MergeSort}{}
+procedure, which also runs in $O(nlog(n))$ time.
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 4 (Applied).} You are designing a piece of software for aircraft controllers that attempts to detect planes that are dangerously close. In particular, your software must calculate the minimum distance between any two (distinct) planes so that if there are any active flights less than some minimum allowable safe distance, an alarm can be raised. Plane locations will be represented by (x, y)-coordinate points (we will ignore height/altitude) and the distance to be used is the standard \href{https://en.wikipedia.org/wiki/Euclidean_distance}{Euclidean distance} (where $d((x_1, y_1), (x_2, y_2)) = \sqrt{(x_1-x_2)^2 + (y_1-y_2)^2}$). 
+
+You \textbf{need to design and implement an algorithm that efficiently determines the minimum distance between any two distinct planes.}  Your solution's efficiency will be checked by comparing if its empirical runtime is within constant factors of an $O(n \log^2(n))$ reference solution (where $n$ is the number of points). \textit{Hint.} Remember this is the assignment on recursive divide and conquer algorithms. How can you divide the input spatially, in terms of their x or y coordinates? If you recurse on both divided sides, how can you combine the results? Finally, is there anything you need to check other than the two recursive results? 
+
+Language-specific details follow. You can use whichever of Python or Java you prefer. You will receive automatic feedback when submitting, and you can resubmit as many times as you like up to the deadline. Gradescope will provide a score out of 10; any score of 6 or above will be counted as S and receive full credit [though we encourage you to try to optimize your solution further].
+
+\begin{itemize}
+	\item \textbf{Python.} You should submit a file called \texttt{closest.py} to the Gradescope item ``Assignment 2 - Applied (Python).'' The file should define (at least) a top level function with the signature \texttt{def minimum\_distance(points)}. The input \texttt{points} will be a list of tuples of $(x, y)$ coordinate pairs, for example \texttt{[(0, 0), (2, 2.5), (3, 1.5)]}. Your function should return the minimum Euclidean distance between any pair of points; it would return $\sqrt{2} \approx 1.414$ on the example input above, the distance between \texttt{(2, 2.5)} and \texttt{(3, 1.5)}.
+
+	\item \textbf{Java.} You should submit a file called \texttt{Closest.java} to the Gradescope item ``Assignment 2 - Applied (Java).''. The file should define a \texttt{public class Closest} and (at least) a method with the signature \texttt{public static double minimumDistance(List<double[]> points)}. The input \texttt{points} will be a list of length-2 arrays representing \texttt{{x, y}} coordinate pairs, for example \texttt{[\{0, 0\}, \{2, 2.5\}, \{3, 1.5\}]}. Your function should return the minimum Euclidean distance between any pair of points; it would return $\sqrt{2} \approx 1.414$ on the example input above, the distance between \texttt{\{2, 2.5\}} and \texttt{\{3, 1.5\}}.
+
+\end{itemize}
+
+\end{document}
