@@ -1,0 +1,217 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 11 - Depth-First Search}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Depth-First Search}
+
+\subsection{For undirected graphs}
+\begin{algorithm}
+\caption{depth-first search (undirected)}
+\begin{algorithmic}[1]
+\Procedure{dfs}{$u$}
+\State visited[$u$] = true
+\For{$(u,w)$ in $E$}
+    \If{not visited[$w$]}
+        \State \Call{DFS}{w}
+    \EndIf
+\EndFor
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+The runtime for this DFS algorithm is $O(n+m)$ (linear). We recurse on each of
+$n$ nodes at most once each. We consider each of $m$ edges at most twice, once
+from each endpoint.
+
+DFS is great for some common questions about a graph $G = (V,E)$:
+\begin{enumerate}
+    \item Given $G$ and vertices $s \in V$ and $t \in V$, does there exist a
+        path from $s$ to $t$?
+    \item Given a vertex $s$, which vertices are reachable from $s$?
+    \item Is the graph \textit{connected}? In other words, is it true that
+        for all $u,v \in V$ there exists a path from $u$ to $v$?
+\end{enumerate}
+
+\subsubsection{Reductions}
+Reducing $P$ to $P'$: if someone gave you an algorithm $A'$ for problem $P'$, 
+can we use it to design an algorithm $A$ to solve problem $P$? This is possible
+if we can convert the input of $P$ into a valid input for $P'$, solving $P'$
+with $A'(P')$, and then converting $A'(P')$ into the answer for $P$. The total 
+runtime of this procedute is the sum of those three steps.
+
+\subsubsection{Pathfinding with DFS}
+\begin{definition}
+    \textbf{Back edges} are edges that connect a node to a node that we have 
+    already traversed (in this case, using DFS). Note that if there are any
+    back edges, the graph has a \textit{cycle}.
+\end{definition}
+
+\begin{definition}
+    \textbf{Tree edges} are all edges in a graph that are not back edges.
+\end{definition}
+
+If we want the path to a node (and not just searching for a node), we can keep
+track of previous nodes and recover paths by \textbf{backtracking}. We can
+keep a \textit{previous lookup} table, in which one column is a node $n$, and the
+other column contains the note from which we arrived at $n$. In that case, we
+can traverse backwards using that previous lookup table, one node at a time,
+until we arrive at node at which we started.
+
+\subsubsection{Connected component}
+\begin{definition}
+    A \textbf{connected component} is a maximal subgraph with a path between
+    every pair of vertices. A subgraph is \textbf{maximal} if it contains all
+    possible vertices reachable from all vertices in the subgraph.
+\end{definition}
+
+Because \Call{dfs}{} only traverses vertices that can be reached from the
+starting node. If a graph has multiple components, we can keep iterating over
+vertices after our normal \Call{dfs}{} has completed. Once we have traversed
+every vertex of every component, we will call this \Call{AllDFS}{}.
+
+\begin{definition}
+    A multiple DFS trees is called a \textbf{DFS forest}.
+\end{definition}
+
+\pagebreak
+\section{DFS on Directed Graphs}
+In a directed graph, connectivity is not symmetric. We will need some extra
+vocabulary to distinguish some of the necessary parameters for traversing
+directed graphs with DFS.
+
+\subsection{Pre, Post, Clock}
+We will represent \textbf{pre-} and \textbf{post-time} value in a global table.
+We will get these pre and post times using a \texttt{clock} variable, which is
+initially set to 0. In the DFS itself, we use the clock before and after
+traversing (hence the names pre and post).
+\subsection{For undirected graphs}
+\begin{algorithm}
+\caption{depth-first search with clock}
+\begin{algorithmic}[1]
+\Procedure{dfs}{$u$}
+\State clock += 1
+\State pre[u] = clock
+\State visited[$u$] = true
+\For{$(u,w)$ in $E$}
+    \If{not visited[$w$]}
+        \State \Call{DFS}{w}
+    \EndIf
+\EndFor
+\State clock += 1
+\State post[u] = clock
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+Note that in the above algorithm, \Call{dfs}{} only explores a single connected
+component of a graph. We will later define \Call{allDFS}{}, which will ensure
+that we traverse the entire graph, regardless of the number of connected
+components.
+
+Observe that \texttt{pre} grows on the way "down" a DFS tree, and \texttt{post}
+incriments on the way back "up." 
+
+\begin{definition}
+    An edge is a \textbf{tree edge} if one node traverses to the next. A
+    \textbf{forward edge} is one that jumps more than one node "down" the
+    tree, skipping at least one node in the middle. A \textbf{back edge} was
+    defined earlier, and is when an edge connects a node from lower in the
+    tree to higher. A \textbf{cross edge} connects two connected components.
+\end{definition}
+
+\subsection{Directed Acyclic Graphs}
+\begin{definition}
+    A \textbf{directed acyclic graph} (DAG) has no back edges, at least one
+    \textbf{source} (node with no incoming edges), and at least one
+    \textbf{sink} (node with no outgoing edges).
+\end{definition}
+
+A DAG can be ordered so that all edges "go forward." That is, we number vertices
+so that any edges go from lesser to greater. This is called \textbf{topological
+ordering}. We get a topological ordering by running the \Call{allDFS}{}
+procedure. This orders vertices from \textit{greatest to least post time}. This is
+only a topological ordering if our graph is a DAG.
+
+Consider an arbitrary edge $u \rightarrow v$. Since the graph is a DSG, it is
+\textit{not} a back edge (DAGs have no back edges). There are some cases:
+\begin{enumerate}
+    \item This edge is a \textit{tree} or \textit{forward} edge. Then
+        $post[v] < pre[u] < post[u]$.
+    \item This edge is a \textit{cross} edge. In this case,
+        $post[v] < pre[u] < post[u]$
+\end{enumerate}
+In either case, $u$ has the greater post time and will appear earlier in the
+ordering. The runtime of this procedure is $O(nlog(n) + m)$ if we are explicitly
+sorting, and $O(n+m)$ if we simply add vertices to a stack in post order as we
+search.
+
+\end{document}

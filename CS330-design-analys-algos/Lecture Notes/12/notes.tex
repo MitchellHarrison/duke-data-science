@@ -1,0 +1,228 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 11 - Shortest Paths}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Wrapping Up DFS}
+
+We previously discussed the use of DFS to calculate the \textbf{topological
+ordering} of a directed acyclic graph (DAG). The simplest way to find this
+ordering is by running \Call{allDFS}{} and then sorting in ascending order of
+\texttt{post} time.
+
+\subsection{The longest path in a DAG}
+Fix a target vertex $t$, and we want to find the length of the \textit{longest
+path} to $t$ for a given node $u$.
+\[
+L(u) =
+\begin{cases}
+    0 & u=t \\
+    -\infty & u\ne t \text{ (no edges from $u$)}\\
+    1 + max(L[v]) & \text{otherwise}
+\end{cases}
+\]
+What is a valid iteration order in which to solve these subproblems? Suppose we
+are given a topological ordering of our graph $G$. In a topological ordering,
+we need to know the answers of the nodes to the "right" of the node for which 
+we are currently solving (i.e. all of the \textit{out neighbors}). We therefore
+must solve in reverse-topological order.
+
+\subsection{Strongly connected components}
+\begin{definition}
+    A subgraph $G' \subseteq G$ is a \textbf{strongly connected component} (SCC)
+    if it is a maximal subgraph such that for every pair of vertices 
+    $u,v \in G'$, there is a bath \textit{both} from $u$ to $v$ \textit{and} 
+    from $v$ to $u$ in $G'$.
+\end{definition}
+
+\begin{definition}
+    A \textbf{condensation} is a "meta-graph" in which each "node" is an SCC
+    of a larger graph $G$. The condensation is always a DAG.
+\end{definition}
+
+\subsection{Computing SCCs}
+Let $u$ be a vertex in a sink of the condensation of $G$. The vertices
+reachable from $u$ are an SCC of $G$.
+
+\begin{definition}
+The \textbf{reverse graph} $G^{R}=(V,E^{R})$ is simply the original graph $G$
+with the direction of all edges flipped. In the reverse graph, all sinks become
+sources and all sources become sinks. The structure of all SCCs remain the same
+in $G$ and $G^{R}$.
+\end{definition}
+
+To find a vertex in a sink SCC, we use the reverse graph. We \textbf{claim} that
+if we rull \Call{allDFS}{} on $G^{R}$, the vertex with the greates post time is
+in a sink component of the condensation of $G$. 
+
+Suppose $v$ in the SCC $C$ has the greatest post time. Suppose there is an edge
+$x \rightarrow y \in E$ that exits $C$. In that case, $y \rightarrow x \in 
+E^{R}$, so $v$ is reachable from $y$ in $G^{R}$. Consider two cases:
+\begin{enumerate}
+    \item \Call{dfs}{} gets called on $y$ first.
+    \item \Call{dfs}{} gets called on $v$ first.
+\end{enumerate}
+If we draw the results of these cases, we see that $y$ has the greatest post 
+time in both cases. However, we assumed that $v$ had the greatest post time. 
+This gives rise to a contradiction, which shows that our initial claim was
+correct.
+
+\subsubsection{SCC computation abstract}
+An informal idea for computing SCCs is that we repeatedly
+\begin{enumerate}
+    \item Find a vertex $u$ in a sink in the condensation of $G$.
+    \item Find vertices reachable from $u$.
+    \item Label this SCC and remove it from the graph.
+\end{enumerate}
+
+\pagebreak
+\section{Breadth-First Search (BFS)}
+\begin{definition}
+    A path $P_{s\rightarrow t}$ from $s$ to $t$ is a \textbf{shortest path} if
+    \[
+    |P_{s\rightarrow t}| \le |P'_{s\rightarrow t}|
+    \]
+    Where $|P|$ is the number of edges in $P$ for an unweighted graph and
+    $|P| = \sum_{(u,v) \in P}w(u,v)$ for a weighted path.
+\end{definition}
+
+\subsection{Single Source Shortest Path (SSSP)}
+Given a graph $G = (V,E)$ and a source vertex $s$, we compute
+\begin{enumerate}
+    \item the shortest path distance $d[u]$ from $s$ to $u$
+    \item The \textit{shortest path tree} (represented by \texttt{prev} 
+        pointers) with a unique path $P_{s\rightarrow u}$ that is a shortest
+        path from $s$ to $u$
+\end{enumerate}
+for every vertex $u$ reachable from $s$.
+
+\subsubsection{Shortest path optimal substructure}
+\textbf{Claim}: Suppose $P_{s\rightarrow u} + P_{u\rightarrow t}$ is a shortest
+path from $s$ to $t$ that passes through $u$. Then $P_{s \rightarrow u}$ is a
+shortest path from $s$ to $u$.
+
+\textbf{Suppose} that a path $P'_{s\rightarrow u}$ exists that is shorter than
+$P_{s\rightarrow u}$. Then, $|P'_{s\rightarrow u}| + P'_{u\rightarrow t}| <
+|P_{s\rightarrow u}| + P_{u\rightarrow t}|$. This is a contradiction. Therefore,
+our initial claim is correct.
+
+Given a shortest path $P_{s\rightarrow u} + P_{u\rightarrow t}$, and 
+$P_{s\rightarrow u}$ is the shortest path from $s$ to $u$, we should be able to
+solve the SSSP problem by computing
+\[
+d(v) =
+\begin{cases}
+    0 & v=s \\
+    1 + min[d(u)] & \text{otherwise}
+\end{cases}
+\]
+This raises the problem of cycles, which are the bane of many shortest-path 
+algorithms. We solve this problem with breadth-first search.
+
+\subsection{Nearer nodes first pattern}
+From a starting node $s$, we explore
+\begin{enumerate}
+    \item \textit{all} nodes reachable by 1 edge, then
+    \item \textit{all} nodes with shortest path distance 2, then
+    \item \textit{all} nodes with shortest path distance 3
+    \item continue
+\end{enumerate}
+
+This is often called a \textit{wavefront} pattern of exploration, because it
+resembles a wave eminating out from the spot into which a rock was thrown into a
+pond.
+
+\begin{algorithm}
+\caption{breadth first search}
+\begin{algorithmic}[1]
+\Procedure{bfs}{$s$}
+    \State Let $d,p$ be new length-$n$ lookup tables
+    \State Let $Q$ be a new FIFO queue
+    \State Add $s$ to $Q$
+    \State $d[s]=0$
+    \While{$Q$ is not empty}
+        \State $u = Q$.remove()
+        \For{$(u,v)$ in $E$}
+            \If{$v \notin d$}
+                \State $d[v] = 1 + d[u]$
+                \State $p[v] = u$
+                \State $Q$.add($v$)
+            \EndIf
+        \EndFor 
+    \EndWhile
+    \State \Return $d,p$
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+The total runtime of this \Call{bfs}{} algorithm is $O(n+m)$.
+
+\end{document}

@@ -1,0 +1,254 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 13 - Confindence Intervals cont'd}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+Recall that we were working with $X \sim Binom(n,p)$ with $p \in (0,1)$
+and a known $n$. Also recall the \textbf{interval rule}:
+\[
+\frac{X}{n} \pm \frac{1}{\sqrt{n}}.
+\]
+Where $n=500$, we saw that our worst case was
+\[
+\mathbb{P}\left(\frac{X}{n} - \frac{1}{\sqrt{n}} \le p \le
+    \frac{X}{n} + \frac{1}{\sqrt{n}}\right) \ge 95.6\%.
+\]
+We ended with another example, the \textit{normal} example. We had $n$ 
+measurements $X_{1}, \cdots , X_{n}$ that were undergoing some new intervention
+to help them sleep better. We said that 
+$X_{1}, \cdots ,X_{n}\overset{\mathrm{iid}}{\sim}N(\theta,\sigma^{2})$ with some
+known $\sigma^{2}$. Our rule for this case was
+\[
+\bar X \pm 1.96 \frac{\sigma}{\sqrt{n}},
+\]
+which was our 95\% confidence intervals for $\theta$.
+
+\pagebreak
+\section{Producing Rules for Large Classes of Models}
+In our normal case, the reason that we could say that
+\[
+\theta \in  \bar X \pm 1.96 \frac{\sigma}{\sqrt{n}}
+\]
+is because we know that
+\[
+-1.96 \le \frac{\bar X - \theta}{\sigma / \sqrt{n}} \le 1.96.
+\]
+These statements are equivalent. In the second form, we can leverege the fact
+that $\bar X \sim N(\theta, \sigma^{2}/n)$ to show that
+\[
+\frac{\bar X - \theta}{\sigma / \sqrt{n}} \sim N(0,1).
+\]
+To have 2.5\% of probability cut off at each tail (i.e. the 95\% confidence
+interval), the cutoff points on the $x$ axis is $ \pm 1.96$. Crucially, we can
+do this in reverse. We can start by finding the cutoff points (call them
+$ \pm Z$), and working backwards to find a rule. Observe that
+\[
+Z = \frac{\bar X - \theta}{\sigma/ \sqrt{n}} \sim N(0,1)
+\]
+has a value for all potential candidate values of $\theta$. For example, if
+$\theta = 2$ (i.e. $X_{i} \sim N(2, \sigma^{2})$, then
+\[
+\frac{\bar X - 2}{\sigma / \sqrt{n}} \sim N(0,1).
+\]
+If $\theta = -1$ (i.e., $X_{i} \sim N(-1, \sigma^{2})$), then
+\[
+\frac{\bar X + 1}{\sigma / \sqrt{n}} \sim N(0,1).
+\]
+\begin{note}
+    Notice the $+$ sign in the second numerator that is caused by having a 
+    value $\theta < 0$.
+\end{note}
+
+\begin{definition}
+This phenomenon where the distribution for $Z$ holds for all possible values
+of the parameter ($\theta$ in this case), $Z$ is called a \textbf{pivot}. The
+distrbution itself ($N(0,1)$ in this case) is called a \textbf{reference
+distribution}.
+\end{definition}
+
+We can reverse this process. That is, we can first find a pivot, use it to find
+a reference distribution, and find a rule from there.
+
+\subsection{Example}
+Let $X_{i}$ be the lifetime of light bulbs. We have data in the form
+\[
+X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim} Exponential(\theta).
+\]
+Recall that the pdf for an exponential distribution is
+\[
+f(x_{i}; \theta) = \theta e^{-\theta x_{i}}.
+\]
+It has the following:
+\begin{align*}
+    \mathbb{E}(X_{i}) &= \frac{1}{\theta} \\
+    Var(X_{i}) &= \frac{1}{\theta^{2}}.
+\end{align*}
+Recall that the sum of exponential random variables has the form
+\[
+    T = \sum_{i=1}^{n}X_{i} \sim Gamma(n, \theta).
+\]
+When we multiply a gamma by a constant $c$, the distribution becomes
+\[
+    cT \sim Gamma\left(n, \frac{\theta}{c}\right).
+\]
+Gammas are usually used to model times (e.g. wait times). If we want to scale
+that distribution (e.g. from hours to minutes), the constant that we multiply
+obeys the previous statement.
+
+Let us define $Z = g(T,\theta)$. If we want to get rid of the $\theta$ in the
+second parameter, we can use the constant rule to multiply $T$ by $\theta$,
+cancelling out $\theta$ when we do $\theta/\theta$. Thus,
+\[
+    Z = g(T,\theta) = T\theta \sim Gamma(n,1).
+\]
+\subsection{Basic algorithm for solving}
+The steps for finding rules in this way are:
+\begin{enumerate}
+    \item Find a pivot $Z$ and its reference distribution.
+    \item Find two numbers $a$ and $b$ such that $\mathbb{P}(a \le Z \le b)
+        = p\%$, where $p$ is whatever percent confidence interval we desire.
+    \item Rearranging terms of pivot to get a rule for $\theta$.
+\end{enumerate}
+Take our normal example. First we found that
+\[
+Z = \frac{\bar X - \theta}{\sigma/ \sqrt{n}} \sim N(0,1).
+\]
+Then, we found that the relevant bounds are $ \pm 1.96$. Thus $a =-1.96$ and
+$b=1.96$. Finally, we see that 
+\begin{align*}
+    &-1.96 \le Z \le 1.96  \\
+    &= -1.96 \le \frac{\bar X - \theta}{\sigma/\sqrt{n}} \le 1.96\\
+    &= \bar X - 1.96 \frac{\sigma}{\sqrt{n}} \le \theta \le
+    \bar X + 1.96 \frac{\sigma}{\sqrt{n}}.
+\end{align*}
+This is our final rule.
+
+\subsection{Example}
+Let's do another normal example, but this time let us not assume that 
+$\sigma^{2}$ is known. Our pivot was previously
+\[
+Z = \frac{\bar X - \theta}{\sigma/\sqrt{n}}.
+\]
+This still works as a pivot, but we need to estimate $\sigma^{2}$. One way to
+do so would be to use the sample variance. Let's call that estimate $S^{2}$, 
+\[
+S^{2} = \frac{\sum (X_{i} - \bar X)^{2}}{n-1}.
+\]
+This is the definition of sample variance. We will call this a "good" estimate
+of the true parameter $\sigma^{2}$. Thus, our new pivot could be
+\[
+Z = \frac{\bar X - \theta}{S/\sqrt{n}}.
+\]
+This distribution follows what is called a \textbf{student's t-distribution},
+with degrees of freedom $n-1$. Thus,
+\[
+    Z \sim t_{n-1}.
+\]
+The pdf of a student's t distribution is
+\[
+f(z) = \frac{\Gamma\left(\frac{n}{2}\right)}{\sqrt{\pi(n-1)}
+\Gamma\left(\frac{n-1}{2}\right)} \cdot \left(1 + \frac{Z^{2}}{n-1}\right)^{
+-\frac{n}{2}}.
+\]
+\begin{note}
+    The first term of the above pdf is just the normalizing constant.
+\end{note}
+
+Suppose $n=10$. Then, the two numbers $a$ and $b$ that bound our confidence are
+$b = Z_{\alpha, 2.5\%} = 2.26$ and $a = -b = -2.26$. This is the same as saying
+\begin{align*}
+    &-2.26 \le Z \le 2.26 \\
+    &-2.26 \le \frac{\bar X - \theta}{S/\sqrt{n}} \le 2.26 \\
+    &\bar X - 2.26\frac{S}{\sqrt{n}} \le \theta \le \bar X + 2.26
+    \frac{S}{\sqrt{n}}.
+\end{align*}
+And thus we have our rule. Now, say we have $n=100$. In that case, the upper
+number $b$ becomes 1.98. Thus the CI for the case where $n=100$ is
+\[
+    \bar X \pm 1.98 \frac{S}{\sqrt{n}}.
+\]
+\subsection{Approximate pivots}
+Suppose $\hat \theta$ is consistent and asymptotically normal. That is,
+\[
+\hat \theta \sim N\left(\theta, \frac{\sigma^2}{n}\right).
+\]
+Similarly suppose that $\hat \sigma$ is consistent for $\sigma$. Previously,
+our estimator was $\bar X$, but now it is a generic $\hat \theta$. Now, our
+pivot is
+\[
+Z = \frac{\hat \theta - \theta}{\hat \sigma/\sqrt{n}} \overset{\mathrm{
+approx}}{\sim} N(0,1).
+\]
+This holds for large quantities of $n$.
+
+\end{document}

@@ -1,0 +1,335 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amsfonts}
+\usepackage[noend]{algpseudocode}
+\usepackage{algorithm}
+\usepackage[parfill]{parskip}
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
+\usepackage{hyperref}
+\usepackage[english]{babel}
+\usepackage[autostyle]{csquotes}
+\usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\definecolor{color1}{rgb}{0.7, 0.2, 0.2}
+\definecolor{color2}{rgb}{0.0, 0.4, 0.0}
+\definecolor{color3}{rgb}{0.2, 0.4, 0.7}
+
+%--------------------------------------------------------%
+
+
+\title{\vspace{-0.5in}Compsci 330 Design and Analysis of Algorithms \\Assignment 4, Spring 2024 Duke University}
+\author{Dav King, Mitch Harrison}
+\date{Due Date: Thursday, February 15, 2024}
+
+%--------------------------------------------------------%
+
+\begin{document}
+
+\maketitle
+
+
+%--------------------------------------------------------%
+
+\paragraph{How to Do Homework.} We recommend the following three step process for homework to help you learn and prepare for exams.
+\begin{enumerate}
+	\item Give yourself ~15-20 minutes per problem to try to solve on your own, without help or external materials, as if you were taking an exam. Try to brainstorm and sketch the algorithm for applied problems. Don't try to type anything yet.
+	\item After a break, review your answers. Lookup resources or get help (from peers, office hours, Ed discussion, etc.) about problems you weren't sure about.
+	\item Rework the problems, fill in the details, and typeset your final solutions.
+\end{enumerate}
+
+\paragraph{Typesetting and Submission.} Your solutions should be typed and submitted as a single pdf on Gradescope. Handwritten solutions or pdf files that cannot be opened will not be graded. \LaTeX \footnote{If you are new to \LaTeX, you can download it for free at \href{https://www.latex-project.org}{latex-project.org} or you can use the popular and free (for a personal account) cloud-editor \href{https://www.overleaf.com}{overleaf.com}. We also recommend \href{https://www.overleaf.com/learn}{overleaf.com/learn} for tutorials and reference.} is preferred but not required. %If you use another editor for your solutions (such as Microsoft Word), you should convert the final document to a pdf, confirm that the symbolic math from the equation editor is properly formatted, and submit the pdf. 
+You must mark the locations of your solutions to individual problems on Gradescope as explained in \href{https://help.gradescope.com/article/ccbpppziu9-student-submit-work#submitting_a_pdf}{the documentation}. Any applied problems will request that you submit code separately on Gradescope to be autograded. 
+
+\paragraph{Writing Expectations.} If you are asked to provide an algorithm, you should clearly and unambiguously define every step of the procedure as a combination of precise sentences in plain English or pseudocode. If you are asked to explain your algorithm, its runtime complexity, or argue for its correctness, your written answers should be clear, concise, and should show your work. Do not skip details but do not write paragraphs where a sentence suffices.
+
+\paragraph{Collaboration and Internet.} If you wish, you can work with a single partner (that is, in groups of 2), in which case you should submit a single solution \href{https://help.gradescope.com/article/m5qz2xsnjy-student-add-group-members}{as a group on gradescope}. You can use the internet, but looking up solutions or using large language models is unlikely to help you prepare for exams. See the \href{https://sites.duke.edu/spring24compsci330/policies/}{course policies webpage} for more details.
+
+\paragraph{Grading.} Theory problems will be graded by TAs on an S/U scale (for each sub-problem). Applied problems typically have a separate autograder where you can see your score. The lowest scoring problem is dropped. See the \href{https://sites.duke.edu/spring24compsci330/assignments/}{course assignments webpage} for more details.
+
+
+
+%--------------------------------------------------------%
+
+
+\newpage
+\paragraph{Problem 1 (Parentheses).} Suppose you are given a sequence of $n+1$ nonnegative real numbers in an array $A[\,]$ of size $n+1$ separated by $n$ arithmetic operations $+$ and $\times$ in array $OP[\,]$ of size $n$ where $OP[i]$ comes between $A[i]$ and $A[i+1]$. For example, the input arrays $A = [0.5, 2, 3, 5, 4]$ and $OP = [\times, +, +, \times]$ represent the following expression:
+\[ 0.5 \times 2 + 3 + 5 \times 4 \]
+You can change the value of this expression by placing parentheses. For examples:
+\begin{align*}
+	0.5 \times (2 + 3 + 5) \times 4 &= 20 \\
+    (0.5 \times 2) + 3 + (5 \times 4) &=24 \\
+    (0.5 \times 2) + \left( (3 + 5) \times 4\right) &= 33
+\end{align*}
+\begin{enumerate}[(a)]
+    \item Let $V(i, j)$ return the maximum value obtainable by placing parentheses between $A[i]$ and $A[j]$ (inclusive). For the previous example, $V(2,4)=(3+5)\times 4=32$. Give a recurrence to compute $V(i, j)$. Also briefly explain each case of your recurrence in words.
+
+    \item Describe an iterative dynamic programming algorithm to compute the maximum possible value the given expression can take by placing parentheses. Analyze the algorithm's runtime complexity and space complexity (that is, memory).
+    
+\end{enumerate}
+
+\paragraph{Part A}
+
+\begin{algorithmic}[1]
+    \Procedure{V}{A, OP, i, j}
+        \If{i == j}
+            \State \Return A[i]
+        \EndIf
+        \State maxVal = 0
+        \For{k in i:(j - 1)}
+            \State left = \Call{V}{A, OP, i, k}
+            \State right = \Call{V}{A, OP, k + 1, j}
+            \State val = left OP[k] right
+            \State maxVal = max(val, maxVal)
+        \EndFor
+        \State \Return maxVal
+    \EndProcedure
+\end{algorithmic}
+
+How it works: this is a fairly iterative solution (with recursion), and requires a lot of recalculations. In essence:
+
+\begin{enumerate}
+    \item If we have recursed down to the base case (i = j), then we have simply a unique element, and we return A[i].
+    \item We initialize the maximum value maxVal.
+    \item For every possible split (i.e., all of the operators), calculate the left and right subproblems, join them using that operator, and see if we can update the maxVal.
+    \item One of these will result in the maximum possible value, which we return.
+\end{enumerate}
+
+\newpage
+
+\paragraph{Part B}
+
+\begin{algorithmic}[1]
+    \Procedure{iterV}{A, OP}
+    \State n = length(A)
+        \State maxVals = array of size n x n \Comment{initialize with values 0}
+        \For{i in 0:n}
+            \State maxVals[i][i] = A[i] \Comment{initialize diagonal (non-inclusive loops)}
+        \EndFor
+        \For{len in 1:n}
+            \For{i in 0:(n - len)}
+                \State j = i + len
+                \For{k in i:j}
+                    \State left = maxVals[i][k]
+                    \State right = maxVals[k + 1][j]
+                    \If{OP[k] == x}
+                        \State maxVals[i][j] = max(maxVals[i][j], left * right)
+                    \Else
+                        \State maxVals[i][j] = max(maxVals[i][j], left + right)
+                    \EndIf
+                \EndFor
+            \EndFor
+        \EndFor
+        \State \Return maxVals[0][n - 1]
+    \EndProcedure
+\end{algorithmic}
+
+\textbf{Space Complexity:} the space complexity here is fairly simple: the procedure declares an array of size n x n (technically (n + 1) x (n + 1)) according to the problem specification). Thus, the space complexity of this algorithm is $O(n^2)$. (However, this could empirically be cut in half, as the lower triangular half of maxVals is unnecessary as it will never take on values.)
+
+\textbf{Runtime Complexity:} the runtime complexity of this procedure is a little more complicated, but can still be understood. The loop on line 6 runs from 1:n (i.e., $O(n)$). The loop on line 7 runs from 0:(n - len), which is in the worst case $O(n)$. Finally, the loop on lie 9 runs from i:j (again, in the worst case $O(n)$). Thus, in the worst case, this algorithm has an upper bound of $O(n^3)$, though empirically it will probably show better performance.
+
+%--------------------------------------------------------%
+\newpage
+\paragraph{Problem 2 (Vertex Cover).} You are given an undirected tree $T$ rooted at $r$ with $n$ vertices. The tree may not be binary, but by definition it will be connected and will not have any cycles, implying it will have $n-1$ edges. A vertex cover is a subset of vertices such that for every edge $(u, v)$ of the graph, either $u$ or $v$ is in the vertex cover. An  example is drawn in Figure~\ref{fig:vertexcover}. Note that every edge has at least one red endpoint.
+
+\begin{wrapfigure}{r}{0.33\textwidth}
+    \centering
+    \includegraphics[width=0.9\linewidth]{vertexcover.png}
+    \caption{Example tree and vertex cover shown in shaded red.}
+    \label{fig:vertexcover}
+\end{wrapfigure}
+
+You may assume the following:
+
+\begin{enumerate}[(i)]
+    \item Given a vertex $v$, it's unique ``parent'' is the vertex connected to $v$ and closer to the root. The root $r$ is the unique node with no parent.
+    \item Given a vertex $v$, it's ``child'' vertices are all those connected to $v$ and not its parent. You can access the child nodes directly, for example, you can write a for loop over the child nodes of $v$. A vertex is a ``leaf'' node if it has no children.
+    \item You can store additional information at a vertex in the graph if you wish while traversing it: i.e., you are allowed auxiliary memory at each node.
+\end{enumerate}
+Describe an algorithm to compute the size of a minimum vertex cover in $O(n)$ runtime. Briefly explain the runtime complexity. Prove the correctness of the algorithm.
+
+\textit{Hint.} Read Section 3.10 in our text by Erickson on the minimum independent set on trees problem.
+
+\paragraph{Solution}
+We will use a modified depth-first search (DFS), storing an array $V$ of nodes
+that we have visited. We will store a boolean at each node,
+which is \texttt{True} if that node is in the vertex cover. We will assume this
+value to be \texttt{False} by default.
+
+For ease of notation, we will set $V$ and $s$ (the final solution) to be
+global variables. Alternatively, $s$ could be stored in nodes or passed between
+each iteration of \Call{DFS}{}. The \Call{coverDFS}{} procedure will provide a
+wrapper around our DFS.
+
+\begin{algorithm}
+\caption{DFS to find minimum vertex cover}
+\begin{algorithmic}[1]
+\State $s \leftarrow 0$
+\Comment{store cover size in $s$}
+\State $v \leftarrow []$
+\Comment{visited list}
+\State 
+\Procedure{moddedDFS}{$n$}
+    \State append $n$ to $V$
+    \If{$n$ is a leaf}
+        \State \Return 0
+    \EndIf
+    \State $s_{0} = 0$
+    \Comment{$s_{0}$ is the total cover size of subtree rooted at $n$}
+    \For{child $c$ in $n.children$}
+        \If{$c \notin v$}
+        \Comment{if $c$ hasn't been visited}
+            \State $s_{0} = s_{0} + $ \Call{moddedDFS}{$c$}
+        \EndIf
+    \EndFor
+    \If{$s_{0} = 0$}
+        \State \Return 0
+    \EndIf
+    \State \Return 1
+\EndProcedure
+\State 
+\Procedure{coverDFS}{$r$}
+    \State \Call{moddedDFS}{$r$}
+    \State \Return $s$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+Because we check to see if each node has already been visited as we traverse,
+we will only do work once for each of $n$ nodes. At each of those $n$ nodes, 
+we only perform constant-time operations, leaving us with a final asymptotic
+runtime of $O(n)$ where $n$ is the number of nodes.
+
+\pagebreak
+
+\paragraph{Proof}
+Let us prove the correctness of \Call{moddedDFS}{}.
+
+Our \textbf{base case} is the case where $n$ is a leaf node. That is, it has
+no child nodes. In that case, it does not contribute to the vertex cover by
+definition, and so we return 0, which is correct.
+
+\textbf{Assume} that at iteration $k-1$, we have returned the correct cover
+size for all child nodes of node $n$, which is the root of the subtree we 
+explore at iteration $k$. There are two \textbf{cases} to consider:
+\begin{enumerate}
+    \item None of the child nodes or their descendants are in the vertex cover.
+        That is, $s_{0} > 0 \forall c$, we include $n$ in the vertex cover.
+    \item At least one child node or descendant subtree contains nodes that
+        are \textit{not} included in the vertex cover (i.e. $s_{0} = 0$), we 
+        include that child node $c$ in the vertex cover.
+\end{enumerate}
+
+Both of these cases are correct. Therefore, because our base case and all 
+possible cases for an arbitrary iteration $k$ are correct, we say that
+\Call{moddedDFS}{} is correct.
+
+After showing that \Call{moddedDFS}{} is correct, the wrapper function
+\Call{coverDFS}{} is trivially correct.
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 3 (Palindrome Decomposition).} A palindrome is any string that is exactly the same as its reversal, like \textcolor{red}{I}, or \textcolor{red}{DEED}, or \textcolor{red}{RACECAR}. Any string can be decomposed into a sequence of substrings that are each palindromes. For example, the string \textcolor{red}{BUBBASEESABANANA} (``Bubba sees a banana.'') can be broken into palindromes in the following ways (and many others):
+$$\text{\textcolor{red}{BUB}} \cdot \text{\textcolor{red}{BASEESAB}} \cdot \text{\textcolor{red}{ANANA}}$$
+$$\text{\textcolor{red}{B}} \cdot \text{\textcolor{red}{U}} \cdot \text{\textcolor{red}{BB}}\cdot \text{\textcolor{red}{ASEESA}} \cdot \text{\textcolor{red}{B}} \cdot \text{\textcolor{red}{ANANA}}$$
+$$\text{\textcolor{red}{BUB}} \cdot \text{\textcolor{red}{B}} \cdot \text{\textcolor{red}{A}} \cdot \text{\textcolor{red}{SEES}} \cdot \text{\textcolor{red}{ABA}}\cdot \text{\textcolor{red}{N}} \cdot \text{\textcolor{red}{ANA}}$$
+Describe an algorithm to find the smallest number of palindromes that make up a given input string $s$ of length $n$ in $O(n^2)$ time. For example, given the input string \textcolor{red}{BUBBASEESABANANA}, your algorithm should return 3. You do not need to prove correctness, but for any recurrence(s), be sure to clearly define the recurrence and briefly explain every case.
+
+\textit{Hint.} Divide the algorithm into two parts. First compute, for every substring, whether it is a palindrome, in $O(n^2)$ time using dynamic programming. Second, determine the optimal way to split $s$ into substrings all of which are palindromes.
+
+\paragraph{Solution}
+Let $S$ be the string in question, and let $n$ be the number of characters in
+that string. $P$ is an $n\times n$ boolean array that is \texttt{True} if the
+substring from indices $i \rightarrow j$ is a palendrome. Let $C$ be a vector of 
+length $n$ that stores the minimum number of palendromes necessary to encode the
+first $i$ characters of $S$. That is, the final element of array $C$ contains
+the number of palendromes necessary to encode the entire string $S$. Let
+$\ell$ be the length of the substring being checked at a single iteration of
+the outer for loop.
+
+\begin{algorithm}
+\caption{find minimum palindrome composition}
+\begin{algorithmic}[1]
+\Procedure{palDecomp}{$S,n$}
+    \State $P \leftarrow$ new $n \times n$ matrix
+    \For{$\ell = 1 \rightarrow n$}
+        \For{$i = 0 \rightarrow (n - \ell)$}
+            \State $j = i + (\ell - 1)$        
+            \If{$S[i] = S[j]$ \textbf{and} $P[i+1][j-1]$}
+            \Comment{check if substring is a palendrome}
+                \If{$\ell = 1$}
+                \State $P[i][j] = True$
+                \ElsIf{$\ell = 2$}
+                \State $P[i][j] = (S[i] == S[j])$
+                \Else
+                \State $P[i][j] = (S[i] == S[j])$ \textbf{and} $P[i+1][j-1]$
+                \EndIf
+            \EndIf
+        \EndFor
+    \EndFor
+    \State 
+    \State $C \leftarrow$ new length-$n$ array with values $\infty$.
+    \Comment{find minimum palendrome count}
+    \State $C[0] = 0$
+    \For{$i=1\rightarrow n$}
+    \Comment{start at $i=1$ because we set $C[0]$ manually}
+        \For{$j = 0 \rightarrow (i-1)$}
+            \If{$P[j][i-1]$}
+                \State $C[i] = min(C[i], C[j]+1)$
+            \EndIf
+        \EndFor
+    \EndFor
+    \State \Return $C[n-1]$
+    \Comment{final element stores total string $S$'s palendrome decomposition}
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+\pagebreak
+
+In \Call{palDecomp}{}, $P[i][j]$ is true for the following cases:
+\begin{enumerate}
+    \item The substring is length 1. This is trivially palendromic.
+    \item The substring is length 2 and both characters are the same. This is
+        trivially palendromic.
+    \item The outer characters $S[i]$ and $S[j]$ are equivalent and surround a
+        palendrome. This is also palendromic.
+\end{enumerate}
+
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 4 (Applied).} You are working on a data analysis project for a large theme park. You have location trajectory data for paths that guests take through their park, represented as a sequence of $(x, y)$-coordinate pairs (for example, $(0.0, 0.0), (1.0, 0.0), (2.0, 1.0), (2.0, 2.0)$, etc.). You would like to characterize common trajectories through the park, but in order to do so you must first be able to measure how similar any given pair of trajectories are to each other.
+
+The distance to be used between any pair of points is just the standard Euclidean distance. The problem is that not all of your trajectories have the same number of points. Further complicating things, not everyone walks through the park at the same speed, but you want to consider two trajectories as equivalent if they take the same exact path at different speeds.
+
+Based on these observations, what you would like to calculate is the distance between two trajectories under an optimal alignment. Suppose we label the trajectories $A$ and $B$. An alignment is a mapping between the two trajectories. To be a valid alignment, it must satisfy the following properties:
+\begin{itemize}
+    \item $A[0]$ must map to $B[0]$ (the beginnings must be aligned)
+    \item The last point of $A$ must map to the last point of $B$ (the ends must be aligned)
+    \item Every point in $A$ must map to one or more points in $B$, and vice versa (all points must be aligned somewhere)
+    \item The alignment must be monotone in the sense that if $A[i]$ maps to $B[j]$ then for all $k > i$, $A[k]$ must map to $B[j']$ for some $j' \geq j$, and vice versa (the alignment must go forward in time for both trajectories)
+\end{itemize}
+
+Among valid alignments, the optimal alignment has the minimum total distance when the distance between all aligned pairs of points is added up. \textbf{You will need to design and implement an algorithm that returns the minimum distance between two trajectories under an optimal alignment.} Your solution will need to have an empirical runtime that is within constant factors of an reference solution with $O(|A||B|)$ runtime, where $|A|$ and $|B|$ are the number of points in trajectories $A$ and $B$ respectively. 
+
+Language-specific details follow. You can use whichever of Python or Java you prefer. You will receive automatic feedback when submitting, and you can resubmit as many times as you like up to the deadline. \textbf{NOTE:} Unlike the theory problems, the applied problem grade \textbf{is the raw score shown on Gradescope}. See the \href{https://sites.duke.edu/spring24compsci330/assignments/}{course assignments webpage} for more details. 
+
+\begin{itemize}
+	\item \textbf{Python.} You should submit a file called \texttt{align.py} to the Gradescope item "Assignment 4 - Applied (Python)." The file should define (at least) a top level function \texttt{align} that takes in two inputs, each being a list of tuples \texttt{(i:int, j:int)} and return a float number. The function header is as follows
+    \begin{itemize}
+        \item \texttt{def align(seriesA: list[(int, int)], seriesB: list[(int, int)]):}
+    \end{itemize}
+	
+    \item \textbf{Java.} You should submit a file called \texttt{Align.java} to the Gradescope item "Assignment 4 - Applied (Java)." The file should define (at least) a top level function \texttt{align} that takes in two 2D double arrays: \texttt{seriesA} and \texttt{seriesB} and returns a double value. The header for the method is as follows
+    \begin{itemize}
+        \item \texttt{public double align(double[][] seriesA, double[][] seriesB);}
+    \end{itemize}
+    seriesA and seriesB are $n$ by 2 2D arrays, where seriesA$[i]$ is the $i$th point in the trajectory 
+\end{itemize}
+
+\end{document}

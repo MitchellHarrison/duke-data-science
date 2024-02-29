@@ -1,0 +1,222 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 12 - Confidence Intervals}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Confidence Intervals}
+
+We seek for formalize the statement "how confident are we that the answer lies
+in some range?" Let $Z \sim N(0,1)$. Say we want to give a range of values that
+captures $Z$ with 95\% probability. In the simple case of a $N(0,1)$ random
+variable, we know common confidence intervals. For 95\%, the range is 
+$(-1.96,1.96)$.
+
+Let $\alpha \in (0,1)$ be the level of confidence we desire (e.g. 0.95 for 95\%).
+Then, the probability that a random variable falls into a range is then
+$1-\alpha$. The lower and upper bounds are denoted as $-Z^{*}$ and $Z^{*}$
+respectively. Letting $F$ be the CDF and $F^{-1}$ be the inverse CDF (i.e. the
+"quantile function"),
+\[
+    Z^{*} = F^{-1}\left(1-\frac{\alpha}{2}\right).
+\]
+\subsection{Example}
+Say we survey 500 students, chosen at random, and count how many favor a bill
+that is being considered in the state senate. Let $X$ be the number of votes
+in favor of the bill. It will have the form
+\[
+    X \sim Binom(500, p).
+\]
+We are searching for the population proportion $p$, which represents the true
+proportion of the entire student body that supports the bill.
+
+Say we observe $X=270$. Can we give a range of values that captures $p$ with
+95\% probability? This differs from our normal distribution example because we
+aren't searching for the range of values for a random variable. We are instead
+looking for a range of values for a parameter.
+
+Let's say that while we were designing our survey, we pre-determined that when
+we observe $X$, we would report the range
+\[
+\left(\frac{X}{n}-\frac{1}{\sqrt{n}}, \frac{X}{n} + \frac{1}{\sqrt{n}}\right).
+\]
+That is, our range goes $\frac{X}{n} + \frac{1}{\sqrt{n}}$ in both directions.
+This might not be a totally crazy guess, but it is reasonable because it scales
+with $\frac{1}{\sqrt{n}}$, which is also what the standard deviation scales by.
+
+Given we observe $X=270$, by our initial plan, we would report
+\[
+\left(\frac{270}{500}-\frac{1}{\sqrt{500}}, \frac{270}{500} +
+\frac{1}{\sqrt{500}}\right) = [0.695,0.595].
+\]
+Let's evaluate that guess. We seek to find the probability that our range will
+contain $p$ 95\% of the time. That is,
+\[
+\mathbb{P}\left(
+\frac{X}{n}-\frac{1}{\sqrt{n}} \le p \le \frac{X}{n} + \frac{1}{\sqrt{n}}
+\right) = 95\%.
+\]
+This may be unintuitive because $X$ is random. Let's rewrite by rearranging
+terms.
+\[
+\mathbb{P}\left(-\frac{1}{\sqrt{n}}\le \frac{X}{n}-p \le \frac{1}{\sqrt{n}}
+    \right) = 95\%.
+\]
+Now, the random terms are all in the middle of the inequality instead of
+bounding it. Rearranging to keep $X$ alone in the center,
+\[
+    \mathbb{P}(np-\sqrt{n} \le X \le np + \sqrt{n}) = 95\%.
+\]
+When we simulate in R with a true value $p=0.5$, we see that this plan gives us
+a probability of 95.6\%. However, that only works because we know that in the
+simulated case, $p=0.5$. Let's do the exact calculation.
+\[
+    F_{Binom}(np+\sqrt{n}) - F_{Binom}(np-\sqrt{n}) \\
+\]
+\begin{note}
+    If a random variable $X$ has a CDF of $F(x)$, then
+    \[
+        \mathbb{P}(a\le X \le b) = F(b) - F(a).
+    \]
+\end{note}
+Because of our simulation, we know that the probability coverage is 0.956 (i.e.
+95.6\%). If we run the same simulation over and over again with different values
+of $p$, we arrive at a plot. In our case, the minimum value is at $p=0.5$. Thus,
+our worst-case performance is 95.6\%. Because our worst case is better than our
+desired 95\% confidence interval, we can say that our plan is sound.
+
+\pagebreak
+
+\section{Rules}
+
+\begin{definition}
+Let our data be $X$ with a parameter $\theta$. If $L(X) \le U(X)$ are such that
+$\mathbb{P}(L(X) \le \theta \le U(X)) \ge 1 - \alpha$ for any value of $\theta$,
+then $[L(X),U(X)]$ is a $100(1-\alpha)\%$ \textbf{confidence interval rule} for
+$\theta$.
+\end{definition}
+Where we were previously using the term "plan," we may now call these plans
+\textit{rules}.
+
+\subsection{Example}
+Suppose our data $X_{1}, \cdots , X_{n}$ represents the effectiveness of an
+intervention given to patients that are having trouble sleeping. Let
+\[
+X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim} N(\theta,\sigma^{2}).
+\]
+We will treat $\sigma$ as known for the purpose of this illustration. Also,
+$\theta$ is some number such that $\theta \in (-\infty, \infty)$. We want a
+95\% CI rule for $\theta$. First let's reduce the problem to a sufficient 
+statistic. Two possible examples are
+\begin{align*}
+    T &= X_{1} + \cdots  + X_{n}\\
+    \bar X &= \frac{1}{n}(X_{1} + \cdots +X_{n}).
+\end{align*}
+Now that we have a sufficient statistic, we want to find a rule for $\theta$ 
+using them. Take $\bar X$ for example. We seek a rule in the form
+\[
+    \bar X \pm \text{ something}.
+\]
+One possible answer for that "something" may be the standard deviation of
+$\bar X$ itself, which is $\sigma/\sqrt{n}$. However, we know that the 
+95\% CI for a normal is 1.96 standard deviations, so we will modify that
+slightly to
+\[
+    \bar X \pm 1.96\frac{\sigma}{\sqrt{n}}.
+\]
+This will be our rule. Let $\theta=0$.
+\begin{align*}
+    \mathbb{P}_{N(\theta,\sigma^{2}}\left(\bar X - 1.96\frac{\sigma}{\sqrt{n}}
+        \le 0 \le\bar X + 1.96\frac{\sigma}{\sqrt{n}}\right)
+    &= \mathbb{P}_{N(\theta,\sigma^{2})}\left(-1.96 \le \frac{\bar X-0}{
+        (\sigma/\sqrt{n}}\le 1.96\right).
+\end{align*}
+Because $\bar X \sim N(0,\sigma^{2}/n)$, we know that
+\[
+\frac{\bar X -0}{\sigma/\sqrt{n}} \sim .
+\]
+Thus, this entire probability comes out to 95\%. If we plug in any arbitrary
+$\theta$, we see that this probability is always 95\%. Therefore, our
+rule is sound.
+
+\subsection{Binomial example}
+
+Let $X \sim  Binom(n,p)$ and $p \in (0,1)$. Let $\hat p = X/n$. We can say
+that, approximately,
+\[
+    \frac{X}{n} \sim N\left(p, \frac{p(1-p)}{n}\right).
+\]
+Thus, we see that a good estimate of $n$ could be
+\[
+\frac{X}{n} \pm 1.96 \sqrt{\frac{\frac{X}{n}\left(1-\frac{X}{n}\right)}{n}}.
+\]
+
+
+\end{document}

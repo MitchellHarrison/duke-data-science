@@ -1,0 +1,225 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 13 - Shortest Paths cont'd}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Dijkstra's Algorithm}
+
+We haven't dealt with weighted graphs. That is, graphs where each edge has
+a weight that denotes some cost of traversing that edge. One way to solve an
+algorithmic problem on a weighted graph is to reduce the weighted graph $G$
+to a non-weighted graph $G'$. One way to do this is to add a new vertex between
+two nodes for every value of the weights. For example, if the weight of the
+edge from $A$ to $B$ is 5, we would add five "dummy vertices" between them.
+Doing this for all edges, the shortest path of the unweighted graph $G'$ is the
+shorted path on the weighted graph $G$.
+
+The runtime of the algorithm is going to be dominated by the cost of constructing
+$G'$ and running BFS on it. Because we are constructing a number of edges that 
+is the sum of the weights in $G$, if the weights are all relatively small
+constants, then we would maintain our linear time complexity from BFS. 
+However, if we have large weights $w(u,v)$, this is not a computationally viable
+solution.
+
+We could \textit{simulate} this reduces BFS (without constructing $G'$) if we,
+from a starting node $s$, explore the closest node, then the second closest,
+third closest, etc. Thus, even if we are using BFS on $G'$, we maintain our
+wavefront pattern of exploration, where closer nodes are explored first.
+
+\subsection{Dijkstra in the abstract}
+The outline of Dijkstra's algorithm is that, while unexplored nodes remain, we
+\begin{enumerate}
+    \item explore the next nearest unexplored node. Then,
+    \item for each neighbor:
+        \begin{enumerate}
+            \item if undiscovered, we note the path to that node
+            \item we update the shotest path if shorter to go to the neighbor
+                from the current node
+        \end{enumerate}
+\end{enumerate}
+This is just like BFS, where we explore closer nodes first, except now we need
+to account for weights. In a weighted graph, we can use a priority queue to track
+the nearest unexplored node.
+
+\subsubsection{Priority queues}
+The most common implementation of a priority queue is as a \textit{binary heap},
+supporting the prodecures \Call{add}{}, \Call{remove}{}, and 
+\Call{decreaseKey}{}, which add an element $u$ with priority $p$, remove and
+return an element with the minimum priority, and decrease the priority of $u$
+to $p$ respectively. All of these can be implemented in $O(log(n))$ time, where
+$n$ is the number of elements in the heap.
+
+\subsection{Dijkstra in detail}
+\begin{algorithm}
+\caption{Dijkstra's algorithm}
+\begin{algorithmic}[1]
+\Procedure{dijkstra}{$s$}
+    \State Let $d, prev$ be new length-$n$ lookup tables.
+    \State Let $PQ$ be a new priority queue.
+    \State $d[s] = 0$
+    \State $PQ.add(s, d[s])$
+    \While{$PQ$ is not empty}
+        \State $u = PQ.remove()$
+        \For{$(u,v) \in E$}
+        \Comment{consider all neighbors}
+        \If{$v \notin d$}
+        \Comment{if $v$ is newly discovered}
+            \State $d[v] = d[u] + w(u,v)$
+            \State $prev[v] = u$
+            \State $PQ.add(v,d[v])$
+            \Comment{explore $v$ later}
+        \EndIf
+        \If{$d[v] > d[u] + w(u,v)$}
+        \Comment{if the path to $v$ through $u$ is shorter}
+            \State $d[v] = d[u] + w(u,v)$
+            \State $prev[v]=u$
+            \State $PQ.decreaseKey(v,d[v])$
+            \Comment{update the priority of $v$}
+        \EndIf
+        \EndFor
+    \EndWhile
+    \State \Return $d,prev$
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Dijkstra's runtime complexity}
+
+Recall that BFS was extremely fast (linear time). We can compare that to
+Dijkstra's algorithm. Notice that each node is added to \texttt{PQ} at most
+once, when it's first discovered. Additionally, we only consider each outgoing
+edge from a node once. The \Call{decreaseKey}{} method in $PQ$ is $O(log(n))$.
+Thus, the total runtime for Dijkstra's algorithm is
+\[
+    O((n+m)log(n)).
+\]
+
+\subsubsection{Dijkstra's algorithm correctness}
+Let $d[u] = d^{*}[u]$ for all nodes $u$ that have been removed from the priority
+queue, where $d^{*}[u]$ is the true shortest path. We can prove this by induction.
+
+Let our \textbf{base case} be $d[s] = d^{*}[s] = 0$ by the initialization at the
+beginning of the algorithm. Our \textbf{inductive hypothesis} lets us suppose 
+the claim is true for the first $k-1$ nodes removed from the priority queue.
+We want to show that the algorithm is also correct at step $k$.
+
+We define $V_{<k}$ as the first $k-1$ nodes removes, $v_{k}$ to be the $k$th,
+and $V_{>k}$ to be the remaining. Our inductive hypothesis implies that
+$d[u] = d^{*}[u]$ for all $u \in V_{<k}$. We want to show that $d[v_{k}] = 
+d^{*}[v_{k}]$.
+
+Let $P_{s\rightarrow u\rightarrow v_{k}}$ be the shortest path from $s$ to
+$v_{k}$ where $P_{s\rightarrow u}$ lies entirely in $V_{<k}$. Then, $d[v_{k}] \le
+d[u] + w(u,v_{k})$ because the algorithm explored from $u$. So, by the inductive
+hypothesis, $d[v_{k}] \le d^{*}[u] + w(u,v_{k})$. And $d^{*}[u] + w(u,v_{k}) =
+|P_{s\rightarrow u \rightarrow v_{k}}|$.
+
+But what if there is a shorter path through $V_{>k}$? That is, what if there is
+a shorter path through the part of the graph that we haven't explored yet? Let's
+argue that that \textit{cannot }happen.
+
+Suppose for a contradiction that there is a strictly shorter path 
+$P_{s\rightarrow a \rightarrow \bar \rightarrow v_{k}}$ from $s$ to $v_{k}$
+such that $|P_{s\rightarrow a\rightarrow b \rightarrow v_{k}}| <
+|P_{s\rightarrow u\rightarrow v_{k}}|$ that lies partially in $V_{>k}$ (the
+unexplored part of the graph) where $a\rightarrow b$ is the first edge that
+passes from $V_{<k}$ to $V_{>k}$. We know that $d[b] \le d^{*}[a] + w(a,b)$ by
+the induction hypothesis. And because we have positive edge weights,
+$d^{*}[a] + w(a,b) < |P_{s\rightarrow a\rightarrow b \rightarrow v_{k}}|$.
+So, $d[b] < |P_{s\rightarrow a\rightarrow b \rightarrow v_{k}}| <
+P_{s\rightarrow u\rightarrow v_{k}}| = d[v_{k}]$.
+
+Then, $b$ should have been removed from the priority queue, not $v_{k}$. This
+is a contradiction, which proves our initial claim.
+
+\subsection{Negative weights}
+For a graph with negative weights, Dijkstra breaks, because if we explore a
+node from an edge with negative weight, we may need to re-explore from that 
+node, even if we have already added and removed it from our priority queue. We
+could fix this and maintain correctness by simply re-adding that node to the
+priority queue when this happens. However, that does \textit{not} guarantee
+correctness in the worst case. We can do better.
+
+Instead of $d(v) :=$ shortest path distance to $v$. Let's solve $dist_{\le i}(v)
+:=$ the distance to $v$ using \textit{at most} $i$ edges. Then,
+\[
+dist_{\le i}(v) =
+\begin{cases}
+    0 & i=0 \text{ and } v=s \\
+    \infty & i=0 \text{ and } v \ne s \\
+    min \binom{dist_{\le i-1}(v)}{min_{u\rightarrow v}(dist_{\le i-1}(u) +
+w(u\rightarrow v})) & \text{otherwise}
+\end{cases}
+\]
+This is the idea behind a dynamic programming algorithm called the Bellman-Ford
+algorithm, which is define in the course slides for this lecture.
+
+\end{document}

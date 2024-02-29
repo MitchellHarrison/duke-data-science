@@ -1,0 +1,192 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 14 - Shortest Path cont'd}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Shortest Path}
+
+\subsection{Bellman-Ford}
+Recall that Bellman-Ford is helpful for finding shortest paths when dealing with
+negative edge weights. Typically it takes the form
+\begin{algorithm}
+\caption{Bellman-Ford typically}
+\begin{algorithmic}[1]
+\Procedure{BellmanFord}{$s$}
+    \State \Call{InitSSSP}{$s$}
+    \For{$V-1$ times}
+    \Comment{$V$ is the number of vertices}
+        \For{every edge $u \rightarrow v$}
+            \If{$u \rightarrow v$ is tense}
+                \State \Call{Relax}{$u \rightarrow v$}
+            \EndIf
+        \EndFor
+    \EndFor
+    \For{every edge $u \rightarrow v$}
+        \If{$u \rightarrow v$ is tense}
+            \State \Return "Negative cycle!"
+        \EndIf
+    \EndFor
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+\begin{definition}
+    An edge is \textbf{tense} if $d[v]>d[u]+w(u,v)$, where $d[i]$ is the
+    distance from the current vertex to vertex $i$ and $w(u,v)$ is the weight
+    of the edge from $u$ to $v$.
+\end{definition}
+
+This implementation of \Call{BellmanFord}{} has $O(|V||E|)$, or $O(nm)$,
+runtime complexity and requires $O(n)$ space complexity.
+
+\pagebreak
+\section{All Pairs Shortest Path Cases}
+There are three possible cases for finding all shortest paths. Either a graph
+is unweighted, weighted with non-negative weights, and weighted with negative
+weights. 
+
+For an unweighted graph, we could run a BFS from every vertex and write the
+solutions to a table. This runs in $O(n(n+m))$, which is $O(n^{2})$ for a 
+sparse graph and $O(n^{3})$ on a dense one.
+
+For non-negative weights, we could run Dijkstra from every vertex. In that 
+case, our asymptotic runtime would be $O(n(n+m)log(n))$. This is $O(n^{2}log(n))$
+for a sparse graph and $O(n^{3}log(n))$ on a dense one.
+
+Including negative weights requires us to run Bellman-Ford on every vertex. This
+is $O(n(nm))$ time. This results in $O(n^{3})$ time on a sparse graph and
+$O(n^{4})$ time on a dense one. Let's work thorugh a better way.
+
+\subsection{Dynamic programming for all-pairs shortest paths}
+Let us number our vertices arbitrarily from 1 to $n = |V|$. Then, for every pair
+of vertices $u$ and $v$ and every integer $r \in [0, \cdots ,n]$, we define
+the subproblem:
+
+$\pi(u,v,r)$ is the shortest path (if any) from $u$ to $v$ that passes through
+only verticees numbered at most $r$. We define \textit{pass through} to mean
+that there are intermediate vertices between $u$ and $v$. Similarly, let
+$d(u,v,r)$ be the corresponding distance.
+
+In this formulation, there are three cases:
+\begin{enumerate}
+    \item $d(u,v,0) = w(u,v)$ if there is an edge $u \rightarrow v$, else
+        $\infty$.
+    \item $d(u,v,r) = d(u,v,r-1)$ if the shortest path \textit{does not} use
+        vertex $r$.
+    \item $d(u,v,r) = d(u,r,r-1) + d(r,v,r-1)$ if the shortest path \textit{does}
+        use vertex $r$.
+\end{enumerate}
+Thus we arrive at a recurrence
+\[
+dist(u,v,r) -
+\begin{cases}
+    w(u \rightarrow v) & r=0 \\
+    min
+       \begin{cases}
+           dist(u,v,r-t) \\
+           dist(u,r,r-1) + dist(r,v,r-1)
+       \end{cases}
+       & \text{otherwise}
+\end{cases}
+\]
+This is the \textbf{Floyd-Warshall algorithm}, and it is quantified below.
+
+\pagebreak
+
+\begin{algorithm}
+\caption{Floyd-Warshall algorithm for all-pair shortest paths}
+\begin{algorithmic}[1]
+\Procedure{FloydWarshall}{$V,E,w$}
+    \For{all vertices $u$}
+        \For{all vertices $v$}
+            \State $dist(u,v) = w(u,v)$
+        \EndFor
+    \EndFor
+    \For{all vertices $r$}
+        \For{all vertices $u$}
+            \For{all vertices $v$}
+                \If{$dist[u,v]>dist[u,r] + dist[r,v]$}
+                    \State $dist[u,v] = dist[u,r] + dist[r,v]$
+                \EndIf
+            \EndFor
+        \EndFor
+    \EndFor
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+This results in an all-pairs shortest path calculation for graphs containing
+negative weights in at most $O(|V|^{3})$, or $O(n^{3})$ time instead of 
+$O(n^{4})$ as we found with \Call{BellmanFord}{}. Also note that, in a dense
+graph, it is slightly faster that Dijkstra as well. But in a sparse graph,
+Dijkstra is much faster at $O(n^{2}log(n))$.
+
+\end{document}

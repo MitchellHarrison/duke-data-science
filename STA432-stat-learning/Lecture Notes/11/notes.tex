@@ -1,0 +1,191 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 11 - Sampling Distributions cont'd}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Motivating Moment Generating Functions}
+
+Let $X_{1}, \cdots ,X_{n} \overset{\mathrm{iid}}{\sim}N(\mu, \sigma^{2})$, where
+$\sigma^{2}$ is known. Let
+\[
+\hat \sigma^{2}_{MLE} = \frac{1}{n}\sum_{i=1}^{n}(X_{i}-\mu)^{2}
+\]
+and
+\[
+\sqrt{n}(\hat \sigma^{2}{MLE}-\sigma^{2}) \rightarrow (0, 1/\mathcal{I}).
+\]
+But the second fact is only true for large $n$. Canonically, we say that it's
+true when $n \ge 30$. If we say that
+\[
+\hat \theta_{MLE}^{2} \approx N(\sigma^{2},1/n\mathcal{I}),
+\]
+we can ask "how close his this approximation?" Plotting these, we see that the
+approximation is not great for small $n$. In steps moment generating functions
+(MGFs). We know that if
+\[
+M_{X}(t) = M_{Y}(t) < \infty \forall t \text{ near 0}.
+\]
+Then, $X$ and $Y$ have the same distribution. Recall the following definition:
+\[
+    M_{X}(t) = \mathbb{E}[e^{tX}].
+\]
+\textbf{Property:} if $X_{1}, \cdots ,X_{n}$ are independent, then $M_{X_{i}}(t)$
+exists (near 0), then the MGF of $W = \sum X_{i}$ is given by
+\[
+M_{W}(t) = M_{X_{1}}(t) \cdot \cdots \cdot M_{X_{N}}(t).
+\]
+This is a product (not an addition) because
+\begin{align*}
+    M_{W}(t)
+    &= \mathbb{E}[e^{tX}]\\
+    &= \mathbb{E}[exp\{t \sum X_{i}\}] \\
+    &= \mathbb{E}[e^{tX_{1}} \times \cdots \times e^{tX_{n}}] \\
+    &= \mathbb{E}[e^{tX_{1}}] \times \cdots \times \mathbb{E}[e^{tX_{n}}] \\
+    &= M_{X_{1}}(t) \times \cdots \times M_{X_{n}}(t)
+\end{align*}
+
+\subsubsection{A fact}
+Let $X \sim N(\mu, \sigma^{2})$ and 
+\[
+    M_{X}(t) = e^{\mu t}e^{\frac{\sigma^{2}t^{2}}{2}}.
+\]
+\subsubsection{Gamma Example}
+Let $r=0$ and $\lambda >0$. The pdf of a gamma is given by
+\[
+    f(X) = \frac{\lambda^{r}}{\Gamma(r)}x^{r-1}exp\{-\lambda X\}.
+\]
+Thus,
+\begin{align*}
+    M(t)
+    &= \mathbb{E}[exp\{tX\}] \\
+    &= \int exp\{tX\} \frac{\lambda^{r}}{\Gamma(r)}x^{r-1}exp\{-(\lambda t)x) dx\\
+    &= \lambda^{r} \int exp\{tX\} \frac{1}{\Gamma(r)}
+    x^{r-1}exp\{-(\lambda t)x) dx
+\end{align*}
+Multiplying by 1 in the form $(\lambda - t)^{2} / (\lambda-t)^{2}$, 
+we arrive at the MGF for a gamma,
+\[
+    \left(\frac{\lambda}{\lambda-t}\right).
+\]
+\pagebreak
+\section{Central Limit Theorem}
+Let $Y_{1}, \cdots , Y_{n}$ be iid random variables with mean $\mu$ and
+variance $\sigma^{2}$. Assume that an MGF exists near 0. Then,
+\[
+\frac{\sqrt{n}}{\sigma^{2}}(\bar Y-\mu) \rightarrow N(0,1),
+\]
+as $n \rightarrow \infty$.
+
+\begin{note}
+    \textbf{Theorem}: If an MGF exists $\forall n$ and $M_{X_{n}}(t)
+    \rightarrow M_{X}(t) \; \forall t \text{ near }0$, then 
+    $X_{n} \rightarrow X$.
+\end{note}
+
+\subsection{Proof sketch}
+Let $X_{i} = Y_{i}-\mu$. If $a_{1}, \cdots , a_{n}$ converge to $a$, then
+\[
+\left(1 + \frac{a_{n}}{n}\right)^{n} \rightarrow exp(a).
+\]
+Let $S_{n} = \sum X_{i}$ and
+\[
+Z_{n} = \frac{S_{n}}{\sqrt{n\sigma^{2}}}.
+\]
+We can find the MGF of $S_{n}$,
+\[
+M_{S_{n}}(t) = M_{\sum X_{i}}(t) = (M_{X}(t))^{n},
+\]
+and the MGF of $Z_{n}$
+\[
+M_{Z_{n}}(t) = M_{\frac{S_{n}}{\sqrt{n\sigma^{2}}}} =
+M_{S_{n}}\left(\frac{t}{\sqrt{n\sigma^{2}}}\right) = 
+\left(M_{X}\left(\frac{t}{\sqrt{n\sigma^{2}}}\right)\right)^{n}
+\]
+We can find the series expansion near 0 as
+\begin{align*}
+    M_{X}(t) 
+    &= M_{X}(0) + tM'_{X}(0) + \frac{t^{2}}{2}M_{X}''(0) + \cdots  \\
+    &= \mathbb{E}[e^{0}] + t\mathbb{E}[X] + \frac{t^{2}}{2}\mathbb{E}[X^{2}]\\
+    &= 1 + 0 + \frac{t^{2}}{2}\sigma^{2} + \epsilon
+\end{align*}
+where $\epsilon$ is some small quantity. Thus,
+\begin{align*}
+    M_{Z_{n}}(t) 
+    &= \left(1 + \left(\frac{t}{\sqrt{n\sigma^{2}}}\right)^{2}
+        \frac{\sigma^{2}}{2} + \epsilon \right)^{n}\\
+    &= \left(1 + \frac{t^{2}}{2n} + \epsilon\right) \\
+    &= \left(1 + \left(\frac{t^{2}}{2}\right)\frac{1}{n} + \epsilon\right)^{n}\\
+\end{align*}
+This converges to $exp\{t^{2}/2\}$, which is the MGF of $N(0,1)$ random
+variables. This works because of the assumption that we can ignore the $\epsilon$
+since it approaches 0.
+
+\end{document}

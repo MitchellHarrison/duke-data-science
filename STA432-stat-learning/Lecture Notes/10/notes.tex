@@ -1,0 +1,247 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 10 - Sampling Distributions}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Regression Example}
+
+Let our data come in pairs $(X_{1}, Y_{i})$. Our task is to connect $Y_{i}$, 
+which are responses, to $X_{i}$, which are predictors. We are interested in
+$\mathbb{P}(Y|X)$. First, let's assume a linear relationship. Then,
+\[
+    y_{i} \approx \beta_{0} + \beta_{1}X_{1} + \cdots + \beta_{n}X_{n}.
+\]
+Then, we need to choose (i.e. estimate) a line that best fits the point. Thus,
+we need some criteria for choosing our line. Most likely, we want to minimize
+\[
+    \sum_{i=1}^{n}(y_{i}-X_{i}^{T}\beta)^{2}.
+\]
+This is the \textbf{ordinary least squares} estimate of paramater vector
+$\vec \beta$.
+
+\subsection{Constructing an estimate}
+\begin{align*}
+    (\vec y-X\beta)^{2}(\vec y-X\beta)
+    &= \vec y^{2}\vec y - 2\beta^{T}X^{T}\vec y + \beta^{T}X^{T}X\beta \\
+    \frac{d}{d\beta^{2}} &= 02X^{T}\vec y + 2X^{T}X\beta = 0 \\
+    \hat \beta &= (X^{t}X)^{-1}X^{t}y
+\end{align*}
+This is the OLS estimator in matrix notation. Let $\mathbb{E}[\vec y] = X\beta$.
+Assume that there is a true $\beta$ value such that there is a linear 
+relationship between $X$ and $Y$. Then,
+\begin{align*}
+    \mathbb{E}[\hat \beta]
+    &= (X^{t}X)^{-1}X^{t}y \\
+    &= (X^{t}X)^{-1}X^{t}\mathbb{E}[\vec y] \\
+    &= (X^{t}X)^{-1}X^{t}X\beta \\
+    &= \beta
+\end{align*}
+Thus, this estimator is \textit{unbiased}. Now that we have an unbiased
+estimator, we can try to figure out how our estimator performs using the
+variance of the estimator. Perhaps a Cramer-Rao lower bound? Let's find our
+variance:
+\begin{align*}
+    Var(y_{i}) &= \sigma^{2} \forall i \\
+    Var(\hat \beta) 
+    &= Var((X^{t}X)^{-1}X^{t}y) \\
+    &= (X^{t}X)^{-1}X^{t} Var(\vec y)X(X^{T}X)^{-1} \\
+    &= (X^{t}X)^{-1}X^{T} [\sigma^{2} I] X(X^{T}X)^{-1} \\
+    &= \sigma^{2} (X^{T}X)^{-1}(X^{T}X)(X^{T}X)^{-1} \\
+    &= \sigma^{2}(X^{T}X)^{-1}
+\end{align*}
+
+It is very common to say that $y_{i} \sim N(X_{i}^{T}\beta,\sigma^{2})$. They
+are independent, but not identically distributed because the mean changes with
+$i$. Let $\theta = (\beta, \sigma^{2})$. We can also write this as
+\[
+y_{i} = X^{T}\beta + \epsilon{i},
+\]
+where $\epsilon \overset{\mathrm{iid}}{\sim} N(0, \sigma^{2})$. These two 
+notations are equivalent. We can then search for a likelihood
+\begin{align*}
+    \mathcal{L}(\theta) 
+    &= \prod_{i=1}^{n}\mathbb{P}(y_{i}|x_{i}, \theta)\\
+    &= (2\pi \sigma^{2})^{-\frac{n}{2}}exp\{-\frac{1}{2\sigma^{2}}
+    \sum_{i=1}^{n}(y_{i} - X_{i}^{T}\beta)^{2}\} \\
+    \ell(\theta) &= \frac{-n}{2}log(2\pi\sigma^{2}) - \frac{1}{2\sigma^{2}}
+    (y-X\beta)^{T}(y-X\beta)
+\end{align*}
+We can then find the MLE from $\ell(\theta)$:
+\begin{align*}
+    \frac{d}{d\beta}
+    &= -\frac{1}{2\sigma^{2}}(-2X^{T}y + 2X^{T}X\beta) = 0\\
+    0 &= (-2X^{T}y + 2X^{T}X\beta) \\
+    \hat \beta_{MLE} &= (X^{T}X)^{-1}X^{T}y
+\end{align*}
+Thus, we see that our MLE estimator is equivalent to our OLS estimator. It is
+true (although we haven't proved this) that
+\[
+\sqrt{n}(\hat \beta_{MLE} - \beta_{i}) \rightarrow N(0,\mathcal{I}(\theta)^{-1}).
+\]
+\subsection{Fisher information matrix}
+
+This is similar to the scalar case from previous lecture. Now, we need to
+find the Fisher information matrix $\mathcal{I}(\theta)$.
+\begin{align*}
+    \ell'' 
+    &= \frac{2(X^{T}X)}{-2\sigma^{2}} \\
+    &= -\frac{X^{T}X}{\sigma^{2}}
+\end{align*}
+Recall that Fisher information is
+\[
+\mathcal{I}(\beta) = -\mathbb{E}(\ell''(\beta)).
+\]
+Thus, our Fisher information matrix is
+\[
+    \mathcal{I}(\theta) = \frac{X^{T}X}{\sigma^{2}}.
+\]
+\pagebreak
+\section{Moment Generating Functions}
+\begin{note}
+    This is section (approximately) 4.4 in the textbook.
+\end{note}
+Let $X$ be a random variable, then 
+\[
+    M_{x}(t) = \mathbb{E}[e^{tx}] = \int e^{tx}f(x)dx
+\]
+is the \textbf{moment generating function}. We can find the Taylor series
+approximation
+\begin{align*}
+    M_{x}(t)
+    &= \int (1 + tx + \frac{t^{2}x^{2}}{2!} + \frac{t^{3}x^{3}}{3!} + \cdots )
+    f(x)dx \\
+    &= 1 + t\mathbb{E}[X] + \frac{t^{2}}{2!}\mathbb{E}[X^{2}] +
+    \frac{t^{3}}{3!}\mathbb{E}[X^{3}] + \cdots 
+\end{align*}
+This gives us access to the \textbf{moments}. For example, the first moment is
+(setting $t=0$):
+\begin{align*}
+    M_{x}'(t)
+    &= 0 + 1\mathbb{E}[X] + \frac{2t}{2!}\mathbb{E}[X^{2}] \cdots  \\
+    &= \mathbb{E}[X]
+\end{align*}
+
+Similarly, the second moment is
+\begin{align*}
+    M_{x}''(t)
+    &= 0 + 0 + 1\mathbb{E}[X^{2}] + \frac{6}{3!}t \mathbb{E}[X^{3}] + \cdots \\
+    &= \mathbb{E}[X^{2}]
+\end{align*}
+
+\subsubsection{Theorems}
+If $X,Y$ are random variables with $M_{x}(t) = M_{y}(y) < \infty$ for all
+$t$ close to 0, then $X$ and $Y$ have the same distribution.
+
+If $W = \sum X_{i}$ and $X_{i}$ are independent and have $M_{X_{i}}(t)$ MGFs,
+then
+\[
+    M_{w}(t) = M_{X_{i}}(t) \cdot M_{X_{2}}(t) \cdot \cdots \cdot 
+    M_{X_{n}}(t).
+\]
+Therefore, if the $X_{i}$ are iid, then $M_{w}(t) = M_{x}(t)^{n}$.
+
+\subsection{Negative binomial example}
+Let $X$ be the number of trials until $r$ successes. Its PDF is then
+\[
+    f(x) = \binom{x-1}{r-1}(1-p)^{x-r}p^{r}.
+\]
+Recall that $e^{tx} = exp\{tr + (x-r)t)$. Then, the moment generating function is
+\begin{align*}
+    M_{X}(t) 
+    &= \sum_{x=1}^{n}\binom{x-1}{r-1}(1-p)^{x-r}p^{r}e^{tx} \\
+    &= \sum_{x=1}^{\infty}\binom{x-1}{r-1}((1-p)e^{t})^{x-r} \left[e^{tr}\cdot
+    p^{r}\right] \\
+    &= ((e^{t})^{r}p^{r}) \sum \binom{x-1}{r-1}(1-p)exp\{t\})^{x-r}
+    \left[\frac{1-(1-p)e^{t}}{1-(1-p)e^{t}}\right]^{r} \\
+    &= \frac{(e^{t}p)^{r}}{(1-(1-p)e^{t})^{r}} \sum 
+    \binom{x-1}{r-1}((1-p)e^{t})^{x-r}(1-(1-p)e^{t})^{r}
+\end{align*}
+And we can see that this is simply a PDF of a new negative binomial 
+distribution.
+
+\subsection{Poisson example}
+Let $X_{i} \sim Poisson(\lambda_{i})$. Then
+\[
+    M_{X_{i}}(t) = exp\{-\lambda_{i}+ \lambda_{i}e^{t}\}.
+\]
+Then we can see that
+\begin{align*}
+    M_{X_{1} + X_{2}}(t) 
+    &= M_{X_{1}}(t) \cdot M_{X_{2}}(t) \\
+    &= exp\{-(\lambda_{1} + \lambda_{2})\} + (\lambda_{1} + \lambda_{2})
+    e^{t}\}
+\end{align*}
+Therefore, we see that
+\[
+    X_{1} + X_{2} \sim Poisson(\lambda_{1} + \lambda_{2}).
+\]
+
+\end{document}
