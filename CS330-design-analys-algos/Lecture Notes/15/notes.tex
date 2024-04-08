@@ -1,0 +1,230 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 15 - Flows and Cuts cont'd}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+Recall that the \textit{residual graph} of a flow network/graph satisfies both
+the capacity and flow conservation constraints. We tried last time to compute a
+maximum flow (or equivalently, a minimum cut). Recall that a residual graph has
+a forward edge wherever the original graph $G$ had residual capacity (i.e.,
+unused capacity). It also has reverse edges whenever we have an edge in $G$ with
+some positive flow along it.
+
+The \textit{augmenting path} from $s$ to $t$ in the residual network. The
+\textit{bottleneck capacity} of an augmenting path is the minimum capacity of an
+augmenting path. To augment flow in the original graph $G$, for every forward
+edge, we add the bottleneck capacity to every flow. For a reverse edge in the
+augmenting path, we subtract the bottleneck from the equivalent edge in $G$. 
+This increases the flow going from $s$ to $t$ in $G$ by the bottleneck capacity.
+
+\pagebreak
+\section{Ford-Fulkerson Algorithm}
+Recall that \textit{weak duality} states that for any flow and any cut is
+\textit{at most} the value of the cut. \textbf{Strong duality} claims that it 
+will not only be at most, but precisely equivalent to the value of the cut.
+
+If there is an augmenting path $f'$, then $|f'| = |f| + b$, where $b$ is the
+bottleneck capacity. That means that $f'$ does not have maximal flow. If there
+is \textit{not} an augmenting path, we consider the set of vertices reachable
+from $s$ in $G_{f}$, where $G_{f}$ is the residual graph.
+
+To compute a maximum flow, we repeatedly:
+\begin{enumerate}
+    \item Find an augmenting path in the residual network.
+    \item Augment flow along the path.
+    \item Update the residual network.
+\end{enumerate}
+We do this until no augmenting path exists. This is the \textbf{Ford-Fulkerson
+algorithm}. This guarantees that we have a maximum flow. To compute a minimum
+cut, we adapt the algorithm by:
+\begin{enumerate}
+    \item computing a maximum flow using the above, and
+    \item  find the vertices reachable from $s$ in the residual network for the
+        maximum flow. This is the minimum cut.
+\end{enumerate}
+
+\begin{note}
+    If all capacities are integers, then this algorithm will compute an
+    \textit{integer max flow}. This is called the \textbf{integrality 
+    observation}. Things are a little bit more complicated regarding runtime
+    when capacities are non-integers.
+\end{note}
+
+\subsection{Runtime}
+Assume $n$ vertices and $m \ge n$ edges. To compute a max flow, we repeatedly
+find an augmenting path in $O(m)$ time with one DFS/BFS, augment the flow along
+the path in $O(n)$ time, and update the residual network, which takes $O(m)$ to
+recompute and $O(n)$ to only update. The question remains, how many times will
+we have to do these operations?
+
+If each augmentation increases flow by at least 1, we have a runtime of 
+$O(|f^{*}|m)$, where $|f^{*}|$ is the maximum flow. This is a strange
+parameterization because $f^{*}$ isn't given to the algorithm as input, but it
+is correct.
+
+\pagebreak
+\section{Edmonds-Karp Algorithm}
+We can use BFS to find the \textit{shortest} augmenting paths at each step of
+Ford-Fulkerson. This helps be more consistent about our runtime, regardless of
+maximum flow. In this way, we can find a maximum flow in $O(nm^{2})$ time, 
+which does not depend of $f^{*}$.
+
+\subsection{Proof outline}
+We first argue that the shortest path distances are \textit{increasing} over
+augmentations in the algorithm. This is because as we go, forward edges are
+being saturated. Based on this reality, we show that each edge is removed from 
+the residual graph at most $\frac{n}{2}$ times in total. Since at least one
+edge (the bottleneck) is saturated per augmentation, there must be at most
+$\frac{nm}{2}$ augmentations in total. Since we can do each one in $O(m)$ time,
+we get a final runtime of $O(nm^{2})$, which is what we expected. 
+\begin{note}
+    In practice, this technique runs \textit{much} faster than $O(nm^{2})$
+    empirically.
+\end{note}
+
+\subsection{Claim 1}
+
+To show that the shortest path distances are increasing, let $f_{i}$ be the flow
+after $i$ augmentation steps, and let $G_{f_{i}}$ be the corresponding residual
+graph. Let $\ell_{i}(v)$ denote the (unweighted) shortest path distance from
+$s$ to $v$ in $G_{f_{i}}$ (call this $\infty$ if $v$ is not reachable. We seek
+to show that $\ell_{i}(v) \ge \ell_{i-1}(v) \forall v \in V$ and all $i \ge 1$.
+
+Consider an arbitrary $v \in V$ and $i \ge 1$. We argue by induction on the
+\textit{level} $\ell$, not $i$. In our \textit{base case}, for $\ell_{i}(v)=0$,
+it must be that $v=s$ and $\ell_{i}(s) = \ell_{i-1}(s)=0$. Suppose that
+$\ell_{i}(u) \ge \ell_{i-1}(u)$ for all $u \in V$ with $\ell_{i}(u) < 
+\ell_{i}(v)$. If $\ell_{i}(v) = \infty$, then the claim holds trivially. If
+the vertex $v$ is reachable, then it is reachable by some shortest path. Let 
+$s \rightarrow \cdots \rightarrow u \rightarrow v$ be that shortest path from
+$s$ to $v$ in $G_{f_{i}}$. We have:
+\begin{align*}
+    \ell_{i}(v) &= \ell_{i}(u) + 1\\
+                &\ge \ell_{i-1}(u) + 1 & \text{by inductive hypothesis}
+\end{align*}
+Now we consider two cases: $u \rightarrow v \in G_{f_{i-1}}$ or not. Suppose
+$u \rightarrow v \in  G_{f_{i-1}}$. Then $\ell_{i-1}(v) \le \ell_{i-1}(u)+1$
+because $\ell$ defines shortest path distances. So, $\ell_{i-1}(u) \ge
+\ell_{i-1}(v) - 1$. Then, $\ell_{i}(v) \ge \ell_{i-1}(v)$.
+
+However, if $u\rightarrow v \notin G_{f_{i-1}}$, then $v\rightarrow u$ was in 
+the $i$th augmenting path, which was a shortest path in $G_{f_{i-1}}$. So,
+$\ell_{i-1}(u)= \ell_{i-1}(v) + 1$. Then, $\ell_{i}(v) \ge \ell_{i-1}(v) + 1
+\ge \ell_{i-1}(v)$. These cases show that the shortest path distances are
+strictly increasing over the course of the algorithm.
+
+\subsection{Claim 2}
+We also claimed that each edge is remove from the residual graph at most
+$\frac{n}{2}$ times total. Consider an edge $u \rightarrow v$ removed from
+$G_{f_{i}}$. Suppose $u \rightarrow v$ reappears in $G_{f_{j+1}}$ where $j>i$.
+Then, $u\rightarrow v$ must have been in the $i$th augmenting path. So,
+$\ell_{i}(v) = \ell_{i}(u) + 1$. 
+
+Similarly, $v\rightarrow u$ must have been in the $j$th augmenting path. So,
+$\ell_{j}(u) = \ell_{j}(v) + 1$. Combining with the previous claim 1 that 
+$\ell_{j}(v) \ge \ell_{i}(v)$, we find that $\ell_{j}(u) \ge \ell_{i}(u)+2$.
+This can only happen $\frac{n}{2}$ times because $\ell$ corresponds to shortest
+path distances.
+
+\pagebreak
+\section{Bipartite Matchings}
+We are given an indirected \textit{bipartite} graph $G$, which is given by
+\[
+G = (V = L \cup R, E),
+\]
+and $L \cap R = \varnothing$. A \textbf{matching} is a set of edges 
+$M \subseteq E$ such that every vertex is incident on at most one edge in $M$.
+We seek to compute a matching $M \subseteq E$ of maximum size $|M|$. We think
+about resolving this problem by reducing it to a maximum flow problem.
+
+\subsection{Reduction}
+If someone gives us an algorithm $A'$ for a problem $P'$, we can use it to 
+design an algorithm $A$ to solve a problem $P$. This is a \textbf{reduction}.
+We've mentioned reductions briefly in previous lectures.
+
+Given as input the undirected, unweighted bipartite graph $G$, we will construct
+$G' = (V', E', c)$ as:
+\begin{itemize}
+    \item $V' = L \cup R \cup \{s,t\}$
+    \item $E' = \{u \rightarrow v | (u,v) \in E, u \in  L, v \in R\}
+        \cup \{s\rightarrow u |u \in L\}
+        \cup \{v \rightarrow t | v \in R\}$
+    \item $c(u \rightarrow v) = 1$ for every $u \rightarrow v \in E'$
+\end{itemize}
+This construction takes $O(|V| + |E|)$, or linear, runtime. We then get a 
+maximum flow with Ford-Fulkerson. Finally, we convert maximum flow to maximum
+matching. Let $M = \{u \rightarrow v \in E' | f(u\rightarrow v) = 1, u \in L,
+v \in R\}$. Theoverall runtime is dominated by the Ford-Fulkerson portion of 
+the solution, so the overall runtime is $O(|V||E|)$.
+
+\end{document}

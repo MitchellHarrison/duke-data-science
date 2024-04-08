@@ -1,0 +1,239 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amsfonts}
+\usepackage[noend]{algpseudocode}
+\usepackage{algorithm}
+\usepackage[parfill]{parskip}
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
+\usepackage{hyperref}
+\usepackage[english]{babel}
+\usepackage[autostyle]{csquotes}
+\usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\definecolor{color1}{rgb}{0.7, 0.2, 0.2}
+\definecolor{color2}{rgb}{0.0, 0.4, 0.0}
+\definecolor{color3}{rgb}{0.2, 0.4, 0.7}
+
+%--------------------------------------------------------%
+
+
+\title{\vspace{-0.5in}Compsci 330 Design and Analysis of Algorithms \\Assignment 8, Spring 2024 Duke University}
+\author{TODO: Add your name(s) here}
+\date{Due Date: Thursday, March 28, 2024}
+
+%--------------------------------------------------------%
+
+\begin{document}
+
+\maketitle
+
+%--------------------------------------------------------%
+
+\paragraph{How to Do Homework.} We recommend the following three step process for homework to help you learn and prepare for exams.
+\begin{enumerate}
+	\item Give yourself ~15-20 minutes per problem to try to solve on your own, without help or external materials, as if you were taking an exam. Try to brainstorm and sketch the algorithm for applied problems. Don't try to type anything yet.
+	\item After a break, review your answers. Lookup resources or get help (from peers, office hours, Ed discussion, etc.) about problems you weren't sure about.
+	\item Rework the problems, fill in the details, and typeset your final solutions.
+\end{enumerate}
+
+\paragraph{Typesetting and Submission.} Your solutions should be typed and submitted as a single pdf on Gradescope. Handwritten solutions or pdf files that cannot be opened will not be graded. \LaTeX \footnote{If you are new to \LaTeX, you can download it for free at \href{https://www.latex-project.org}{latex-project.org} or you can use the popular and free (for a personal account) cloud-editor \href{https://www.overleaf.com}{overleaf.com}. We also recommend \href{https://www.overleaf.com/learn}{overleaf.com/learn} for tutorials and reference.} is preferred but not required. %If you use another editor for your solutions (such as Microsoft Word), you should convert the final document to a pdf, confirm that the symbolic math from the equation editor is properly formatted, and submit the pdf. 
+You must mark the locations of your solutions to individual problems on Gradescope as explained in \href{https://help.gradescope.com/article/ccbpppziu9-student-submit-work#submitting_a_pdf}{the documentation}. Any applied problems will request that you submit code separately on Gradescope to be autograded. 
+
+\paragraph{Writing Expectations.} If you are asked to provide an algorithm, you should clearly and unambiguously define every step of the procedure as a combination of precise sentences in plain English or pseudocode. If you are asked to explain your algorithm, its runtime complexity, or argue for its correctness, your written answers should be clear, concise, and should show your work. Do not skip details but do not write paragraphs where a sentence suffices.
+
+\paragraph{Collaboration and Internet.} If you wish, you can work with a single partner (that is, in groups of 2), in which case you should submit a single solution \href{https://help.gradescope.com/article/m5qz2xsnjy-student-add-group-members}{as a group on gradescope}. You can use the internet, but looking up solutions or using large language models is unlikely to help you prepare for exams. See the \href{https://sites.duke.edu/spring24compsci330/policies/}{course policies webpage} for more details.
+
+\paragraph{Grading.} Theory problems will be graded by TAs on an S/U scale (for each sub-problem). Applied problems typically have a separate autograder where you can see your score. The lowest scoring problem is dropped. See the \href{https://sites.duke.edu/spring24compsci330/assignments/}{course assignments webpage} for more details.
+
+
+
+%--------------------------------------------------------%
+\newpage
+\paragraph{Problem 1 (Grid Games).} Suppose we are given an $n\times n$ grid of squares. Each square is black or white. The input is represented as a two dimensional array $W$, where $W[i][j] = 1$ if the row $i$ column $j$ square is white, or 0 otherwise.
+
+Describe an algorithm to determine whether tokens can be placed on white squares of the grid so that every row and every column contains exactly one token. Analyze the runtime complexity of the algorithm and briefly explain its correctness (at most a few sentences, not a formal proof).
+
+You may use and assume the correctness of the Ford-Fulkerson algorithm as described in lecture, including using BFS to identify augmenting paths as in the Edmonds-Karp implementation, without restatement.
+
+\textit{Hint.} Try to reduce this problem to computing the maximum flow on a graph you define.
+
+\paragraph{Solution}
+Let $R$ and $B$ be sets of $n$ vertices representing the rows and columns in
+$W$. Let $G$ have an edge between $R_{i}$ and $C_{j}$ with capacity 1 if the
+square at $(i,j)$ in the grid is white. \Call{question1}{} returns
+\texttt{True} if placing tokens is possible, and \texttt{False} if not.
+
+\begin{algorithm}
+\caption{return True if placing tokens is possible}
+\begin{algorithmic}[1]
+\Procedure{question1}{W}
+    \State Create a graph $G$ made of sets $A$ and $B$.
+    \State Add a source vertex $S$ and sink vertex $K$.
+    \State Connect $S$ to all $R_{i}$ with an edge capacity of 1.
+    \State Connect all $C_{j}$ to $K$ with edge capacity 1
+    \State Apply Ford-Fulkerson to $G$ with BFS to find max flow of $G$.
+    \If{max flow of $G = n$}
+        \State \Return True
+    \Else
+        \State \Return False
+    \EndIf
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Runtime}
+
+The Ford-Fulkerson algorithm dominates the runtime complexity of this solution.
+Its asymptotic runtime is $O(EF)$ where $E$ is the number of edges and $F$ is
+the maximum flow. Since $E=n^{2}$ and our max flow is 1, our worst-case runtime
+is $O(n^{3})$.
+
+\paragraph{Correctness}
+
+In $G$, a maximum flow of $n$ means that all rows can send flow to a column.
+That is, a token has been assigned. This has the effect of placing tokens so
+that every row and column has a token. If the maximum flow is less than $n$
+(it can never be greater), then there is a cut in the network and there is no
+possible solution.
+
+%--------------------------------------------------------%
+\newpage
+\paragraph{Problem 2 (Flow Cycles).} Let $G=(V,E)$ be a directed graph with $n=|V|$ vertices and $m=|E|$ edges. Let $s, t$ be two distinct vertices in $G$, and let $c: E \rightarrow \mathbb{Z}_{\ge 0}$ be an edge capacity function such that each edge capacity is a non-negative integer, i.e., $c(u\rightarrow v)\ge 0$ is the (integer) capacity of the edge $u\rightarrow v$. Let $f: E \rightarrow \mathbb{Z}_{\ge 0}$ be a $(s,t)$-flow function in $G$ in which one of the edges $v \rightarrow s \in E$ entering the source vertex $s$ has $f(v \rightarrow s) = 1$. Assume that $f$ has non-negative flow value.
+
+\begin{enumerate}[(a)]
+    \item Prove that there must exist another $(s,t)$-flow $f': E\rightarrow \mathbb{Z}_{\ge 0}$ with $f'(v\rightarrow s)=0$ and $|f|=|f'|$ (that is, having the same $(s,t)$-flow value).
+    
+	
+    \item Given $f$, describe an $O(m)$ runtime algorithm to compute $f'$. Briefly explain why the algorithm is correct, referencing the proof of existence from the previous part. Analyze the runtime of your algorithm. 
+\end{enumerate}
+
+You may use and assume the correctness of the Ford-Fulkerson algorithm as described in lecture, including using BFS to identify augmenting paths as in the Edmonds-Karp implementation, without restatement.
+
+\paragraph{Solution}
+
+We will show that another $(s,t)$-flow $f'$ exists such that
+$f'(v \rightarrow s) = 0$ with the same flow value $|f|+|f'|$ by building that
+flow using $f$.
+
+Since $f(v\rightarrow s) = 1$ and $v \ne s$, an edge $u \rightarrow v$ must
+exist in the graph such that $f(u\rightarrow v) > 0$. That is, there is positive
+flow from $u$ to $v$. This is correct due to the flow conservation rule. We
+define a path $P = (u,v,s)$. We  know that $f(v\rightarrow s) = 1$ (given in
+the problem) and we know that $f(u\rightarrow v) > 0$ (defined earlier). That 
+means that there is available capacity on the path $P$ to send one unit of
+flow from $u$ to $s$.
+
+Let our new function $f'(e)$ be equal to $f(e)$ for all edges $e \in E$, with
+the exception of $u \rightarrow v$ and $v \rightarrow s$. In those cases, there
+are the following changes:
+\begin{itemize}
+    \item $f'(u \rightarrow v) = f(u \rightarrow v) - 1$
+    \item $f'(v \rightarrow s) = f(v\rightarrow s) + 1$.
+\end{itemize}
+That is, $f'$ reduces flow from $u\rightarrow v$ by 1 and increases it by 1
+from $v \rightarrow s$. If $f'$ is a valid $(s,t)$-flow, then we are complete.
+
+Since we know that all edges start with non-negative integer capacity, and
+because $f(u \rightarrow v) > 0$, reducing it by 1 will maintain its
+non-negativity. Increasing $f(v \rightarrow s)$ by 1 stays within the capacity
+constraint since all capacities are non-negative. Since all vertices except
+$s$, $t$, and $v$ remain the same, we know that the flow everywhere else
+remains the same as $f$. Thus we need to find flow conservation for $s$, $t$,
+and $v$.
+\begin{itemize}
+    \item For vertex $v$, incoming flow is reduced by 1 and outgoing flow is
+        increased by 1, which maintains conservation.
+    \item For vertex $s$, the outgoing flow is increased by 1, which
+        balances the reduction of the incoming flow for vertex $v$. So there is
+        no net change in flow so far.
+    \item For the sink vertex $t$, because we didn't directly modify any edges
+        directly connected to $t$.
+\end{itemize}
+Thus, the flow entering the sink vertex $t$ remains the same because we shifted
+the flow value of 1 within $P = (u \rightarrow v\rightarrow s)$, but did not
+add or remove from the total. Thus $|f'| = |f|$, and our proof is complete.
+
+\paragraph{Algorithm}
+\begin{algorithm}
+\caption{compute $f'$ given $f$}
+\begin{algorithmic}[1]
+\Procedure{question2}{$f$}
+    \State Find vertex $u$ such that $f(u\rightarrow v)>0$.
+    \State $f'(e) = f(e) \; \forall e \in E$ except $u\rightarrow v$ and
+    $v\rightarrow s$.
+    \State Let $f'(u \rightarrow v) = f(u\rightarrow v) - 1$
+    \State Let $f'(v\rightarrow s) = f(v\rightarrow s) + 1$
+    \State \Return $f'$
+\EndProcedure  
+\end{algorithmic}
+\end{algorithm}
+This is effectively a pseudocode implementation of our proof. It requires
+iterating through all edges intering $v$. In the worst case, all $m$ edges
+enter $v$, resulting in $O(m)$ complexity. However, in step 1 we have to find
+$u$ such that $f(u\rightarrow v)>0$, we will use Ford-Fulkerson to do so. 
+Normally, since it is used to find maximum flow and not one specific flow, it
+will not dominate the runtime. Thus, the worst-case runtime is $O(m)$.
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 3 (Disconnected).} Let $G = (V, E)$ be an undirected connected graph with $n=|V|$ vertices and $m=|E|$ edges. Describe an $O(n^2 m)$ runtime algorithm to compute the minimum number of edges that must be removed from $G$ in order to make it disconnected, i.e., after the removal of the edges, there exist two vertices in $G$ with no path between them. Briefly explain why the algorithm is correct. Analyze the runtime complexity of the algorithm.
+
+You may use and assume the correctness of the Ford-Fulkerson algorithm as described in lecture, including using BFS to identify augmenting paths as in the Edmonds-Karp implementation, without restatement.
+
+\textit{Hint.} What is the relationship between disconnecting the graph in this problem and the concept of a minimum cut?
+
+\paragraph{Solution 3 (Algorithm)}
+
+An informal, more descriptive definition for this algorithm will be given here, rather than formal pseudocode.
+
+\begin{enumerate}
+    \item Compute $G^{'}$ as follows: all of the undirected edges are converted into two directed edges (one in each direction), and these edges will all have capacity 1.
+    \item Select two nodes at random to represent $s$ and $t$. The choice of nodes is unimportant.
+    \item Run the Ford-Fulkerson algorithm over $G^{'}$ to identify a minimum capacity cut (we only need the capacity of this cut, not the actual edges themselves).
+    \item Then the minimum number of edges that must be removed from $G$ to make it disconnected is simply the capacity of this minimum cut.
+\end{enumerate}
+
+\paragraph{Solution 3 (Explanation)}
+
+Converting undirected edges into two directed edges does not fundamentally change the graph - in fact, these two statements are functionally identical. Setting edges to have a capacity of 1 also does not fundamentally change the graph - it simply specifies that the edges are unweighted. The Ford-Fulkerson algorithm allows us to identify an $s-t$ cut of minimum capacity in a capacitated graph. In this case where the capacity of each edge is 1, the minimum cut is then simply the minimum number of edges that connect two components of this graph. Thus, if we can identify that minimum cut, we know that cutting each of these edges would make the graph disconnected, and we know that no smaller number of cuts could be made to do so. We do not need to be concerned with this algorithm having issues with the bidirectional edges - if the minimum cut identified had both edge $a \rightarrow b$ and $b \rightarrow a$, then at least one of these cuts is redundant, and would not be included in the minimum cut.
+
+\paragraph{Solution 3 (Runtime)}
+
+The Ford-Fulkerson algorithm runs in $O(|f^*|m)$ time, where $|f^*|$ is the maximum flow in the graph. Since this is a graph where all edges have capacity 1, the maximum flow in this graph is $O(n)$, in the case where all nodes are connected to all other nodes (and hence our destination node $t$ has $n-1$ edges of capacity 1 entering it). Thus, our implementation of the Ford-Fulkerson algorithm runs in at most $O(n * m)$ time. The initialization of $G^{'}$ runs in $O(m)$ time, since it simply needs to go over all of the edges and convert them to be bidirectional (assuming our graph is represented with a matrix or an array). Thus, this algorithm is upper-bounded by $O(n * m)$.
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 4 (Applied).} You are a city planner trying to optimize traffic flow in the city's transportation network. Imagine a city with a complex network of roads and highways but with only one entry point $s$ and one exit point $t$. You are asked to increase the traffic capacity driving from $s$ to $t$ but are only allotted with the money to widen one road such that its capacity would increase. 
+
+Assume now the city road map is converted into a directed graph (not necessarily acyclic) with nodes labeled as integers and with non-negative integer capacities on the edges. Your function will take in two parallel lists edges and capacities, where each edge is a tuple. For example, $(2, 4)$ is an edge that goes from starting node 2 to destination node 4. You are also given the label of a source vertex and a target vertex.
+
+We say that an edge is a \textit{priority edge} for routing traffic flow from source $s$ to target $t$ if increasing the capacity on that edge by 1 (with no other changes to the graph) would increase the value of the maximum flow from $s$ to $t$. 
+
+Given the above inputs, \textbf{you should design and implement an algorithm that returns a list of \textit{all} priority edges in the graph (or an empty list if there are none)}. The list can be in any order. For full credit, your solution will need to have an empirical runtime that is within constant factors of an $\mathcal{O}(nm^2)$ reference solution where $n$ is the number of vertices and $m$ is the number of edges. 
+
+\textit{Hint: recall the correspondence between the maximum value of the $(s,t)$-flow and the minimum value of the $(s,t)$-cut.}
+
+Language-specific details follow. You can use whichever of Python or Java you prefer. You will receive automatic feedback when submitting, and you can resubmit as many times as you like up to the deadline. \textbf{NOTE:} Unlike the theory problems, the applied problem grade \textbf{is the raw score shown on Gradescope}. See the \href{https://sites.duke.edu/spring24compsci330/assignments/}{course assignments webpage} for more details. 
+
+\begin{itemize}
+	\item \textbf{Python.} You should submit a file called \texttt{flow.py} to the Gradescope item "Assignment 6 - Applied (Python)." The file should define (at least) a top level function \texttt{find\_edges} that looks like: 
+\begin{itemize}
+\item \verb|def find_edges(edges:[(u:int,v:int)], capacities:[int], s:int, t:int)|
+\end{itemize}
+
+	and returns a list of tuples \verb|(u,v)| that are priority edges or an empty list \verb|[]|
+	
+    \item \textbf{Java.} You should submit a file called \texttt{Flow.java} to the Gradescope item "Assignment 6 - Applied (Java)." The file should define (at least) a top level function \texttt{findEdges} that looks like: 
+    \begin{itemize}
+        \item \verb|public List<int[]> findEdges(int[][] edges, int[] capacities, int s, int t)|
+    \end{itemize}
+    where $\texttt{edges}$ is a 2D array where \texttt{edges[i]} is an edge from \texttt{edges[i][0]} to \texttt{edges[i][1]} and \texttt{capacities[i]} is the capacitiy of \texttt{edges[i]}. Return either a list of edges or an empty list \verb|[]|
+\end{itemize}
+
+
+\end{document}

@@ -1,0 +1,170 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 19 - Approximation Algorithms}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Intro to Approximation}
+
+Given $n$ items $0,1, \cdots , n-1$ with costs $c[0, \cdots, n-1]$ and values
+$v[0, \cdots ,n-1]$, and a budget $B$. Our goal is to choose a set of items with
+total cost at most $B$ of maximum total value. In optimizing an approximate
+solution, we are concerned with \textbf{approximation ratios}. Say our optimal
+solution is a value of 108, and using some algorithm, we find a solution that
+has total value 100. Our approximation ratio is then $\frac{108}{100} = 1.08$.
+
+For a given approximation problem, let $A(X)$ be the value of the algorithm's
+solution $X$, and let $OPT(X)$ be the optimal solution. The algorithm is an
+\textbf{$\alpha(n)$-approximation algorithm} if an only if
+\[
+max\left(\frac{OPT(X)}{A(X)}, \frac{A(X)}{OPT(X)}\right) \le \alpha(n).
+\]
+Here, $\alpha(n)$ is the \textbf{approximation factor}.  For a given
+\textit{minimization} problem and algorithm, the algorithm is a
+\textit{constant} $\alpha$-approximation algorithm if and only if
+\[
+\frac{A(X)}{OPT(X)} \le \alpha,
+\]
+where $\alpha$ is the approximation factor.
+
+\pagebreak
+\section{Makespan and Job Scheduling}
+We are given $m$ identical machines and $n$ jobs with runtimes $T[1], 
+\cdots T[n]$. We want to compute an assignment $A[1], \cdots ,A[n]$ where
+$A[j] = i$ means "schedule job $j$ on machine $i$." We want to minimize the
+\[
+    makespan(A) = max\left(\sum _{j:A[j]=i}T[j]\right).
+\]
+In other words, the time to complete all the jobs. Say our three machines have
+total loads of 5, 10, and 15. The max of these is 15, which is the makespan.
+Despite the seeming simplicity of the problem, this problem is NP-hard.
+There is a simple, intuitive greedy algorithm to approximate a solution. It is
+defined below.
+
+\begin{algorithm}
+\caption{greedy makespan approximator}
+\begin{algorithmic}[1]
+\Procedure{greedySolver}{$T,m$}
+    \For{$i\leftarrow 1$ to $m$}
+        \State $Total[i]\leftarrow 0$
+    \EndFor
+    \For{$j\leftarrow 1$ to $n$}
+        \State $mini \leftarrow argmin_{i} Total[i]$
+        \State $A[j] \leftarrow mini$
+        \State $Total[mini] \leftarrow Total[mini] = T[j]$
+    \EndFor
+    \State \Return $A$
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+In effect, this algorithm assigns jobs to the least loaded machine at each
+step. To find a lower bound on the approximation factor, we can plug in
+examples by hand and calculating those factors. But to find an upper bound,
+which is more important, requires bounding $OPT(X)$. 
+
+\subsection{Proof}
+The \textit{largest job lemma} states that $OPT \ge max_{j}T[j]$. That
+is, the makespan must be at least the size of the longest job. The
+\textit{total jobs lemma} states that $OPT\le \frac{1}{m}\sum_{j=1}^{m}T[j]$.
+That is, the optimal solution cannot be better than the average runtime
+perfectly split among all machines.
+
+Using these two facts, we can prove that our greedy approximation algorithm
+is a 2-approximation algorithm. Let $i$ be the machine with the greatest load.
+This machine determines the makespan. Let $j$ be the last job greedily assigned
+to machine $i$. Let $L(i,j)$ be the load on $i$ before assigning $j$. Then,
+$makespan = T[j] = L(i,j)$.
+
+By the largest job lemma, $T[j] \le OPT$. Since $i$ was the least loaded machine,
+$L(i,j) \le \frac{1}{m}\sum T[j]$. Combining with the total jobs lemma, we see 
+that that average is at most $OPT$. Thus, $L(i,j) \le OPT$. We conclude that
+$makespan \le 2 \cdot OPT$. Thus, our greedy solution is a 2-approximation
+algorithm.
+
+\pagebreak
+\section{The Travelling Salesman}
+We have $n$ nodes $1, \cdots ,n$ and positive weights $l(u,v)$ between
+every pair of nodes $u$ and $v$. We want to find a Hamiltonian Cycle (also
+called a \textbf{tour}) that visits every node exactly once. Among such tours,
+we want the one with minimum total length. Real examples of this problems are
+bus routes, trucking/supply logistics, local deliveries, and others.
+
+Crucially, exhaustive search is computationally intractable for TSP. The
+brute force solution involves checking $n!$ possible orderings. Suppose a
+machine can check $2^{30}$ permutations per second. If there are only 10
+stops, this machine takes less than a second. But for 20 locations, it would
+take this machine over 70 years. With 30 possible locations, we would need
+several lifetimes of the universe.
+
+We will argue that this problem is NP-hard, and discuss approximate solutions,
+in the next lecture.
+
+\end{document}
