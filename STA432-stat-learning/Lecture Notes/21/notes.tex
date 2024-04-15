@@ -1,0 +1,184 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 21 - Generalized Likelihood Ratio}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Generalized Likelihood Ratios}
+
+Let $H_{0}:\theta \in  \Theta_{0}$ and $H_{1}:\theta \in \Theta_{1}$, with
+both being composite. The likelihood ratio is
+\[
+\Lambda(X) = \frac{soup_{\theta \in \Theta_{0} \cup \Theta_{1}}\mathcal{L}
+(\theta)}{soup_{\theta \in \Theta_{0}}\mathcal{L}(\theta)}.
+\]
+It rejects for $\Lambda(X) > \lambda_{0}$, where
+\[
+\mathbb{P}(\Lambda(X)\ge \lambda_{0}) \le \alpha \; \forall \theta \in 
+\Theta_{0}.
+\]
+In effect,
+\[
+\Lambda(X) = \frac{ \text{value of likelihood at "big" MLE}}{
+ \text{value of likelihood at "small" MLE}}
+\]
+where "big" is $\Theta_{0} \cup \Theta_{1}$ and "small" is $\Theta_{0}$. To
+do this test, we need to figure out what $\lambda_{0}$ is. Let's start with an
+easy case.
+
+\subsection{Trivial example}
+
+Let $X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim} N(\mu, \sigma^{2})$
+where $\sigma^{2}$ is known. We are testing $\mu=\mu_{0}$ against 
+$\mu\ne\mu_{0}$. We know that
+\[
+\sqrt{n}(\hat \mu_{MLE} - \mu_{0}) \rightarrow N(0, \sigma^{2}),
+\]
+where $\hat \mu_{MLE} = \bar X$. This is from Fisher. We know then that
+\[
+T = \frac{(\bar X - \mu_{0})}{\sigma/\sqrt{n}} \sim N(0,1).
+\]
+That means that, under the null (where we have worked so far in this case),
+we can reject for $|T|>Z_{1 - \alpha/2}$, where $Z$ is a quantile. Now, we
+calculate $\Lambda$.
+\begin{align*}
+    \Lambda(X)
+    &= \frac{\left(\frac{1}{2\pi\sigma^{2}}\right)^{n/2}}{\left(
+        \frac{1}{2\pi\sigma^{2}}\right)^{n/2}}
+        exp\left(-\frac{1}{2\sigma^{2}}\sum (X_{i}-\hat \mu_{MLE})^{2} -
+        (X_{i}- \mu_{0})^{2}\right)\\
+    &= exp\left(\frac{1}{2}\frac{(\bar X-\mu_{0})^{2}}{\sigma^{2}/n}\right)\\
+    &= exp\left(\frac{1}{2}T^{2}\right) \\
+    2log(\Lambda(X)) &= T^{2} 
+\end{align*}
+And we already that know $T \sim N(0,1)$. That means that $T^{2} \sim \chi^{2}
+_{1}$. Thus we reject for $\mathbb{P}(T^{2}>q | \theta \in \Theta_{0}) \le
+\alpha$, where $q$ is a quantile of a $\chi^{2}_{1}$ distribution. We now claim
+that 
+\[
+2log(\Lambda(X)) = 2log(\mathcal{L}(\hat \theta_{MLE, big})) -
+2log(\mathcal{L}(\hat \theta_{MLE, small})) \rightarrow \chi^{2}_{d}
+\]
+for some degrees of freedom $d$. \textbf{Wilks' phenomenon} states that the
+log-likelihood ratio is asymptotically normal. So is this a good test?
+
+\subsection{Test quality}
+Fisher tells us that $\sqrt{n}(\hat \theta_{MLE} - \theta_{0})
+\rightarrow N(0, 1/\mathcal{I})$. We can study the power of this under two
+scenarios. First, we can show that 
+\[
+\frac{2}{n}log(\Lambda(X)) \rightarrow \text{difference between null and true 
+distribution.}
+\]
+The only crucial information for our purposes is that this difference is
+greater than 0. The definition of power is the probability that we reject the
+null when we \textit{should} reject the null. Thus, the power of the test
+converges to 1 under the alternative (i.e., $\theta\ne\theta_{0}$). Thus, this
+test has power.
+
+\subsection{Other tests}
+Recall the likelihood ratio test $2log(\Lambda(X)) \rightarrow \chi^{2}_{d}$.
+The Wald test uses the Wald statistic, which will be given
+on exams and is included in the lecture outlines on the course website. There
+is also the Rao test (a.k.a. the "score test"), which uses the Rao statistic.
+It is similarly listed in course materials. Both the Rao and Wald statistics
+converge to a $\chi^{2}_{d}$ like the LRT does. This works for large $n$, but
+will be different for smaller $n$.
+
+\pagebreak
+\section{Multinomial Example}
+The multinomial has $n$ independent trials, with $r$ possible outcomes with 
+some probability for each one. A binomial distribution is a type of 
+multinomial where $r=2$ and probabilities $p$ and $1-p$. Say we have
+$n_{1}, \cdots ,n_{r}$ counts, where $\sum n_{i}=n$. Say we test
+$H_{0}:p_{i}=\pi_{i}$, where $\pi_{i}$ is some fixed number, vs
+$H_{1}:p_{i}\ne \pi_{i}$. Our likelihood ratio is
+\[
+\Lambda(X) = \frac{\binom{n}{n_{1}, \cdots n_{r}}\hat
+p_{1}^{\pi_{1}}, \cdots p_{r}^{\pi_{r}}}{
+\binom{n}{n_{1}, \cdots n_{r}}\bar n_{1}^{\pi_{1}}, \cdots ,
+\bar n_{r}^{\pi_{r}}}.
+\]
+The MLE for a multinomial is $\hat p_{i} = n_{i}/n$. We are left with
+\begin{align*}
+    \Lambda(X)
+    &= \left(\frac{n_{1}/n}{\bar n_{1}}\right)^{\pi_{1}} \cdots 
+    \left(\frac{n_{r}/n}{\bar n_{r}}\right)^{\pi_{r}} \\
+    2log(\Lambda(X))
+    &= 2 \sum n_{i}log(n_{i}/n\bar n_{i}) \rightarrow \chi^{2}_{r-1}.
+\end{align*}
+We define \textbf{Pearson's $\chi^{2}$ statistic} as having the form
+\[
+    \sum_{i=1}^{r}\frac{(E_{i} + O_{i})^{2}}{E_{i}} \rightarrow \chi^{2}_{r-1}.
+\]
+Where $O_{i}$ is the number observed in $i$ and $E_{i}=n\bar n_{i}$ is the
+expected number in $i$.
+
+\end{document}

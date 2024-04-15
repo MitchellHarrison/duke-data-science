@@ -1,0 +1,159 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amsfonts}
+\usepackage[noend]{algpseudocode}
+\usepackage{algorithm}
+\usepackage[parfill]{parskip}
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
+\usepackage{hyperref}
+\usepackage[english]{babel}
+\usepackage[autostyle]{csquotes}
+\usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\definecolor{color1}{rgb}{0.7, 0.2, 0.2}
+\definecolor{color2}{rgb}{0.0, 0.4, 0.0}
+\definecolor{color3}{rgb}{0.2, 0.4, 0.7}
+
+%--------------------------------------------------------%
+
+
+\title{\vspace{-0.5in}Compsci 330 Design and Analysis of Algorithms \\Assignment 7, Spring 2024 Duke University}
+\author{Dav King, Mitch Harrison}
+\date{Due Date: Thursday, March 21, 2024}
+
+%--------------------------------------------------------%
+
+\begin{document}
+
+\maketitle
+
+
+%--------------------------------------------------------%
+
+\paragraph{How to Do Homework.} We recommend the following three step process for homework to help you learn and prepare for exams.
+\begin{enumerate}
+	\item Give yourself ~15-20 minutes per problem to try to solve on your own, without help or external materials, as if you were taking an exam. Try to brainstorm and sketch the algorithm for applied problems. Don't try to type anything yet.
+	\item After a break, review your answers. Lookup resources or get help (from peers, office hours, Ed discussion, etc.) about problems you weren't sure about.
+	\item Rework the problems, fill in the details, and typeset your final solutions.
+\end{enumerate}
+
+\paragraph{Typesetting and Submission.} Your solutions should be typed and submitted as a single pdf on Gradescope. Handwritten solutions or pdf files that cannot be opened will not be graded. \LaTeX \footnote{If you are new to \LaTeX, you can download it for free at \href{https://www.latex-project.org}{latex-project.org} or you can use the popular and free (for a personal account) cloud-editor \href{https://www.overleaf.com}{overleaf.com}. We also recommend \href{https://www.overleaf.com/learn}{overleaf.com/learn} for tutorials and reference.} is preferred but not required. %If you use another editor for your solutions (such as Microsoft Word), you should convert the final document to a pdf, confirm that the symbolic math from the equation editor is properly formatted, and submit the pdf. 
+You must mark the locations of your solutions to individual problems on Gradescope as explained in \href{https://help.gradescope.com/article/ccbpppziu9-student-submit-work#submitting_a_pdf}{the documentation}. Any applied problems will request that you submit code separately on Gradescope to be autograded. 
+
+\paragraph{Writing Expectations.} If you are asked to provide an algorithm, you should clearly and unambiguously define every step of the procedure as a combination of precise sentences in plain English or pseudocode. If you are asked to explain your algorithm, its runtime complexity, or argue for its correctness, your written answers should be clear, concise, and should show your work. Do not skip details but do not write paragraphs where a sentence suffices.
+
+\paragraph{Collaboration and Internet.} If you wish, you can work with a single partner (that is, in groups of 2), in which case you should submit a single solution \href{https://help.gradescope.com/article/m5qz2xsnjy-student-add-group-members}{as a group on gradescope}. You can use the internet, but looking up solutions or using large language models is unlikely to help you prepare for exams. See the \href{https://sites.duke.edu/spring24compsci330/policies/}{course policies webpage} for more details.
+
+\paragraph{Grading.} Theory problems will be graded by TAs on an S/U scale (for each sub-problem). Applied problems typically have a separate autograder where you can see your score. The lowest scoring problem is dropped. See the \href{https://sites.duke.edu/spring24compsci330/assignments/}{course assignments webpage} for more details.
+
+
+
+%--------------------------------------------------------%
+\newpage
+\paragraph{Problem 1 (Interval Coloring).} Let $X$ be a set of $n$ intervals on the real line labeled $1, \dots, n$. A \textit{proper coloring} of $X$ assigns a color to each interval, so that any two intervals that overlap are assigned different colors. 
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\textwidth]{coloring.png}
+\caption{A set of intervals with a proper coloring using five colors.}
+\end{figure}
+
+Describe an $O(n \log(n))$ runtime algorithm to compute the minimum number of colors needed to properly color \(X\). Assume that your input consists of two arrays \(L[1], \dots, L[n]\) and \(R[1],\dots, R[n]\) representing the left and right endpoints of the intervals. For simplicity you may assume that no endpoints are equal for different intervals. Prove the correctness of the algorithm and analyze its runtime complexity.
+
+%--------------------------------------------------------%
+\newpage
+\paragraph{Problem 2 (Spanning Tree Modifications).} Suppose we are given both an undirected graph $G = (V,E)$ with weighted edges (let $w(u,v)$ be the weight of the edge between vertices $u$ and $v$) and a minimum spanning tree $T$ of $G$. As usual, let $n = |V|$ and $m = |E|$ denote the number of vertices and edges respectively.
+
+\begin{enumerate}[(a)]
+    \item Describe a linear runtime algorithm to update the minimum spanning tree when the weight of a single edge $(u,v)$ not in $T$ is decreased. Briefly explain why the algorithm is correct and analyze its runtime complexity.
+    \item Describe a linear runtime algorithm to update the minimum spanning tree when the weight of a single edge $(u,v)$ in $T$ is increased. Briefly explain why the algorithm is correct and analyze its runtime complexity.
+\end{enumerate}
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 3 (Interval Covers).} Let \(X\) be a set of \(n\) intervals on the real line labeled $1, \dots, n$. We say that a subset of intervals \(Y \subseteq X\) \textit{covers} \(X\) if the union of all intervals in \(Y\) is equal to the union of all intervals in \(X\). The \textit{size} of a cover is just the number of intervals.
+
+Describe an $O(n \log(n))$ runtime algorithm to compute the smallest cover of \(X\). Assume that your input consists of two arrays \(L[1], \dots, L[n]\) and \(R[1],\dots, R[n]\) representing the left and right endpoints of the intervals. For simplicity you may assume that no endpoints are equal for different intervals. Prove the correctness of the algorithm and analyze its runtime complexity.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{cover.png}
+\caption{A set of intervals, with a cover (shaded) of size 7 (not necessarily the optimal cover).}
+\end{figure}
+
+\paragraph{Solution 3 (Algorithm)}
+
+\begin{algorithmic}[1]
+    \Procedure{FindCovers}{L, R, X}
+    \State \Call{Sort}{X} (and $L$ and $R$) according to $L$ \Comment{MergeSort/QuickSort run in $O(n\text{log}(n))$}
+    \State \textbf{Let} $Y$ be an empty set
+    \State \textbf{Let} $i = 1$ represent the current interval $i \in X$
+    \State \textbf{Add} $X[1]$ to $Y$
+    \State \textbf{Let} $C = R[1]$ represent the right-most point over $\mathbb{R}$ we have yet covered
+    \While{$C < R[n]$}
+        \State \textbf{Let} $j = i + 1$ \Comment{ID of best candidate}
+        \State \textbf{Let} $Max = R[j] - C$ \Comment{Greatest additional ground}
+        \While{$L[i + 1] \leq C$}
+            \State i++
+            \If{$R[i] - C > Max$}
+                \State $Max = R[i] - C$
+                \State $j = i$
+            \EndIf
+        \EndWhile
+        \State \textbf{Add} $X[j]$ to $Y$
+        \State $C = R[j]$ \Comment{Do not need to reset $i$}
+    \EndWhile
+    \State \Return $Y$
+    \EndProcedure
+\end{algorithmic}
+
+\textbf{In plain English:} Sort the set of intervals $X$ according to their left-most point; add the first one to $Y$. Then, while we have not reached the end, consider all intervals that overlap with our furthest-right point $C$ (including equality). Add the interval $j$ that extends the furthest beyond $C$ to $Y$, and update $C$ accordingly.
+
+\paragraph{Solution 3 (Proof)}
+
+\begin{enumerate}
+    \item \textbf{We wish to prove} that \Call{FindCovers}{} returns the minimum set of intervals $Y \subseteq X$ where $\bigcup y \in Y = \bigcup x \in X$ over $\mathbb{R}$. As will be explained, it is sufficient to show that this algorithm makes the best (greedy) decision at each step.
+    \item \textbf{Base Case:} Suppose that $|X| = 1$. Then there is only one possible cover of $X$, which is $X[1]$. The algorithm guarantees this is present on line 5 and, as $C = R[1] = R[n]$, returns only this subset $Y = X$.
+    \item \textbf{Say} that after a certain time, our most recent interval added to $Y$ is $k$ for some $1 \leq k \leq n$. \textbf{Suppose} that up to this point, the algorithm is correct; i.e., $Y$ is the minimum cover over the interval $[L[1], R[k]]$.
+    \item The best step we can possibly take is the interval $j$ that increases $C$ by the greatest amount. To prove this, consider the contradiction. Suppose that some other interval $p$ where $R[p] < R[j]$ were the optimal addition to $Y$ because it enabled the selection of better interval $q$ down the road. The only way where $p$ can overlap with this interval $q$ when $j$ does not is if $R[p] > R[j]$, a contradiction. Otherwise, $j$ must be \textit{at least as good} as $p$ is, and has more intervals to consider (some of which may be the true next optimal addition) than $p$ does.
+    \item This algorithm ensures that each candidate interval $j$ has overlap (at least equality) with the current union $Y$ by checking $L[j]$ against $C$, and does not end until the final interval $n$ has been added (so that $R[n] = C$). This ensures that we have a complete cover, and that it spans the full interval of $X$ over $\mathbb{R}$.
+    \item We never need to reset $i$ even if $i > j$ when the outer while loop continues, because if $i > j$ it means $R[j] > R[j + 1], R[j + 2], \dots, R[i]$. That is, for any $i > j$ when the while loop continues, each of these intervals would not extend $C$ at all, and so do not need to be considered.
+\end{enumerate}
+
+\paragraph{Solution 3 (Runtime)}
+
+This algorithm runs in $O(n\text{log}(n))$ time. This is because sorting $X$, using either Merge Sort or Quick Sort, requires $O(n\text{log}(n))$ time to run. After that, we only consider each interval at most once in the while loop, for $O(n)$ time (which is dominated). Thus, our runtime is dominated by the time to sort, which is $O(n\text{log}(n))$.
+
+%--------------------------------------------------------%
+
+\newpage
+\paragraph{Problem 4 (Applied).} You are a network engineer and your company has a bunch of computers that need to be wired up to a network. There are also routers scattered around the compound, but you don't need to wire them to the network. They can be used if you desire. However, none of the cabling has been installed. There is a list of potential paths that you can install cables on. Some paths are between computers, some are between routers, and some are between computers and routers. Each path has a corresponding cost associated with it and can be thought of as an edge in a graph. 
+
+You will be provided with a list of potential paths (undirected edges) with corresponding non-negative costs and a list of vertices that are computers. Your algorithm should then \textbf{return a list of edges that creates a connected graph of all computers that may include as many routers as you wish and should use at most twice the cost of the optimal solution.} The cost is defined as the sum of the costs of the edges you output and our goal is to minimize the cost. 
+
+Your solution will be tested against a reference solution and should be efficient for sparse and dense graphs. We will test for a factor of 2 from the optimal solution on small examples, and for larger graphs you simply have to get with two times the cost of the reference solution.
+
+\textit{Hint: Think about how you can combine the ideas from all-pairs shortest paths and minimum spanning trees in your solution.}
+
+Language-specific details follow. You can use whichever of Python or Java you prefer. You will receive automatic feedback when submitting, and you can resubmit as many times as you like up to the deadline. \textbf{NOTE:} Unlike the theory problems, the applied problem grade \textbf{is the raw score shown on Gradescope}. See the \href{https://sites.duke.edu/spring24compsci330/assignments/}{course assignments webpage} for more details. 
+
+\begin{itemize}
+	\item \textbf{Python.} You should submit a file called \texttt{network.py} to the Gradescope item "Assignment 5 - Applied (Python)." The file should define (at least) a top level function \texttt{network} that looks like: 
+	\begin{itemize}
+	\item \texttt{def network(edge: list[(s:int, d:int, c:int)], computer: list[int]) }
+	\end{itemize}
+	where $(s,d,t)$ is a potential path connecting machine $s$ and $d$ with non-negative cost $c$. 
+	
+    \item \textbf{Java.} You should submit a file called \texttt{Network.java} to the Gradescope item "Assignment 5 - Applied (Java)." The file should define (at least) a top level function \texttt{network} that takes in a 2D int array \texttt{edge[][]} where \texttt{edge[i]} is the array \{$s,d,c$\} or an edge connecting $s$ to $d$ (and $d$ to $s$) with cost $c$. The method \texttt{network} looks like:
+    \begin{itemize}
+        \item \texttt{public List<int[]> network(int[][] edges, int[] computer)}
+    \end{itemize}
+    where \texttt{int[][] edges} is the undirected edges of the graph and \texttt{int[] computer} is the computers
+    
+\end{itemize} 
+
+\end{document}

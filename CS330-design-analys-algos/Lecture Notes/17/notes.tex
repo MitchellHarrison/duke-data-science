@@ -1,0 +1,195 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 17 - Flows and Cuts}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Definitions}
+
+\subsection{Flows}
+
+\begin{definition}
+    A \textbf{capacitated directed graph} $G = (V,E,c)$ has a positive integer
+    capacity $c:E \rightarrow \mathbb{N}$ for every edge.
+\end{definition}
+
+\begin{definition}
+    An \textbf{$(s,t)$-flow} in a capacitated directed graph $G$ is a function
+    $f:E \rightarrow \mathbb{R}_{\ge 0}$ that assigns a nonnegative value to
+    every edge and satisfies
+    \begin{enumerate}
+        \item \textit{Capacity constraints} $f(u\rightarrow v) \le
+            c(u \rightarrow v)$ for every edge $u \rightarrow v \in E$. That is,
+            flow cannot exceed capacity.
+        \item \textit{Flow conservation constraint}: inflow and outflow are the
+            same for every edge. That is,
+            \[
+                \sum_{u\rightarrow v \in E}f(u\rightarrow v) =
+                \sum_{v \rightarrow w \in E}f(v\rightarrow w),
+            \]
+            for every vertex \textit{except} $s$ and $t$.
+    \end{enumerate}
+\end{definition}
+
+\begin{definition}
+    The \textbf{value} of an $(s,t)$-flow $f$ is the net flow out of $s$. That
+    is,
+    \[
+    |f| := \left(\sum_{s \rightarrow w \in E}f(s \rightarrow w)\right) -
+    \left(\sum_{u \rightarrow s \in E}f(u \rightarrow s)\right).
+    \]
+    This necessarily equals the net flow into our target node $t$.
+\end{definition}
+
+\begin{definition}
+    An edge is \textbf{saturated} if its flow is equivalent to its capacity and
+    \textbf{unsaturated} if it is not.
+\end{definition}
+
+\pagebreak
+
+\subsection{Cuts}
+
+\begin{definition}
+    An \textbf{$(s,t)$-cut} of a graph $G$ is a partition of the vertices into
+    $S \subset V$, $T \subset V$ so that,
+    \[
+        S \cup T = V \text{, }S \cap T = \varnothing \text{, } 
+        s \in S, \text{ and } t \in T
+    \]
+\end{definition}
+
+\begin{definition}
+    The \textbf{capacity} of an $(s,t)$-cut is the sum of the capacities of the
+    \textit{cut edges} that cross from $S$ to $T$. That is,
+    \[
+        |(S,T)| = \sum_{u\rightarrow v, u \in S, v \in T}c(u\rightarrow v).
+    \]
+\end{definition}
+
+\begin{definition}
+    The \textbf{minimum cut problem} occurs when we, given $G$, we hope to
+    compute a minimum capacity $(s,t)$-cut in $G$.
+\end{definition}
+
+\begin{definition}
+    \textbf{Weak duality} claims that for a directed graph $G$, vertices
+    $s,t \in V$, $(s,t)$-flow $f$ and $(s,t)$-cut $(S,T)$, the value of the
+    flow will be at most the capacity of the cut. That is,
+    \[
+        |f| \le |(S,T)|.
+    \]
+    This necessitates the face that if $|f| = |(S,T)|$, we have found a
+    maximal flow and a minimal cut, and every cut edge must be fully saturated.
+\end{definition}
+
+\begin{definition}
+    \textbf{Strong duality} is a notion that claims (correctly) that a 
+    flow and cut \textit{necessarily} exists such that
+    \[
+        |f^{*}| = |(S^{*}, T^{*})|.
+    \]
+    That is, an optimal solution exists.
+\end{definition}
+
+\pagebreak
+\section{Residual Graphs}
+A \textbf{residual graph} $G_{f}$ is constructed from the original graph $G$ by
+\begin{enumerate}
+    \item Drawing a forward edge from $u$ to $v$ with weight of whatever 
+        capacity is leftover after sending flow over that edge in $G$.
+    \item Drawing a backward edge from $v$ to $u$ with weight of whatever flow
+        was being sent from $u$ to $v$ in the original graph $G$. Note that this
+        is in the reverse direction of the flow of $G$.
+\end{enumerate}
+
+A path $P_{s\rightarrow t}$ from $s$ to $t$ in $G_{f}$ is an \textbf{augmenting
+path} with \textbf{bottleneck capacity}
+\[
+    b(P_{s\rightarrow t}) = min_{u\rightarrow v \in P_{s\rightarrow t}}
+    c_{f}(u \rightarrow v).
+\]
+Given an augmenting path $P$ in $G_{f}$ with bottleneck capacity $b$, we define
+the augmented flow (in $G$) as
+\[
+f'(u\rightarrow v) =
+\begin{cases}
+    f(u\rightarrow v) +b & u\rightarrow v \in P \\
+    f(u\rightarrow v)-b & v\rightarrow u \in P\\
+    f(u\rightarrow v) & \text{otherwise}
+\end{cases}
+\]
+\subsection{Augmented flow properties}
+Augmented flow has some helpful properties. First, augmented flow obeys capacity
+constraints. Second, augmented flows obey flow conservation extraints because
+they are only changed by bottleneck capacity $b$ for vertices on the augmenting
+path $P$.
+
+\end{document}

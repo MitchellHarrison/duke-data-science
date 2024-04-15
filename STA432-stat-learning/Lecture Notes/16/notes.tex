@@ -1,0 +1,285 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 16 - Hypothesis Testing}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Hypothesis Testing}
+
+In the firs tpart of the semester, we were given data from some distribution,
+and we estimated some parameters. Confidence intervals let us quantify our 
+uncertainty about those estimations. Hypothesis testing goes one step further.
+
+\subsection{Hypothesis test example}
+We seek to understand whether or not there is a pay disperity between group
+$A$ and group $B$. One way to do that is to estimate the mean pay of both
+groups, and if they are the same then we can say that there is no disperity.
+But the probability that they are \textit{exactly} the same is very small.
+Let us start with a \textit{default universe} where there is no pay disparity.
+
+Imagine that income is normal with parameter $\theta$. If there is no difference,
+then both groups have the same parameter $\theta$. That is,
+$\theta_{a} = \theta_{b} = \theta$. This default universe is called the
+\textbf{null hypothesis} and is denoted as $H_{0}$. Our goal is to state if there
+is data evidence to refute the null $H_{0}$ in favor of an \textbf{alternative
+hypothesis} $H_{1}$.
+
+\begin{note}
+    We do not collect evidence to \textit{accept} any proposition. We only 
+    refute or fail to refute the null.
+\end{note}
+
+In this context, under the null, $\theta_{a} = \theta_{b}$. Under the alternative,
+$\theta_{a} \ne \theta_{b}$. As we collect data, we will attain $X$ from group
+$A$ and $Y$ from group $B$. We will have $X_{1}, \cdots , X_{n}$ and
+$Y_{1}, \cdots , Y_{m}$. We can then summarise these data, for example with
+their means $\bar X$ and $\bar Y$. Alternatively, we define some \textbf{test
+statistic} $T$ such that
+\[
+T(X_{1}, \cdots , X_{n}, Y_{1}, \cdots ,Y_{n}) = |\bar X - \bar Y|.
+\]
+Under the null, we would expect this difference in means to be small. But how
+small is small enough? The task of \textbf{hypothesis testing} is to decide
+how big $T$ needs to be to reject the null hypothesis $H_{0}$. In this case,
+let's propose an alternative hypothesis that $\theta_{a} > \theta_{b}$. This is
+a subtle difference from the original $H_{1} : \theta_{a} \ne \theta_{b}$ 
+because it is one-sided instead of two-sided. Thus, for this new $H_{1}$, we
+would be better served by a new test statistic
+\[
+\tilde{T}(\vec X, \vec Y) = \bar X - \bar Y.
+\]
+This demonstrates the subtle thinking required when designing test statistics
+for hypothesis testing.
+
+\subsection{Hypothesis testing process}
+We will use the following general process for all future hypothesis tests.
+\begin{enumerate}
+    \item Specify our hypotheses $H_{0}$ and $H_{1}$.
+    \item Find a good test statistic $T$.
+    \item Find the sampling distribution of $T$ to decide whether or not to
+        reject it.
+\end{enumerate}
+
+\begin{definition}
+    There are two types of hypotheses we are interested in, \textbf{simple
+    hypotheses} (e.g., $H_{0}$ and $H_{1}$ are a single value) and 
+    \textbf{composite hypotheses} (e.g., $H_{0}$ and $H_{1}$ take on multiple
+    values). We can use either type for $H_{0}$, $H_{1}$ or both.
+\end{definition}
+
+Say we are studying the following hypothesis:
+\begin{align*}
+    &H_{0} : \theta = \theta_{0}\\
+    &H_{1} : \theta = \theta_{1}
+\end{align*}
+Next, we need to find a test statistic $T$, and arrive at its sampling
+distribution. In this case, both of our hypotheses are simple. Because of this
+simplicity, we can draw a distribution for $T$ under the null hypothesis. This
+distribution is $T|\theta = \theta_{0}$, or equivalently, $T|H_{0}$. We want
+to reject the null hypothesis for large values of $T$. That is, values that
+appear in the right tail of the distribution (letting $T \sim Normal$). In that
+tail,$H_{0}$ would be true but we would reject it.
+
+\begin{definition}
+    Rejecting a null hypothesis even though it is true is a \textbf{type 1 
+    error}. We denote it as
+    \[
+        \mathbb{P}( \text{reject } H_{0} | H_{0} \text{ is true}).
+    \]
+\end{definition}
+
+Similarly, we an draw the (normal) distribution, given that the data is coming
+from the alternative hypothesis $H_{1}$. In this case, our left tail would be
+the region where we would be incorrect. Specifically, we would fail to reject
+the null even though $H_{1}$ is true.
+
+\begin{definition}
+    Failing to reject the null hypothesis when $H_{1}$ was actually true is a
+    \textbf{type 2 error}. Denote it with
+    \[
+        \mathbb{P}( \text{fail to reject } H_{0} | H_{1} \text{ is true}).
+    \]
+\end{definition}
+The challenge comes from moving the line that denotes our threshold. We can
+completely eliminate one type of error by moving our threshold to the
+extremities, but that would make the other type of error very likely. Thus, we
+need to find a cutoff $C$ that makes both errors as small as possible. 
+Usually, we chose a value of $\alpha = 0.05$. This represents a 5\% chance of
+error in our conclusion. We can shrink this value for use cases where more
+precision is required (e.g. medicine), but $\alpha = 0.05$ is standard for most
+cases.
+
+\begin{definition}
+    \textbf{Power} is the probability of rejecting the null hypothesis $H_{0}$
+    given $\theta$. We will call it $\beta(\theta)$. 
+    \[
+        \beta(\theta) =
+        \begin{cases}
+            \mathbb{P}( \text{type 1 error} | \theta) & \theta \in H_{0} \\
+            1 - \mathbb{P}( \text{type 2 error} | \theta) & \theta \in H_{1}
+        \end{cases}
+    \]
+\end{definition}
+
+In this case, where $H_{1} : \theta = \theta_{1}$, we aim to find a cutoff that
+maximizes power under $H_{1}$.
+
+\begin{definition}
+    A test has \textbf{level} $\alpha$ if $\beta(\theta) \le \alpha$ for all
+    $\theta \in  H_{0}$.
+\end{definition}
+
+\subsection{Normal distribution example}
+Let $X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim}N(\mu, \sigma^{2})$
+where $\sigma^{2}$ is known. Our goal is to test $H_{0} : \mu = \mu_{0}$ and
+$H_{1} : \mu = \mu_{1}$. Without loss of generality, let $\mu_{1} > \mu_{0}$.
+What is a good test statistic $T$ for this problem?
+
+One question we could ask even before specifying $T$ is whether this test would
+be one- or two-sided. Here, because we know that $\mu_{1} > \mu_{0}$, we will
+use a one-sided test. Becuase a normal mean is approximated by the sample mean
+$\bar X$, we will let $T(\vec X)  =\bar X$. We will reject $H_{0}$ when $T$ is
+large.
+
+We know the distribution of $T = \bar X$, which is known to be (under $H_{0}$)
+\[
+    T | \mu = \mu_{0} \sim N(\mu_{0}, \sigma^{2}/n).
+\]
+\begin{note}
+    This is the sampling distribution of our test statistic from step 3 of our
+    general procedure for hypothesis testing.
+\end{note}
+
+Because we are performing a one-sided test, we will take the right tail of
+this normal to be our cutoff. This is simple the $\alpha$ quantile of this
+normal. We now have a mechanism for choosing our cutoff value.
+
+Observe that if we know the distribution of $\bar X$, we know the
+distribution
+\[
+    T = \frac{\sqrt{n}(\bar X - \mu_{0}}{\sigma} | \mu = \mu_{0}\sim N(0,1).
+\]
+This is simply standardizing the normal distribution. We see that $T$ is a
+statistic because it does not depend on any unknowns (since $\sigma^{2}$ was
+given to be known). Thus,
+\[
+    \mathbb{P}(T > c|\mu = \mu_{0}) = \alpha.
+    \]
+This gives us $c$, which is he cutoff for a desired value of $\alpha$. The
+question then becomes how good this test is. Power can help us decide. Thus, we
+seek to find how much power this test has. We can imagine power to be somehow
+related to $n$ relatively intuitively.
+
+\subsubsection{Calculating power}
+We know that, given that $\theta \in  H_{a}$, our power is given by
+\[
+1 - \mathbb{P}( \text{type 2 error} | \theta)
+\]
+for some parameter $\theta$. In this case, $\theta = \mu$. We can do the 
+following:
+\begin{align*}
+    \bar X | \mu = \mu_{1} & \sim N(\mu_{1}, \sigma^{2}/n) \\
+    \bar X - \mu_{0} | \mu - \mu_{1} & \sim  N(\mu_{1} - \mu_{0}, \sigma^{2}/n).
+\end{align*}
+Standardizing, we see that under $H_{1}$, the mean is
+\[
+    \frac{\sqrt{n}(\mu_{1} - \mu_{0}}{\sigma}.
+\]
+Let's digest this mean. Crucially, we can see that when the two hypothizes means
+$\mu_{1}$ and $\mu_{0}$ are very different, it becomes relatively easy, with
+minimal data, to find which hypothesis is true. But when their difference is
+smaller, we would need much more data to have any confidence due to the
+large overlap of our twp hypothesized distributions. This should prove to be
+intuitively true.
+
+\subsubsection{The $z$-test}
+If $\sigma^{2}$ is not known, then $T(X) = \frac{\sqrt{n}(\bar X-\mu_{0})}{
+\hat \sigma}$ is roughly a good statistic. Then we could say that our cutoff is
+a quantile of that distribution.
+
+\begin{definition}
+    Let $X_{1}, \cdots ,X_{n} \overset{\mathrm{iid}}{\sim} N(\mu, \sigma^{2})$.
+    Using the $T$ above for testing $H_{0}:\mu \le \mu_{0}$ vs. $H_{1} :
+    \mu > \mu_{0}$, we consider rejecting when $T > t_{n-1}(1-\alpha)$ where
+    $t$ is a $t$-distribution. The power $\beta(\mu, \sigma^{2})$ when
+    $\mu \le \mu_{0}$ is the probability of type 1 error when we are working
+    under $H_{0}$. Then,
+    \[
+    \beta(\mu, \sigma^{2}) \le \alpha \text{ when } \mu \le \mu_{0}.
+    \]
+    This will be the type 1 error of $T$. Under $H_{1}$, the power is 
+    $1 - \mathbb{P}( \text{type 2 error})$. In this case,
+    \[
+    \beta(\mu, \sigma^{2}) > \alpha \text{ when } \mu > \mu_{0}.
+    \]
+    This is theorem 9.5.1 in the textbook.
+\end{definition}
+
+\end{document}

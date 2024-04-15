@@ -1,0 +1,183 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 22 - Testing cont'd}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Multiple Tests at Once}
+
+Recall that, for $H_{0}:\theta \in \Theta_{0}$ and $H_{1}:\theta \in \Theta_{1}$,
+\[
+\Lambda(X) = \frac{sup_{\theta \in \Theta_{0} \cap \Theta_{1}}
+\mathcal{L}(\theta)}{sup_{\theta \in \Theta_{0}}\mathcal{L}(\theta)}.
+\]
+Importantly, we know that
+\[
+2log(\Lambda(X)) \sim \chi^{2}_{df}
+\]
+where $df$ is some degrees of freedom. Normally, each hypothesis space has one
+dimension (i.e., the real number line). Here, $df = p - q$, where $p$ is the
+number of dimensions in $\Theta_{0} \cap \Theta_{1}$, and $q$ is the number of
+dimensions in $\Theta_{0}$. Thus, in this example, $df = 2 - 1 = 1$.
+
+So far, we've been saying something like "there is some data, and we are a
+decision maker choosing between $\Theta_{0}$ and $\Theta_{1}$." But imagine that
+we aren't as sure about the decision, or number of decisions, that we are 
+making. For example, if we are designing drugs, we are simultaneously interested
+in mortality and improvement in quality of life. 
+
+Say we have $M$ hypothesis pairs. For example, we are interested in testing
+$H_{01}$ vs $H_{11}$, $H_{02}$ vs $H_{12}$, all the way to $H_{0m}$ vs
+$H_{1m}$. We may be interested in
+\begin{align*}
+\mathbb{P}( \text{reject at least one null} | \text{all nulls are true})
+&= 1 - \mathbb{P}( \text{reject none} | \text{all are true}) \\
+&= 1 - (1 - \alpha)^{m}
+\end{align*}
+For $m = 20$, it turns out that $(1-\alpha)^{20} \approx 0.64$. Thus, this
+entire expression is relatively small ($\approx 0.36$). This is our probability
+of type-I error. Imagine that our null is $H_{0}: \text{all $H_{0}$ are false}$ 
+vs $H_{1}: \text{not all $H_{0}$ are false}$.
+
+\begin{definition}
+    \textbf{Bonferroni's correction} tells us that we should reject \textit{not}
+    at the $\alpha$ level, but at the $\frac{\alpha}{m}$ level. This rejection
+    occurs for each $H_{0j}$ vs $H_{1j}$ individually.
+\end{definition}
+
+Using this correction,
+\begin{align*}
+    1 - \left(1 - \frac{\alpha}{m}\right)^{m}
+    &\approx 1 - m\frac{\alpha}{m} \\
+    &= 1 - \alpha
+\end{align*}
+
+Now, the error across all tests (also called the \textbf{family-wise error}) is
+at the $\alpha$ level. Is this a good idea? Because this is the probability that
+we reject all nulls, it feel unlikely that in the real world, every single null
+value would be false. This problem grows as $m$ get larger. Thus, maybe we don't
+want to protect against \textit{all} of them being false. The other problem that
+immediately creeps up is the rejection region.
+
+Before, we would draw a cutoff line for a distribution $T$. Now, because we
+are using $\alpha/m$ to reject, that cutoff becomes larger. Moving the cutoff
+line to the right means that we have lost a good amount of power under $H_{1}$.
+As $m$ gets larger, we have very little power.
+
+\begin{note}
+    The upcoming homework problem looks at Bonferroni's correction using 
+    something called the \textit{Sidak correction}.
+\end{note}
+
+So is this hopeless? Fortunately, it turns out not to be. If we are willing to
+give up a little bit of type-I error, we can change how we do multiple
+hypothesis tests to get at greater power. Say there are some nulls where $H_{0}$
+is true and some where $H_{0}$ is false. There are some times where we are
+going to reject $H_{0}$ and others where we accept $H_{0}$. 
+
+\begin{note}
+    We use the term "accept" here as a shorthand for failure to reject.
+\end{note}
+
+We don't want to do too many useless tests (control type-I error), but neither
+do we want to do too few useful tests. Let $V$ be the number of type-I errors
+among our tests and $T$ be the number of type-II errors. Let $S$ be the number
+of correct rejections and $U$ be the correct number of acceptance. We have
+conducted $M$ tests, and say that there are $R$ rejections and $M-R$ acceptance.
+Let $M_{0}$ be the number of true nulls and $M - M_{0}$ be the number of false
+nulls. We may want to control false \textbf{discoveries}, where a discovery 
+occurs when we reject $H_0$ The \textbf{false discovery proportion}, then, is 
+$V/R$.
+
+Say there are two possible procedures after a patient has a heart attack. We
+are interested in outcomes based on procedure. There are 15 possible cardiac
+and other outcomes after the start of treatment. These could include death,
+hospitalization, etc. The given $p$-values are 0.0001, 0.0019, 0.0095, and
+0.0209. The most important one is 0.0095, which represents mortality. This would
+suggest that the two treatments are different under a $\alpha=0.05$ test. But
+using Bonferroni's correction, our test would be level $0.05/15 = 0.0023$. Now,
+the effect on morbidity looks insignificant. But what if we aren't equally
+concerned about all of them? Surely morbidity is the most important.
+
+\begin{definition}
+    \textbf{Benjamini-Hochberg} (BH) procedure controls the false discovery
+    rate at $\alpha = 0.05$ by rejecting $q_{j}$, which is the $j$th ordered
+    $p$-value if it is less than $j = \frac{q}{m}$. These $p$-values are in
+    ascending order. This means that each $p$-value is rejected using its
+    own level.
+\end{definition}
+
+\begin{note}
+    This multiple hypothesis testing procedure, especially using BH, put us
+    miles ahead of most data scientists in practice. It's possibly hard to 
+    grasp, but very much worth it.
+\end{note}
+
+\end{document}

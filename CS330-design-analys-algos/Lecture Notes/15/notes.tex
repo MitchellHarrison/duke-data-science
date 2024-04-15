@@ -57,7 +57,11 @@
 % -------------------------------------------------- %
 % -------------------- SETUP ----------------------- %
 % -------------------------------------------------- %
+<<<<<<< Updated upstream
 \title{\Huge{Lecture 15 - Flows and Cuts cont'd}}
+=======
+\title{\Huge{Lecture 15 - Greedy Algorithms}}
+>>>>>>> Stashed changes
 \author{\large{Mitch Harrison}}
 \date{\today}   
 \begin{document}
@@ -71,6 +75,7 @@
 % -------------------------------------------------- %
 % --------------------- BODY ----------------------- %
 % -------------------------------------------------- %
+<<<<<<< Updated upstream
 \section{Review}
 
 Recall that the \textit{residual graph} of a flow network/graph satisfies both
@@ -226,5 +231,84 @@ maximum flow with Ford-Fulkerson. Finally, we convert maximum flow to maximum
 matching. Let $M = \{u \rightarrow v \in E' | f(u\rightarrow v) = 1, u \in L,
 v \in R\}$. Theoverall runtime is dominated by the Ford-Fulkerson portion of 
 the solution, so the overall runtime is $O(|V||E|)$.
+=======
+\section{Greedy Optimization}
+
+\begin{definition}
+    \textbf{Greedy algorithms}, at each step, make a decision that is
+    \textit{locally} optimal in the current context. For example, minimizing
+    a loss function or maximizing a score function.
+\end{definition}
+
+\subsection{Minimum spanning tree}
+Sometimes we don't care about shortest paths as much as we care about connecting
+everything with as little cost as possible (e.g. monetary cost). For example,
+suppose we are designing an electrical grid with many transformers, residences,
+etc. In that case, we don't necessarily care if the electricity comes along the
+shortest path from a power provider. What we \textit{do} care about, as a 
+provider, is minimizing the cost of connecting everything. This problem is
+formalized as a \textbf{minimum spanning tree} (MST) problem.
+
+Given a weighted, connected, undirected graph $G = (V,E)$, we want to choose
+a set of edges $T \subseteq E$ that connect $V$ with \textit{no cycles} and
+minimum total weight. We claim that we will always have exactly $|V|-1$ edges.
+
+\begin{note}
+    The shortest path tree is \textit{not necessarily} the minimum spanning
+    tree.
+\end{note}
+
+We will, at any given time, maintain a \textbf{spanning forest}. That is, a set
+of spanning trees ($\ge1$ nodes) that encompasses all of $G$. We will explore
+two algorithms that use spanning forests: \textit{Prim's Algorithm} and 
+\textit{Kruskal's Algorithm}.
+
+\subsection{Prim's Algorithm}
+Starting at a root node, all edges are accounted for in a priority queue by
+edge weights. We include in our MST the lowest edge in that priority queue.
+At each step, we add a new node to the graph. When we do so, we add that 
+node's edges to the priority queue. We then choose the lowest-weight edge among
+the updated priority queue. As we attempts to add edges to our MST, we must
+check that the node that the minimum edge connects to has not been explored 
+already. If it has, there would be a cycle in the MST, which is not allowed.
+Thus, we remove that edge from the queue without adding it to our MST.
+
+\subsection{Kruskal's Algorithm}
+In Kruskal, we first sort edges $E$ into increasing order of weight. We then
+check those edges in order, checking at each step if that edge creates a cycle.
+If so, it is not included in the MST. Alternatively and equivalently, we can 
+check if a new node connects two previously disconnected components. Once we
+have checked every edge, our final MST is a correct one.
+
+\begin{note}
+    MSTs are not necessarily unique. There may be multiple correct MSTs, and
+    different algorithms (or in Prim's case, different starting points) can
+    result in different MSTs being discovered.
+\end{note}
+
+\subsection{Correctness of MST}
+\textbf{Claim:} Let $F$ be a subset of MST $T^{*}$.Let $e = (u,v)$ be the
+minimum weight edge between the components of $F$. Then, there must be a MST
+$T'$ with $F \cup \{e\} \subseteq T'$. This implies, inductively, that Prim's
+and Kruskal's algorithms are correct.
+
+To \textbf{proove}, we observe that $T^{*}$ must have a path from $u$ to $v$.
+Since $u$ and $v$ are in different components of $F$, there must be at least
+one edge $e'$ on this path in $T^{*}$ that crosses these components. We know
+that, by definition, that $w(e) \le w(e')$ because we defined $e$ to be the
+minimum weight edge between the components of $F$.
+
+Let $T' = (T^{*}\\ \{e'\}) \cup \{e\}$. Then, $T'$ is valid for any path
+$s, \cdots , e', \cdots t$ with $s$ in $u$'s component and $t$ in $v$'s
+component. And $w(T') = w(T^{*}) - w(e') + w(e) \le w(T')$. Therefore, $T'$
+must be a MST.
+
+\begin{note}
+    We can compute \textit{maximum} spanning trees using the same algorithms
+    and argument, but taking the maximum edge weights instead of the minimum
+    ones.
+\end{note}
+
+>>>>>>> Stashed changes
 
 \end{document}

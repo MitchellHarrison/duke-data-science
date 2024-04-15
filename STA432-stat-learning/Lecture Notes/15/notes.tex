@@ -1,0 +1,305 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 15 - Confidence Intervals (cont'd)}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+Let $X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim} N(\theta,\sigma^{2})$,
+where $\sigma^{2}$ is known. We hope to construct a distribution that doesn't
+have any unknown parameters in it. That would give us our \textit{pivot
+distribution}.
+
+We know that $\bar X \sim N(\theta, \sigma^{2}/n)$. We can then center and
+scale it into
+\[
+\frac{\bar X - \theta}{\sigma/\sqrt{n}} \sim N(0,1).
+\]
+We have defined that
+\[
+\mathbb{P}(Z_{\alpha/2} \le \frac{\bar X - \theta}{\sigma/\sqrt{n}} \le
+Z_{1-\alpha/2}) = 1 - \alpha,
+\]
+where $Z$ are quantiles of $N(0,1)$ distribution. So, if $\alpha = 0.05$, then
+$Z_{\alpha/2}$ and $Z_{1-\alpha/2}$ become $ \pm 1.96$. To get to a confidence
+interval for $\theta$ instead of the current middle term, we adjust parameters
+to leave $\theta$ alone as the center term. That manipulation leaves us with
+\[
+\mathbb{P}(\bar X - Z_{1-\alpha/2}\cdot\sigma/\sqrt{n} \le \theta \le
+\bar X + Z_{\alpha/2} \cdot \sigma / \sqrt{n}).
+\]
+This is great because this confidence interval is \textit{exact}. But we cannot
+always arrive at an exact interval. Sometimes we need to \textbf{approximate}.
+
+Let $Y_{i}, \cdots , Y_{n} \overset{\mathrm{iid}}{\sim}Bern(p)$. Let
+$X = \sum Y_{i}$. We know that $X \sim Bern(n,p)$. The CLT tells us that
+\[
+X \approx N(np, np(1-p)).
+\]
+We can do the same scaling as before to arrive at a scaled distribution:
+\[
+\frac{X - np}{\sqrt{np}(1-p)} \approx N(0,1),
+\]
+or equivalently,
+\[
+\frac{(X/n) -p}{\sqrt{p(1-p)/n}} \approx N(0,1).
+\]
+We can then manipulate our interval:
+\begin{align*}
+    &\mathbb{P}(Z_{\alpha/2} \le
+    \frac{(X/n) -p}{\sqrt{p(1-p)n}} \le Z_{1 - \alpha/2}) = 1 - \alpha\\
+    &\frac{X}{n} \pm Z_{\alpha/2}\sqrt{\frac{p(1-p)}{n}}
+\end{align*}
+But this gives us an interval that depends on an unknown $p$. Let's correct for
+that.
+
+We have a known likelihood from Fisher,
+\[
+\sqrt{n}(\hat \theta_{MLE} - \theta) \rightarrow N(0, 1/\mathcal{I}(\theta)).
+\]
+But the Fisher information $\mathcal{I}$ may depend on an unknown parameter.
+But because the estimator is an MLE, we can see that
+\[
+\hat \theta_{MLE} \approx N(\theta, 1/n\mathcal{I}(\theta)).
+\]
+Recall that \textbf{observed information} is
+\[
+\mathcal{J}_{n}(\theta) = \frac{d^{2}}{d \theta^{2}} =
+-\sum_{i=1}^{n}\frac{d^{2}}{d \theta^{2}} log[f(x_{i};\theta)].
+\]
+That is, the observed information is an observation of the second derivative of
+the log likelihood function of a random variable. Last class, we saw that
+\[
+\frac{\mathcal{J}_{n}(\theta)}{n} \rightarrow \mathcal{I}(\theta).
+\]
+This is a \textit{law of large numbers} property. Because $\hat \theta 
+\rightarrow \theta$ (that is, the MLE is \textit{consistent}), we would hope
+that $\mathcal{J}_{n}(\hat \theta)/n \rightarrow \mathcal{I}(\theta)$. This is
+just applying convergence of probability rules twice: once for $\hat \theta_{MLE}
+\rightarrow \theta$ and once for $\mathcal{J}_{n} \rightarrow \mathcal{I}$.
+Because
+\[
+\frac{\mathcal{J}_{n}(\hat \theta_{MLE})}{n} \rightarrow \mathcal{I}(\theta),
+\]
+then $\mathcal{J}_{n}(\hat \theta_{MLE}) \approx n\mathcal{I}(\theta)$.
+
+For a random variable $X \sim Binom(n,p)$, we know the second derivative of
+the log likelihood is
+\[
+\ell''(p) = -\frac{X}{p^{2}} - \frac{n-X}{(1-p)^{2}} = -\mathcal{J}_{n}(p).
+\]
+Replacing all of these $p$ with $\hat p$, we see that
+\[
+\mathcal{J}_{n}(\hat p) = \frac{X}{p^{2}} + \frac{n-X}{(1-\hat p)^{2}} =
+\frac{n}{\hat p(1-\hat p)}.
+\]
+Thus, our \textbf{approximate} CI is
+\[
+\hat p \pm Z_{\alpha/2}\sqrt{\hat p(1-\hat p)/n}.
+\]
+Thus, for \textbf{any given unknown parameter} $\theta$, our approximate CI
+is
+\[
+\hat \theta_{MLE} \pm \frac{Z_{\alpha/2}}{\sqrt{\mathcal{J}_{n}(\hat \theta_{
+MLE})}},
+\]
+because
+\[
+\hat \theta_{MLE} \approx N(\theta, 1/\mathcal{J}_{n}(\hat \theta)).
+\]
+
+\pagebreak
+\section{Confidence Intervals}
+So far, we have used the normal distribution, which is symmetric, to 
+construct or confidence intervals. Because of this symmetry, it makes sense to
+use $Z_{\alpha/2}$ and $Z_{1-\alpha/2}$, which are equidistant from the mean,
+to establish our CI. But maintaining a symmetric interval is not required. In
+fact, we could easily make an interval that contains $-\infty$ or $\infty$.
+But, even if it has the same level of confidence (say 95\%), wider intervals of
+that type may be less helpful because they are so much wider. That is, "better"
+intervals have smaller width.
+
+\subsection{Small intervals}
+We can informally see what intervals are going to be better. Let's think about
+the possible intervals. Let our distrution be a normal. We seek to construct an
+interval around the mean. One way to argue for a symmetric interval is that the
+height of the graph at both intervals are the same. If we move the left interval
+to the right, and correct the interval by moving the right interval to the right,
+we would have to move our right interval farther because the values at the tail 
+are smaller than the values trimmed off on the left. The same is true in
+reverse when moving intervals to the left. That means that the symmetric 
+interval has the smallest space between the two interval values on the $x$-axis.
+
+We could also split it up into multiple smaller intervals, as long as the total
+area under the interval(s) is 95\%. There is very little reason to do that, but
+it is possible mathematically. 
+
+\subsection{Choosing intervals}
+Because our term $\mathcal{J}_{n}$ always has a hidden $n$ inside of it by its
+definition, we have a clear \textbf{goal} to fins $n$ such that we are within
+$d$ values with 95\% confidence. That is,
+\[
+\mathbb{P}(-d \le \frac{X}{n} - p \le d) = 1- \alpha,
+\]
+or
+\[
+\mathbb{P}\left(-\frac{d}{\sqrt{p(1-p)/n}} \le \frac{(X/n) - p}
+    {\sqrt{p(1-p)/n}} \le \frac{d}{\sqrt{p(1-p)/n}}\right) = 1-\alpha.
+\]
+Because we know that the center term has a $N(0,1)$ distribution, we know that
+\[
+Z_{1-\alpha/2} = \frac{d}{\sqrt{p(1-p)/n}}.
+\]
+Now we solve for $n$ to arrive at
+\[
+    n = Z_{1-\alpha/2}\frac{p(1-p)}{d^{2}}.
+\]
+Here, $d$ is known because we decide it, and $n$ is known because it is our
+sample size. However, we still have $p$ in our interval, and that is the thing
+that we are studying, which is definitionally unknown. But because we can only
+get \textit{more} confident as $n$ increases,
+\[
+\left| \frac{X}{n}-p \right| \le d.
+\]
+Thus, we can maximize our solution for $n$ to get a \textit{conservative}
+choice for $n$. That way, even in the worst case, we can expect good performance.
+To maximize, we take the derivative and set equal to zero.
+\begin{align*}
+    p(1-p)
+    &= p - p^{2}\\
+    \frac{d}{dp} &= 1 - 2p =0 \\
+    p &= \frac{1}{2}
+\end{align*}
+
+Frequently, we want to use $95\%$ confidence intervals. That is, $d=0.05$.
+Plugging this into our formula for $n$, we see that $n\approx400$. That is why
+that we will commonly see that 400 people respond to a survey before reuslts
+are reported, etc.
+
+\pagebreak
+\section{The Delta Method}
+Recall that if $\hat \theta_{MLE}$ is the MLE of $\theta$, then $g(\hat
+\theta_{MLE})$ is the MLE for $g(\theta)$. Say we have a confidence interval
+for $\theta$. Now we can see if we can find a confidence interval for
+$g(\theta)$. 
+
+\begin{definition}
+    The \textbf{delta method} says that if the derivative of $g(\theta)$ is
+    non-vanishing (i.e. $g'(\theta) \ne 0$), then
+    \[
+    \sqrt{n}(g(\hat \theta_{MLE}) - g(\theta)) \rightarrow 
+    \frac{g'(\theta)^{2}}{\mathcal{I}(\theta)}.
+    \]
+\end{definition}
+
+We know that $g$ is differentiable. Let
+\[
+g(\hat \theta) = g(\theta) + g'(\tilde{\theta})(\hat \theta - \theta),
+\]
+where $\tilde{\theta}$ is some value between $\hat \theta$ and $\theta$. Then,
+\begin{align*}
+    \sqrt{n}(g(\hat \theta) - g(\theta)) &= \sqrt{n}(\hat \theta - \theta)g'
+    \theta) \\
+    \frac{\sqrt{n}(g(\hat \theta) - g(\theta))}{g'(\theta)}
+                                         &= \sqrt{n}(\hat \theta - \theta).
+\end{align*}
+Because of this equality, as long as we have a fairly well-behaved family of
+distributions, we are going to have the following conversions:
+\begin{align*}
+    g'(\hat \theta) &\rightarrow g'(\theta) \\
+    \frac{\sqrt{n}(g(\hat \theta) - g(\theta))}{g'(\theta)} &\approx
+    N(0, 1/\mathcal{I}(\theta))
+\end{align*}
+
+\pagebreak
+\section{Making Decisions}
+Let's say we have data $X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim} N
+(\theta, \sigma^{2})$, and $\sigma^{2}$ is known. We are going to construct the
+interval $(1.5,3)$ by letting $\hat \theta = 2$. If we are asking the question
+of "does $\theta = 0$?", our answer would probably be no because the interval
+doesn't contain our guess. If our interval is $(-1,2)$, then we have some
+intuition that $\theta$ is more likely to be 0 than it is with our previous
+interval. An interval like $(0.7, 2.5)$ makes us less certain, and we could
+do this infinitely many times. 
+
+\begin{definition}
+    \textbf{Hypothesis testing} tries to answer whether or not a scientific
+    claim is supported by the data collected.
+\end{definition}
+
+In our simple setup with our three intervals, our \textbf{claim} $H_{0}$
+may be that $\theta = 0$. This is the \textbf{null hypothesis}. We are trying 
+to construct information \textit{against} this hypothesis. Say that we summarise
+our data as $\bar X$. Imagine that our alternative hypothesis $H_{1}$ is that
+$\theta = 5$ Let our observed value of $\bar X$ is 2. We will cover more on
+how these hypotheses can be quantified in the next lecture.
+
+\end{document}

@@ -1,0 +1,269 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 17 - }}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+Recall that our hypothesis tests are $H_{0}$ and $H_{1}$, the null and 
+alternative hypotheses respectively. Imagine that we have some data from some
+distribution. Suppose our null is $H_{0}: \theta = \theta_{0}$. We have a
+distribution of $T|H_{0}$ (say a normal), where we select a cutoff point at
+the right tail (call it $\alpha$) to reject $H_{0}$ when values of $T$ arise
+to the right of that value. The natural question that arises is how to select
+an $\alpha$ such that a false rejection (type 1 error) occurs no more than
+$\alpha$ percent of the time.
+
+Let the region under the curve have area $c$ to the right of our cutoff. Let
+$c_{1}, c_{2}, c_{3}$ be possible cutoffs. If $c_{1}$ marks the region where
+$\mathbb{P}(T|c_{1}) = \alpha$, then $\mathbb{P}(T|c_{2}) \le \alpha$ and
+$\mathbb{P}(T|c_{3}) \le \alpha$. We seek to select this cutoff to minimize both
+type 1 error (has high level), and has high power under the alternative (i.e.,
+it minimizes type 2 error). If $H_{1} > H_{0}$, as we move our cutoff to the
+right, we lose power at the cost of a gain in level.
+
+A \textbf{test} of $H_{0}$ vs. $H_{1}$ is a procedure that requires a test
+statistic $T$ and a rejection region $C$. Sometimes, we care much more about
+type 1 or type 2 errors instead of both equally and can adjust $C$ accordingly.
+
+\pagebreak
+\section{P-Values}
+Let $X_{1}, \cdots , X_{n} \overset{\mathrm{iid}}{\sim}N(\mu, \sigma^{2})$. Our
+goal is to perform a test $H_{0}:\mu \le \mu_{0}$ vs. $H_{1}:\mu > \mu_{0}$.
+We reject null if $T$ is large, where
+\[
+    T = \frac{\sqrt{n}(\bar X - \mu)}{\hat \sigma}.
+\]
+We hope to draw a distribution for the null, but because the null is composite,
+that isn't possible. So we draw a distribution where $T|\mu$ is a single
+disribution where $\mu$ has a specific value. We select a cutoff $t_{n-1}
+(1-\alpha)$. Say we have a dataset where the observed statistic is $T_{obs} >
+t_{n-1}(1-\alpha)$, and so we reject the null. But say we have another observed
+$T$ that is larger than the first $T_{obs}$. Intuitively, we are more confident
+in our test when $T$ is more extreme (i.e., further to the right of the 
+distribution of $T|H_{0}$. Call this more extreme value $T_{obs1}$. We have
+observed that $T_{obs1}>T_{obs2}$. 
+
+Both of these tests are $\alpha$-level tests because they fall to the right of
+$t_{n-1}(1-\alpha)$. Because $T_{obs1} > T_{obs2}$, a cutoff $C$ exists such that
+$T_{obs1}$ would fall in the tail and $T_{obs2}$ would not. That is, we could
+run a test with an even smaller $\alpha$ level where $T_{obs1}$ still rejects
+$H_{0}$.
+
+\begin{definition}
+    The \textbf{p-value} is the smallest level $\alpha$ at which we would have 
+    rejected the null hypothesis $H_{0}$. It tells us how far to the right we
+    could have moved our cutoff and still rejected $H_{0}$ given the data.
+    For our test example, using our formula for $T$, the $p$-value is
+    \[
+        1 - \mathbb{P}(T\le t|\mu = \mu_{0}).
+    \]
+    Note that the $p$-value gives the area under the curve to the right of the
+    cutoff $C$, \textit{not} the cutoff itself.
+\end{definition}
+
+We reject $H_{0}$ if $T_{obs} > t_{n-1}(1-\alpha)$. However, because of the
+structure of the $p$-value, this is equivalent to rejecting $H_{0}$ if the
+$p$-value $p < \alpha$. Observe that under $H_{0}$, the random variable $p$ (yes,
+$p$-values are random variables since they are functions of the observed data
+which are random variables), is uniformly distributed under $p \sim Unif(0,1)$.
+
+\begin{note}
+    Keep in mind that while $p$-values are a slightly more detailed view of 
+    whether or not $H_{0}$ is true or not, they are not enough to support
+    formally \textit{accepting} the null, only a failure to reject.
+\end{note}
+
+\pagebreak
+
+\subsection{Example}
+Let our data remain normal and our definition of $T$ remain the same. Let
+$H_{0}:\mu = \mu_{0}$ and $H_{1}:\mu\ne \mu_{0}$. This is our first
+\textit{two-sided test}. That is, we want to reject $H_{0}$ if $T$ falls in
+\textit{either} tail of the distribution $T|\mu = \mu_{0}$. Let our goal be to
+construct a level-$\alpha$ test. Our rejection region is somewhere in both tails
+of $T|H_{0}$. That is,
+\[
+    \mathbb{P}(T \in C|H_{1}) = \alpha.
+\]
+We can rewrite this
+\begin{align*}
+    \mathbb{P}(T \in C|H_{1})  &= \alpha \\
+    \mathbb{P}(|T|>< H_{0}) &= \alpha \\
+    1 - \mathbb{P}(-c \le T \le c | H_{0}) = \alpha.
+\end{align*}
+
+We can say our distribution $T|H_{1}$ is just $T | \mu$ for some values of
+$\mu > \mu_{0}$ and $\mu < \mu_{0}$ (because we have a two-sided test). We
+hope to find a \textit{most powerful test} of level $\alpha$ of $H_{0}$ vs.
+$H_{1}$. Unfortunately, no uniformly most powerful test exists for these types
+of tests.
+
+\pagebreak
+\section{Likelihood Ratio Tests}
+We will first discuss testing simple hypotheses. Let $X_{1}, \cdots , X_{n}
+\overset{\mathrm{iid}}{\sim} f(x|\theta)$ where $\theta$ is unknown. Our goal is
+to test $H_{0}:\theta = \theta_{0}$ against $H_{1}:\theta = \theta_{1}$. Note that
+this is a one-sided test.
+
+Say we can observe our log-likelihood distribution and for ease of discussion,
+it appears to look roughly like a normal distribution. It would seem that if
+we have a statistic defined by
+\[
+\Lambda(x) = \frac{f(x|\theta_{1})}{f(x|\theta_{0})},
+\]
+then we will reject $H_{0}$ for large values of $\Lambda(X)$. Observe that
+$\Lambda(X)$ is a ration of the likelihood given $H_{1}$ to the likelihood
+given $H_{0}$. This is the aptly named \textbf{likelihood ratio test}.
+
+\subsection{The Neyman-Pearson Lemma}
+\begin{definition}
+The \textbf{Neyman-Pearson Lemma }(NPL) states that, given a simple $H_{0}$ and
+a simple $H_{1}$, the likelihood ratio test is the most powerful
+test under $H_{1}$.
+\begin{note}
+    This is theorem 9.2.1 and 9.2.2 in the book
+\end{note}
+\end{definition}
+
+\subsubsection{Proof of NPL}
+Let $C$  be the critical region (rejection region) for the likelihood ratio
+test (LRT). Then,
+\[
+C = \mathbbm{1}(\Lambda(X) > \alpha)
+\]
+We need to verify that the LDT is a level $\alpha$ test. That is,
+\[
+\mathbb{P}(\Lambda(X) > a | \theta_{0}) = 
+\mathbb{P}\left[\frac{f(x|\theta_{1})}{f(x|\theta_{0})} > a | \theta_{0}
+\right]
+\]
+Define $y$ as the likelihood ratio. That is,
+\[
+y = \frac{f(x|\theta_{1})}{f(x_|\theta_{0})} = 1 - F_{y}(a).
+\]
+Let $k$ be the smallest possible value for $a:1-F_{y}(a) < \alpha$. The LRT
+rejects for $\Lambda(X)>k$. Now imagine that our LRT cutoff region is
+$C \in [k, \infty)$. Imagine a different cutoff $\tilde{C}$ that is superior
+to $C$ while still being a level $\alpha$ test. That is,
+\[
+\mathbb{E}(\mathbbm{1}_{\tilde{C}}(y)\le \alpha).
+\]
+We want to show that the power of the LRT is always greater than the power of
+another test. So,
+\begin{align*}
+    \mathbbm{1}_{C}(y) - \mathbbm{1}_{\tilde{C}}(y)
+    &=
+    \begin{cases}
+        1 - (0 or 1) & y \in C \\
+        0 - (0 or 1) & y \notin C
+    \end{cases}
+    \\
+    &=
+    \begin{cases}
+        \ge 0 & y \in C \\
+        \le 0  & y \notin C
+    \end{cases}
+\end{align*}
+Observe that if $y \in C$, $\Lambda(X)>k$. Then,
+
+\begin{align*}
+    \frac{f(x|\theta_{1})}{f(x_{\theta_{0}})}
+    & \rightarrow f(x|\theta_{1}) \ge kf(x|\theta_{0}) \\
+    & \rightarrow f(x|\theta_{1}) - k(f(x | \theta_{0}) \ge 0.
+\end{align*}
+
+and if $y \notin C$,
+\[
+f(x|\theta_{1}) - kf(x|\theta_{0}) \le 0.
+\]
+Then,
+\begin{align*}
+    (\mathbbm{1}_{C}(y) - \mathbbm{1}_{\tilde{C}}(y))
+    (f(x|\theta_{1}) - kf(x|\theta_{0})) 
+    &\ge 0 \\
+    (\mathbbm{1}_{C}(y) - \mathbbm{1}_{\tilde{C}}(y)(f(x|\theta_{1}))
+    &\ge \mathbbm{1}_{C}(y) - \mathbbm{1}_{\tilde{C}}(y) kf(x|\theta_{0}).
+\end{align*}
+
+Integrating both sides, we arrive at
+\[
+    \mathbb{P}(y \in C | \theta_{1}) \mathbb{P}(y \in \tilde{C}|\theta_{1})
+    \ge k\left[\mathbb{P}(y \in C | \theta_{0}) \mathbb{P}(y \in \tilde{C}
+    | \theta_{1})\right]
+\]
+And we don't need to solve. It is sufficient to show that in any case,
+the power of the LRT is always greater than the alternative test using 
+$\tilde{C}$. Observe that we know that $k$ is non-zero and the entire left side
+of the final equation is equal to 0. Thus, for it to hold true, the 
+part of the right side inside of the square brackets must be equal to zero.
+
+\end{document}

@@ -1,0 +1,153 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 19 - Exam Post-Mordem and UMP Tests}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Midterm 2}
+
+\subsection{Problem 3}
+We had $X_{1}, \cdots , X_{n} \sim f(x|\alpha)$. We say that the density was
+\[
+f(x|\alpha) = \frac{1 +\alpha x}{2},
+\]
+and $\mathbb{E}[X] = \alpha/3$ and $x \in (-1,1)$. We were asked to find a
+method of moments estimator $\hat \alpha$. Because we were given $E[X] = 
+\alpha/3$, we know that $\hat \alpha = 3E[X] = 3\bar X$.
+
+\subsection{Problem 2}
+\begin{note}
+    To prep for these problems types of problems, we can search for distributions
+    that have MLEs, repeat the problem for each of those distributions, and we
+    should be prepared for that portion of the final.
+\end{note}
+
+Over the course of the problem, we recognize Fishers approximation as
+\[
+\sqrt{n}(\hat \theta_{MLE} - \theta_{0}) \rightarrow N(0, 1/\mathcal{I}(
+\theta),
+\]
+and $\ell = \frac{1}{n}\sum log(x_{i})$ and $\mathcal{I}(\theta) = 1/\sigma^{2}$.
+We also found a confidence interval
+\[
+    \hat \theta_{MLE} \pm Z_{1-\alpha}\sqrt{\frac{\sigma^{2}}{n}}.
+\]
+Part \textbf{f} of the test asked us to find a most powerful test for
+$H_{0}:\theta = \theta_{0}$ against $H_{1}:\theta = \theta_{1}$. The
+NPL tells us that by choosing the right $k$, we arrive at a UMP test. For this,
+we need to recall that if a test does not depend on $H_{1}$, it is uniformly
+most powerful.
+
+\pagebreak
+\section{UMP Tests}
+\begin{definition}
+    A family of distributions indexed by $\theta$ is said to have a
+    \textbf{monotone likelihood ratio} (MLR) in a statistic $T(X)$ if, for any
+    $\theta_{1} > \theta_{0}$, the likelihood ratio $\Lambda(X)$ is 
+    non-decreasing in $T(X)$.
+
+    For example, the log-normal distribution with a known $\sigma^{2}$ has a MLR
+    in $\sum log(y_{i})$ for observations $y_{1}, \cdots , y_{n}$.
+\end{definition}
+
+\begin{definition}
+    The \textbf{Karlin-Reuben theorem} states that for a test in the form
+    $H_{0}:\theta \le \theta_{0}$ vs $H_{1}:\theta > \theta_{0}$ is given by
+    $T(X) > k$, where $k$ is chosen such that the test has level $\alpha$. This
+    works only when a distribution has a MLR under some statistic $T(X)$.
+\end{definition}
+
+We have previously found UMP tests using the NPL and finding out if our
+result depends on $H_{1}$. If not, the test is UMP. Now, we have a second 
+method. Specifically, we can find a statistic such that we have an MLR, and
+then apply Karlin-Reuben. These work for two different use cases: the former
+for simple $H_{0}$ and $H_{1}$, and the latter for complex $H_{0}$ and $H_{1}$.
+
+In R, when we run regression, we only care about whether or not the $\beta$ 
+coefficients are 0 or not. That's the test that R runs. But it uses an estimated
+variance to conduct this test, which we haven't done yet.
+
+\subsection{R-style example}
+
+Let our new \textbf{goal} be, for $X_{1}, \cdots X_{n}
+\overset{\mathrm{iid}}{\sim}N(\mu, \sigma^{2})$, to test $H_{0}: \mu = \mu_{0}$
+against $H_{1}: \mu \ne \mu_{0}$.
+
+Our first step is to, assuming $\sigma^{2}$ is known, is to find a likelihood
+ratio $\Lambda(X)$. Recall that our $\Lambda$ looks like
+\[
+\Lambda(X) = \frac{f(X|\theta_{0})}{f(X|\theta_{1})}.
+\]
+But how do we do this for our current test? Well, the denominator would be
+the same since we already have the correct form for that. But we want to find
+the value of $\theta_{1}$ that is the best guess given that $H_{1}$ is true.
+Fortunately, the MLE is the best value for this.
+
+\end{document}

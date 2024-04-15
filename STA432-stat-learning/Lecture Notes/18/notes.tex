@@ -1,0 +1,189 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 18 - Testing Universes}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Simple Universes}
+
+Recall that we have some data $Y_{1}, \cdots ,Y_{n} \overset{\mathrm{iid}}{\sim}
+f(y|\theta)$ and our goal is to test $H_{0}:\theta = \theta_{0}$ against
+$H_{1}:\theta = \theta_{1}$. Without loss of generality, $\theta_{1} >
+\theta_{0}$. If $\theta$ is the mean of this distribution, we probably want to
+reject $H_{0}$ if $\bar Y$ is big. Recall the Neaman-Pearson lemma (NPL), which
+looked at the likelihood-ratio test (LRT)
+\[
+    \Lambda(y) = \frac{\mathcal{L}(\theta_{1})}{\mathcal{L}(\theta_{0})},
+\]
+and said that it was the most powerful level-$\alpha$ test. Recall that a test
+needs both a test statistic \textit{and} a rejection region to make it
+level-$\alpha$. This works \textbf{only} for simple null and simple alternative
+hypotheses.
+
+\subsection{Example}
+Say we have a piece of technology that may be real or counterfit. Its rate of
+failure is represented by an exponential distribution. The lifespan $X$ has the
+following likelihood,
+\[
+    X \sim \theta exp\{-\theta x\}.
+\]
+We want to test whether or not the tech is real or counterfeit. An authentic
+machine has $H_{0}:\theta = 1$ and $H_{1}:\theta = 2$. That is, counterfeit ones
+fail twice as fast. We probably want to reject for small values of $X$ because
+smaller values represent smaller lifespans and our null hypothesis is that the
+machines are real. Let's calculate the likelihood ratio using the NPL. Recall
+that $k$ describes our rejection region.
+\begin{align*}
+    \Lambda(x)
+    &= \frac{f(x;\theta_{1})}{f(x;\theta_{0})} \\
+    &= \frac{2e^{-2x}}{1e^{-x}}\\
+    &= 2e^{-x} & > k_{1}\\
+    &= e^{-x} & > k_{2}=\frac{k_{1}}{2} \\
+    &= -x & > k_{3} = log(k_{2}) \\
+    &= x & k_{4} = -k_{3}
+\end{align*}
+
+So we have found a test statistic (the likelihood ratio), but we need to find
+our cutoff values $k$. Recognize that we want a level-$\alpha$ test, so we want
+the probability that we reject the null when the null is true (i.e., a
+type-I error), is $1-\alpha$. In this case, this quantity is the 95th quantile
+of an exponential distribution, which gives us a cutoff value. Call this value
+$a$.
+
+\subsection{Normal example}
+Let $X_{1},, \cdots ,X_{n} \overset{\mathrm{iid}}{\sim}N(\mu, \sigma^{2})$ and
+let $\sigma^{2}$ be known. We want to test $H_{0}:\mu = \mu_{0}$ against
+$H_{1}:\mu = \mu_{1}$. Back to the LRT:
+\begin{align*}
+    \Lambda(x)
+    &= \frac{\mathcal{L}(\mu_{1};\vec x)}{\mathcal{L}(\mu_{0};\vec x)} \\
+    &= \frac{ \prod_{i=1}^{n}f(x_{i};\mu_{1})}{ 
+    \prod_{i=1}^{n}f(x_{i};\mu_{0})} \\
+    &= \frac{\left(\frac{1}{\sqrt{2\pi\sigma^{2}}}\right)^{n}
+    exp\{-\frac{1}{2\sigma^{2}}\sum (X_{i}-\mu_{1})^{2}\}}{
+    \left(\frac{1}{\sqrt{2\pi\sigma^{2}}}\right)^{n}
+    exp\{-\frac{1}{2\sigma^{2}}\sum (X_{i}-\mu_{0})^{2}\}}
+\end{align*}
+Skipping a frankly offensive amount of algebra, we arrive at
+\[
+    exp\left[\frac{\mu_{1}-\mu_{0}}{\sigma^{2}} \sum X_{i}\right]exp
+    \left[\frac{\pi\mu_{0}^{2}-\pi\mu_{1}^{2}}{\sigma^{2}}\right].
+\]
+But this is the same as scaling the first term since the second term doesn't
+depend on $X$. So we can remove it. Thus,
+\begin{align*}
+    \Lambda(X)
+    &= exp\left[\frac{\mu_{1} - \mu_{0}}{\sigma^{2}}\sum X_{i}\right] &> k_{1}\\
+    &= \frac{\mu_{1} - \mu_{0}}{\sigma^{2}}\sum X_{i} & >k_{2} = log(k_{1}) \\
+    &= \sum X_{i} & > k_{3} = \frac{\sigma^{2}}{\mu_{1} - \mu_{0}}k_{2}.
+\end{align*}
+Ultimately, we hope to find $k_{1}$ to create an $\alpha$-level test, but 
+that's a mathematical impossibility (or at least very annoying), but finding
+$k_{3}$ may not be as challenging, which is a helpful reality.
+
+We were testing $H_{1}$ against $H_{0}$ where $\mu_{1} > \mu_{0}$. Under
+$H_{0}$,
+\begin{align*}
+    \sum X_{i} | \mu = \mu_{0}
+    & \sim N(n\mu_{0}, n) \\
+    \bar X | \mu_{0} & \sim N(\mu_{0}, 1/n) \\
+    \sqrt{n}(\bar X - \mu_{0}) & \sim N(0,1).
+\end{align*}
+
+Suppose now that we are instead testing the hypotheses $H_{0}:\mu = \mu_{0}$
+and $H_{1}:\mu = \mu_{0}+1$. Instead of restarting from the top of the entire
+problem, observe that in this example, the cutoff region isn't determined at all
+by $\mu_{1}$. That means that against all possible $\mu_{1} > \mu_{0}$, the LRT
+is the uniformly most powerful test.
+
+\begin{definition}
+    A test $\delta^{*}$ is a \textbf{uniformly most powerful test} (UMP) if, 
+    for any other test $\delta$ with level $\alpha$, the power is less than or
+    equal to that of our UMP. Because we found a most powerful level-$\alpha$
+    test at each point in $\theta \in H_{1}$. Because the rejection region
+    doesn't depend on $H_{1}$, it must be UMP.
+
+    Note that a UMP test does not necessarily \textit{always} exist.
+\end{definition}
+
+\pagebreak
+\section{Note for midterm}
+Recall that when $\mathcal{I}(\theta)$ contains our unknown parameter, we have
+to approximate it with the observed information $J_{n}(\theta)$. So that when
+we do the following:
+\begin{align*}
+    \sqrt{n}(\hat \theta_{MLE} - \theta_{0}) 
+    & \rightarrow N(0, 1/\mathcal{I}(\theta)) \\
+    \hat \theta_{MLE} \approx N(\theta_{0}, 1/n\mathcal{I}(\theta))
+\end{align*}
+
+\textbf{TODO: Recall $J_{n}(\theta)$}
+
+\end{document}

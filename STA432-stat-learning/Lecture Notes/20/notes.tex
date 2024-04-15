@@ -1,0 +1,141 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 19 - Complex Hypotheses}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Complex Hypotheses}
+
+Let's verify the monotone likelihood ration for the normal distribution. Let
+$X_{1}, \cdots ,X_{n} \overset{\mathrm{iid}}{\sim}N(\mu, \sigma^{2})$ and let
+$\sigma^{2}$ be known. The statistic
+\begin{align*}
+\frac{f(x|\mu_{1})}{f(x|\mu_{0})} 
+&=
+\frac{ \prod_{i=1}^{\infty}\frac{1}{\sqrt{2\pi\sigma^{2}}}exp\{
+-\frac{1}{2\sigma^{2}}(x_{i} - \mu_{1})^{2}\}}{
+\prod_{i=1}^{\infty}\frac{1}{\sqrt{2\pi\sigma^{2}}}exp\{
+-\frac{1}{2\sigma^{2}}(x_{i} - \mu_{0})^{2}\}}{
+}  \\
+&= exp\{\frac{1}{\sigma^{2}}\sum (x_{i}-\mu_{1})^{2} + \frac{1}{2\sigma^{2}}
+    \sum (x_{i}-\mu_{0})\} \\
+&=
+exp\{\frac{\mu_{1} - \mu_{0}}{\sigma^{2}}(\sum x_{i}) - \frac{n(\mu_{1}^{2} -
+\mu_{0}^{2})}{2\sigma^{2}}\}
+\end{align*}
+is the likelihood ratio. We see that this statistic $\Lambda(X)$ is 
+non-decreasing in $T(X) = \sum X_{i}$. For something to be decreasing \textit{in}
+something else (say $T$), means that as $T$ increases, so too does
+$\Lambda(X)$. A UMP level-$\alpha$ test of $H_{0}:\mu = \mu_{0}$ against
+$H_{1}:\mu > \mu_{0}$ rejects $\sum X_{i} > k$ where $k$ is selected such that
+its level is $\alpha$. that is,
+\[
+\mathbb{P}(\sum X_{i} > k | \mu = \mu_{0}) = \alpha.
+\]
+Thus, under $H_{0}$,
+\[
+\frac{\sqrt{n}\frac{1}{n}\sum(x_{i} - \mu_{0})}{\sigma} \sim N(0,1).
+\]
+We reject if 
+\[
+\bar X > \mu_{0}+\frac{\sigma}{\sqrt{n}}Z_{1-\alpha},
+\]]
+where $Z_{1-\alpha}$ is the $1-\alpha$ quantile. Let's find the power under the alternative. The power function is
+\[
+\mathbb{P}\left(\frac{\sqrt{n}(\bar X - \mu_{0})}{\sigma} > Z_{1-\alpha} |
+    \mu = \mu_{0}\right)
+\]
+And
+\[
+T = \frac{\sqrt{n}(\bar X - \mu_{0})}{\sigma} \sim 
+Normal\left( \frac{\sqrt{n}(\mu_{1} - \mu_{0})}{\sigma}, 1\right).
+\]
+Thus the power for this one-sided test is
+\[
+1 - \Phi\left(Z_{1-\alpha}-\frac{\sqrt{n}(\mu_{1} - \mu_{0})}{\sigma}\right).
+\]
+\begin{note}
+    Some distributions (e.g. the Cauchy distribution) do not have an MLR, and 
+    thus these tests are not "freebies."
+\end{note}
+
+\pagebreak
+
+\section{Generalized Likelihood Ratio Test}
+Let our test be $H_{0}:\theta \in \Theta_{0}$ and $H_{1}:\theta \in \Theta_{1}$.
+For some family, let $\Theta_{0} = \{\theta_{0}\}$ and $\Theta_{1} = \{\theta :
+\theta > \theta_{0}\}$. This is a one-sided test. But for $\Theta_{1} =
+\{\theta : \theta \ne \theta_{0}\}$. This is a two-sided test. But there are
+also tests where we may want something with an extra parameter. For example,
+$\Theta_{0} = \{\mu = \mu_{0}, \sigma^{2}k\}$ and $\Theta_{1} = \{\mu \ne
+\mu_{0}, \sigma^{2}j\}$, where $k$ and $j$ could be anything. This is no longer
+a likelihood ratio test scenario as we know it.
+
+\end{document}

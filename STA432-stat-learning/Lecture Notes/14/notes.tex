@@ -1,0 +1,252 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 14 - Review and Concepts}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+\subsection{Example}
+Suppose we have data $X_{1}, \cdots , X_{n} \sim Exp(\mu)$. We will let
+$\lambda$ be the rate parameter such that $\mathbb{E}(X) = 1/\lambda$. Thus,
+$\mu = 1/\lambda$. Recall that the sum of exponential random variables is
+gamma. That is,
+\[
+\sum X_{i} \sim Gamma(n, \mu).
+\]
+This statistic $\sum X_{i}$ has a known distribution (gamma). However, this
+distribution has an unknown parameter ($\mu$). Do get rid of this, we can
+multiply both sides by $1/\mu$. That is,
+\[
+    \frac{1}{\mu}\sum_{i=1}^{n}X_{i} \sim Gamma(n,1).
+\]
+This function of the data and parameters $\frac{1}{\mu}\sum X_{i}$ is our
+\textbf{pivot}. This pivot has a distribution that is known and \textit{does
+not} depend on an unknown parameter. Therefore, for a given $\alpha$, we can
+get the upper and lower bounds of our confidence interval:
+\begin{align*}
+    c_{1} &= \frac{\alpha}{2} \\
+    c_{2} &= 1 - \frac{\alpha}{2}.
+\end{align*}
+Then, we can find our interval.
+\begin{align*}
+    \mathbb{P}(c_{1} < \frac{1}{\mu}\sum X_{i} < c_{2})
+    &= \mathbb{P}(1/c_{2} < \frac{\mu}{\sum X} < 1/c_{1}) \\
+    &= \mathbb{P}(\frac{\sum X_{i}}{c_{2}}< \mu < \frac{\sum X_{i}}{c_{2}}) \\
+    &= 1 - \alpha
+\end{align*}
+Thus, our correct confidence interval bounds are
+\[
+    \boxed{\left[ \frac{\sum X_{i}}{c_{2}}, \frac{\sum X_{i}}{c_{2}} \right]}.
+\]
+\subsection{Uniform example}
+Let $X_{1}, \cdots ,X_{n} \sim Unif(0, \theta)$. Let an estimator for $\theta$
+be $Z = \hat \theta = max(\vec X)$. In the case of the uniform distribution,
+this is also our MLE. For now, we do not have a distribution for $Z$. Observe
+that
+\[
+\mathbb{P}(Z < c) = \mathbb{P}(X_{1}<c) \mathbb{P}(X_{2}<c) \cdots 
+\mathbb{P}(X_{n}<c).
+\]
+Since all $X_{i} \le Z$, this becomes
+\[
+\mathbb{P}(Z <c) = \left(\frac{c}{\theta}\right)^{n}.
+\]
+This depends on a parameter, which isn't helpful. We can correct that by 
+moving $\theta$.
+\[
+\mathbb{P}(Z/\theta < c) = \mathbb{P}(Z < c\theta) = \left(\frac{c\theta}{\theta}
+\right)^{n} = c^{n}.
+\]
+And $Z/\theta$ must be between 0 and 1. We want to find $a$ and $b$ such that
+$0<a<b<1$ with probability $b^{n} - a^{n} = 1 - \alpha$ for a given
+$\alpha$. This is
+\[
+\mathbb{P}(a < Z/\theta < b) = 1-\alpha.
+\]
+Solving this,
+\begin{align*}
+    &\mathbb{P}(a < Z/\theta < b) = 1- \alpha\\
+    &\mathbb{P}(1/b < \theta/Z< 1/a) = 1 - \alpha\\
+    &\mathbb{P}(Z/b < \theta < Z/a) = 1- \alpha \\
+\end{align*}
+Now that we've isolated $\theta$, we have found our bounds for a level of
+confidence $1 - \alpha$:
+\[
+    \boxed{\left[\frac{Z}{b}, \frac{Z}{a}\right]} .
+\]
+\pagebreak
+\section{Multiple Unknown Parameters}
+\subsection{Normal distribution example}
+Let $X_{1}, \cdots ,X_{n} \sim N(\mu, \sigma^{2})$. Much like the first two
+examples, we will find a pivot that is a function of the data and the parameters
+that has a distribution that doesn't depend on the parameters. In this case, 
+the pivot is given to us. That pivot is,
+\[
+\frac{\sum (X_{i} - \bar X)^{2}}{\sigma^{2}}.
+\]
+We can write this as 
+\[
+\sum \left(\frac{X_{i} - \bar X}{\sigma^{2}}\right)^{2}.
+\]
+This is a standard normal distribution. A sum of standard normal distribution
+is a chi-squared distribution with $n$ degrees of freedom. Assuming independence,
+a $\chi^{2}_{n}$ distribution is the same is equivalent to $\chi^{2}_{n-1} +
+\chi^{2}_{1}$. Letting $c_{1} = \alpha/2$ quantile of $\chi^{2}_{n-1}$ and
+$c_{2} = 1 - (\alpha/2)$ quantile of $\chi^{2}_{n-1}$, we arrive at a
+probability
+\[
+\mathbb{P}(c_{1} < \frac{\sum (X_{i} - \bar X)^{2}}{\sigma^{2}} < c_{2}) =
+1 - \alpha.
+\]
+Going back to our original problem, it is true that
+\[
+\frac{\sqrt{n}(\bar X - n)}{\sqrt{\frac{1}{n-1}\sum (X_{i} - \bar X)^{n}}}
+\sim t_{n-1}.
+\]
+The denominator there is an estimator for $\sigma^{2}$. Crucially, this does not
+depend on either parameter. However, because of the estimator in the
+denominator, we arrive at a $t$ distribution instead of a normal. Because $t$
+distributions have fatter tails, this makes for a looser (and therefore worse)
+confidence interval. However, if we know $\sigma$, we can replace the denominator
+with $\sigma^{2}$, which \textit{is} a normal distribution, which makes for a
+tighter interval. This is the trade-off: if we have only one unknown parameter
+($\mu$), we can make a tighter CI (with a normal) than we can if have two
+unknowns ($\mu, \sigma$) which gives a $t$ distribution. This is expected
+intuitively. More unknowns means less confidence.
+
+\begin{note}
+    We should memorize the pivots that we've gone over for the future exam.
+\end{note}
+
+\pagebreak
+\section{Approximate Confidence Intervals}
+Let $X_{1}, \cdots ,X_{n} \sim N(\mu,1)$. Then, $\bar X \sim N(\mu, 1/n)$.
+Fishers approximation theorem states that if $\hat \theta$ is an MLE for
+$\theta$, then
+\[
+\sqrt{n}(\hat \theta_{MLE} - \theta) \rightarrow N\left(0, \frac{1}{\mathcal{I}
+    (\theta)}\right),
+\]
+as $n$ gets large. Therefore, \textit{asymptotically}, this is a pivot. Crucially,
+it is not a pivot for small values of $n$. Thus, we will not arrive at an
+exact CI. Thus, we will say that this is an \textbf{approximate CI}. In this
+case,
+\[
+\mathbb{P}(c_{1} < \sqrt{n}(\bar X - \theta) < c_{2}) = 1 - \alpha.
+\]
+
+\subsection{Observed Fisher information}
+Let $X_{1}, \cdots X_{n} \sim Binom(n,p)$, and
+\[
+\frac{1}{n} \sum_{i=1}^{n}X_{i} = \hat p_{MLE}.
+\]
+We know from Fisher that
+\[
+\sqrt{n}(\hat p -p) \rightarrow N\left(0, \frac{1}{\mathcal{I}(p)}\right).
+\]
+For binomials, the Fisher information is
+\[
+\mathcal{I}(\hat p) = 1/p(1-p).
+\]
+This is a problem, because pivots cannot depend on the parameter $p$. Thus,
+our Fisher information is not a pivot for a binomial distribution. We will 
+need to use the \textbf{observed information} instead. For $n$ data points, we
+write this observed information (for a general parameter $\theta$)
+\[
+\mathcal{J}_{n}(\hat \theta) = -\sum_{i=1}^{n}\frac{d^{2}}{d \theta^{2}}
+log(f( X_{i}| \hat \theta)).
+\]
+In this case, we can say that
+\[
+    \mathcal{J}_{n}(\hat p) = \frac{1}{\hat p(1-\hat p)}.
+\]
+We can now use Fisher's approximation,
+\[
+\sqrt{n}(\hat p - p) \rightarrow N(0, \hat p(1-\hat p)),
+\]
+to arrive at a probability,
+\[
+\mathbb{P}(a < \sqrt{n}(\hat p - o) < b) = 1 - \alpha.
+\]
+\subsection{Poisson example}
+Let $X_{1}, \cdots , X_{n} \sim Poisson(\lambda)$. The MLE for a Poisson
+distribution is $\hat \lambda = \sum X_{i}/ n$. Fisher says that
+\[
+\sqrt{n}(\hat \lambda - \lambda) \rightarrow N(-, 1 / \mathcal{I}(\lambda)).
+\]
+The Fisher information for a Poisson is $1/\lambda$, which depends on the
+parameter. Thus, we need observed information. For Poisson, this is
+\[
+\mathcal{J}_{n}(\hat \lambda).
+\]
+
+
+\end{document}

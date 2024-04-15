@@ -57,7 +57,11 @@
 % -------------------------------------------------- %
 % -------------------- SETUP ----------------------- %
 % -------------------------------------------------- %
+<<<<<<< Updated upstream
 \title{\Huge{Lecture 16 - Computational Hardness}}
+=======
+\title{\Huge{Lecture 16 - Scheduling}}
+>>>>>>> Stashed changes
 \author{\large{Mitch Harrison}}
 \date{\today}   
 \begin{document}
@@ -71,6 +75,7 @@
 % -------------------------------------------------- %
 % --------------------- BODY ----------------------- %
 % -------------------------------------------------- %
+<<<<<<< Updated upstream
 \section{Hard Problems}
 
 For problems like the longest path, max cut, knapsack, travelling salesman, and
@@ -246,5 +251,144 @@ To prove a problem $P'$ is NP-complete, we:
 \end{enumerate}
 \textbf{In short, to prove that a problem $A$ is NP-hard, reduce a known NP-hard
 problem to $A$.}
+=======
+\section{Maximum Interval Scheduling}
+
+\begin{note}
+    This problem is also commonly called the "Activity Scheduling Problem."
+\end{note}
+
+Given $n$ jobs numbered $1, \cdots ,n$ with job $i$ having start time $S[i]$ and
+finish time $F[i]$. We can only work one job at a time and we seek to maximize
+the number of jobs that we could complete, assuming that our jobs cannot
+overlap in time (e.g., multiple programs to schedule on a single thread).
+Intuitively, two jobs \textbf{conflict} if they overlap in time. Formally,
+two jobs conflict if $S[i] \le F[j]$ \textit{and} $S[j] \le F[i]$. They do
+\textit{not} conflict if either $S[i] > F[j]$ \textit{or} $S[j] > F[i]$.
+
+With greedy algorithms, there are often intuitive solutions that prove to be
+incorrect. The following is one such example in high-level pseudocode.
+\begin{algorithm}
+\caption{imperfect greedy algorithm}
+\begin{algorithmic}[1]
+\Procedure{ScheduleA}{}
+    \While{there are jobs remaining}
+        \State Choose the job that conflicts with the fewest remaining jobs.
+        \State Remove all conflicting jobs.
+    \EndWhile
+    \State \Return Chosen jobs.
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+\Call{ScheduleA}{} seems intuitively correct, but it is not. A visual 
+counterexample is provided in the lecture slides. Instead, we will generally
+scan the input of jobs over time. For one correct example, we will sort by
+finish time $F[i]$ and do the following
+
+\begin{algorithm}
+\caption{correct greedy scheduler}
+\begin{algorithmic}[1]
+\Procedure{Schedule}{}
+    \State Sort jobs from least to greatest finish time
+    \State Let $L$ be a new list containing job 1
+    \State $current \leftarrow 1$
+    \For{$i=2 \rightarrow n$}
+        \If{$S[i] > F[current]$}
+            \State append $i$ to $L$
+            \State $current \leftarrow i$
+        \EndIf
+    \EndFor
+    \State \Return $L$
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+Once we conduct the sorting (using an $O(nlog(n))$ sorting algorithm), most
+of the work is complete. In this case, our final asymptotic runtime is also
+$O(nlog(n))$. We can prove correctness of this algorithm by induction using
+exchange arguments.
+
+Let $X = x_{1}, \cdots ,x_{m}$ be the $m$ jobs chosen by the greedy algorithm,
+sorted from least to greatest finish time. We want to \textit{show} that $X$ is
+an optimal schedule. That is, for all $1\le k\le m$ there is an optimal
+schedule that chooses $X$.
+
+Our \textit{base case} considers an optimal solution $Y^{*}$ with $y_{1} \in 
+Y^{*}$ having the least finish time. Observe that
+\[
+    F[x_{1}] \le F[y_{1}] < S[y_{i}] \forall y_{i} \in (Y^{*} \\ \{1\}).
+\]
+Thus, $Y' = (Y^{*} \\ \{y_{i}\}) \cup \{x_{1}\}$ is conflict-free, optimal, 
+and includes $x_{1}$. Our \textit{inductive hypothesis} states that there is an
+optimal solution of the form
+\[
+    Y^{*} = x_{1}, \cdots , x_{k-1}, y_{k}, y_{k+1}, \cdots , y_{m}^{*}.
+\]
+Our \textit{inductive step} says that when we consider $x_{k}$ chosen by the
+algorithm:
+\begin{itemize}
+    \item $S[x_{k}] > F[x_{k-1}]$, and
+    \item $F[x_{k}] \le F[y_{k}] < S[y_{k+1}]$
+\end{itemize}
+This shows that
+\[
+    Y' = x_{1}, \cdots , x_{k-1}, x_{k}, y_{k+1}, \cdots , y_{m}^{*}
+\]
+is also a valid schedule, and since $|Y'| = |Y^{*}|$, this structure is also
+optimal.
+
+\pagebreak
+\section{Interval Partitioning Problem}
+We have same setup as before with $n$ jobs and start and finish times contained
+in arrays $S$ and $F$, respectively. Jobs conflict under the same conditions.
+Say that we want to use the fewest computers to process \textit{all} of the jobs,
+given that a single computer can only process one job at a time (and you can't
+switch computers once assigned). We will seek to find how many computers we will
+need \textit{and} how to assign the jobs.
+
+We could repeatedly try to schedule optimal solutions for a single computer at
+a time using the previously discussed algorithms. However, we can design 
+something that is faster, simpler, and in a single pass of the data.
+
+\begin{algorithm}
+\caption{simple solution for multiple computers}
+\begin{algorithmic}[1]
+\Procedure{Schedule}{}
+    \State Sort jobs from least to greatest start time.
+    \For{$i=1 \rightarrow n$}
+        \If{at least one computer is free}
+            \State Assign job $i$ to any free computer.
+        \Else
+            \State Allocate an additional computer.        
+        \EndIf
+    \EndFor
+\EndProcedure 
+\end{algorithmic}
+\end{algorithm}
+
+To show correctness, we suppose that our greedy algorithm uses $k$ computers.
+We claim that \textit{any} conflict-free solution will also use $k$ computers.
+Consider the point at which the greedy algorithm added the $k$th computer. After
+adding, there must be $k$ active jobs at this point. If there are $k$ active
+jobs at this point, then \textit{any} conflict-free schedule must use $k$
+computers at this point.
+
+Note that implementing "if at least one computer is free" is non-trivial. One
+approach is to store the computers in a priority queue (binary heap) by the
+\textit{finish time of the assigned job}. This would result in an $O(log(n))$
+check for the next available computer in a binary heap, and $O(log(n))$ to add
+to the binary heap.
+
+\subsection{Minimum full schedule problem}
+Say that a set of jobs is \textbf{full} if no other jobs can be added without
+introducing a conflict. Equivalently, a maximal non-conflicting set of jobs).
+Can we compute a \textit{smallest} such full set of jobs? 
+
+We want a set of jobs that is \textbf{full}. Let's consider the job $j$ with the
+earlist finish time. We must choose some job that starts before $j$ finishes.
+Among those jobs (including $j$), we should choose the one with the \textit{
+greatest} finish time. It must conlfict with every job that conflicts with $j$.
+>>>>>>> Stashed changes
 
 \end{document}
