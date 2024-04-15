@@ -1,0 +1,250 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 16 - Computational Hardness}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Hard Problems}
+
+For problems like the longest path, max cut, knapsack, travelling salesman, and
+vertex cover problems, no \textit{exact} polynomial time algorithms are known, 
+only \textit{exponential} time algorithms. Such problems seem computationally
+intractable.
+
+\begin{definition}
+    A \textbf{decision problem} is any computational problem that is answered by
+    a single boolean value.
+\end{definition}
+
+Most optimization problem have a natural decision variant. The regular
+(unweighted) shortest path, in which we are given a graph $G$ and vertices $s$
+and $t$ and we are asked to compute the shortest path from $s$ to $t$. The
+\textbf{decision variant} of this problem is, given $G$, $s$, and $t$, as well
+as an integer $d$, does there exist a path from $s$ to $t$ with at most
+$d$ degrees?
+
+Forgetting solving the problem for a moment, can we at least \textit{verify}
+a proposed solution? This proposal is called a \textbf{certificate}. Many
+decision problems are hard to solve but easy to verify a proposed solution. For
+example, with the longest path, \textit{solving} the problem involves finding
+the path with at least $d$ edges. But to \textit{verify}, we just need to confirm
+that, if there is such a path $P$, that $P$ is a simple path from $s$ to $t$ 
+with at least $d$ edges.
+
+Similarly, for the vertex cover problem where we are given a graph
+$G = (V,E)$ and an integer $k$, solving requires us finding $C \subseteq V$ of
+size $|C| le k$ such that for every $(u,v) \in E$, $u \in C$, or $v \in C$. But
+to verify, we only need to confirm, given a $C$, that $|C|\le k$ and that
+every edge is covered.
+
+\subsection{Complexity classes}
+\textbf{P} is the class of problems for which there exists a polynomial time
+algorithm. This is most of the course so far. \textbf{NP}, is the class of
+decision problems for which a certificate (or "proof") of a yes/true/1 answer
+can be verified in polynomial time. Longest path falls into this category, for
+example. \textbf{co-NP} is just like \textbf{NP}, but for no/false/0 answers.
+For example, the question "is an integer $x$ prime?" A simple certificate for
+showing that it is \textit{not} prime is finding a prime factorization.
+
+Most theorists believe that there are \textit{not} polynomial time algorithms
+for NP-hard problems. While potentially depressing, this gives us a way to know
+what \textit{isn't} possible, allowing us to avoid wasting time trying to find
+an exact polynomial time algorithm. For these problems, finding an 
+\textit{approximation} is sufficient, so long as that solution is efficient.
+
+\begin{note}
+    NP stands for "non-deterministic polynomial."
+\end{note}
+
+\subsection{Relating P, NP, and co-NP}
+Two observations are easy:
+\begin{enumerate}
+    \item $P \subseteq NP$. If we have a polynomial time algorithm, we verify
+        by re-solving.
+    \item $P \subseteq co-NP$, for the same reasoning as observation 1.
+\end{enumerate}
+This leaves one big question. Namely, are there problems in NP that 
+\textit{cannot} be solved in polynomial time? That is, does $P = NP$ or
+$P\ne NP$? This is the greatest outstanding question in theoretical computer
+science.
+
+\pagebreak
+\section{NP-Hard and NP-Complete}
+If we cannot prove $P = NP$, how do we characterize the problems we think are
+hard to solve? We try to identify the \textit{hardest} problem(s) in NP.
+
+\begin{definition}
+    A problem $\Pi$ is \textbf{NP-hard} if a polynomial-time algorithm for
+    $\Pi$ would imply a polynomial-time algorithm for \textit{every problem in
+    NP}. In other words, $\Pi$ is NP-hard if an only if $\Pi$ can be solved in
+    polynomial time, then $P = NP$.
+\end{definition}
+
+\begin{definition}
+    A problem $\Pi$ is \textbf{NP-complete} if
+    \begin{enumerate}
+        \item it is in NP, and
+        \item it is NP-hard.
+    \end{enumerate}
+\end{definition}
+
+Recall reductions in algorithms. Reducing from $P$ to $P'$, if someone gave you
+an algorithm $A'$ for problem $P'$, can we use it to design an algorithm $A$ to
+solve problem $P$?
+
+To prove that $P'$ is at least at hard as $P$ (up to polynomial factors), we 
+give a polynomial time reduction from $P$ to $P'$. Given an arbitrary input $X$
+to $P$, we construct input $Y$ to $P'$. Then, we argue the following: 
+\begin{enumerate}
+    \item The reduction is polynomial time,
+    \item $P(X) = 1$ if and only if $P'(Y) = 1$, meaning prove
+        \begin{enumerate}
+            \item if $P(X) = 1$ then $P'(Y) = 1$, \textit{and},
+            \item if $P'(Y) = 1$, then $P(X) = 1$.
+        \end{enumerate}
+\end{enumerate}
+In other words, showing that a solution to $P(X)$ implies a solution to $P'(Y)
+= 1$ and vice versa.
+
+\subsection{Reduction example}
+The \textbf{independent set (IS)}: Given a graph $G = (V,E)$ and an integer
+$k$, is there a set of vertices $S \subseteq V$ of size $|S| \ge k$ such that
+for every $(u,v) \in E$, $u \notin S$, or $v \notin S$. That is, there are no
+edges between vertices in $S$. The \textbf{vertex cover (CV)} asks if there is a
+set of vertices $C \subseteq V$ of size $|C| \le k$ such that for every $(u,v)
+\in E$, $u \in C$, or $v \in C$. That is, at least one endpoint of every edge is
+in $C$. 
+
+We can reduce from IS to VC, which shows that VC is NP-hard if IS is NP-hard,
+which it is. Given a graph $G=(V,E)$ and an integer $k$, we use the same graph
+$G$, but consider an integer $k' = |V|-k$. We claim that $G$ has a VC of size
+$k'$ if and only if $G$ has an IS of size $k$.
+
+Suppose that $G$ has a VC of size $k'$, and call it $C$. Consider $S = V-C$.
+Clearly $|S| = |V|-k' = k$. For $(u,v) \in E$, $u \in C$, or $v \in C$, so at
+least one of $u$ or $v$ is not in $S = V-C$. So, $S$ is an IS of size $k$.
+
+To show correctness in the other direction (which is required), we use the same
+graph $G$, but consider an integer $k' = |V| -k$. We claim that $G$ has a VC of
+size $k'$ if and only if $G$ has an IS of size $k$. Suppose $G$ has an IS of
+size $k$, and call it $S$. Consider $C = V-S$. Clearly $|C| = |V|-k=k'$. For
+$(u,v) \in  E$, $u \notin S$, or $v \notin S$, so at least one of $u$ or $v$ is
+in $C=V-S$. So $C$ is a VC of size $k'$.
+
+We have shown that $G$ has a VC of size $k'$ if an only if $G$ has an IS of size
+$k$. Also, this reduction is polynomial-time computable. Computing $k'$ is 
+$O(1)$ and computing $V-C$ is $O(|V|)$.
+
+\subsection{A second example}
+The \textit{clique} problem asks if there is a set of vertices $C \subseteq V$ of
+size $|C| \ge k$, such that $C$ is a complete subgraph. That is, every pair of
+vertices in $C$ are connected by an edge. Reducing from IS to clique shows that
+clique is NP-hard if IS is NP-hard.
+
+Given a graph $G = (V,E)$ and an integer $k$, we use the same integer $k$, but
+consider $G' = (V,E')$, where $(u,v) \in E'$ if and only if $(u,v) \notin E$.
+We claim that $G'$ has a clique of size $k$ if and only if $G$ has an IS of
+size $k$. Suppose $G'$ has a clique of size $k$, and call it $C$. For
+$u \in C$, $v \in C$, we must have $(u,v) \in E'$. Then, $(u,v) \notin E$ by
+construction. So $C$ is an IS of size $k$ in $G$.
+
+Now, suppose $G$ has an IS of size $k$, and call it $S$. For $u \in S$, $v \in 
+S$, we must have $(u,v) \notin E$. Then $(u,v) \in E'$ by construction. So
+$S$ is a clique of size $k$ in $G'$.
+
+We have shown that $G'$ has a clique of size $k$ if and only if $G$ has an IS of
+size $k$. This reduction is polynomial time computable. Computing $E'$ is
+$O(|V|^{2})$.
+
+\subsection{Common errors in reductions}
+Common errors when trying to prove a problem $P'$ is NP-complete by reducing
+from a known hard problem $P$ include:
+\begin{enumerate}
+    \item Starting from an arbitrary input to $P'$ instead of $P$. Remember:
+        the problem of interest $P'$ is hard if it would allow us to solve an
+        arbitrary input to the known hard problem $P$.
+    \item Only proving one direction of $P(X) = 1$ if and only if $P'(Y)=1$.
+        Remember: we want a one-to-one correspondence between solutions of
+        both problems.
+\end{enumerate}
+
+\pagebreak
+\section{Proving NP-Completeness}
+To prove a problem $P'$ is NP-complete, we:
+\begin{enumerate}
+    \item argue that $P'$ is in NP (can verify a solution in polynomial time), 
+        and
+    \item show that $P'$ is NP-hard by reducing from a known NP-hard problem
+        $P$ to $P'$.
+\end{enumerate}
+\textbf{In short, to prove that a problem $A$ is NP-hard, reduce a known NP-hard
+problem to $A$.}
+
+\end{document}
