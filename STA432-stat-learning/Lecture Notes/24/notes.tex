@@ -1,0 +1,135 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Lecture 24}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Permutation/Randomization Tests}
+
+Let $\vec X \overset{\mathrm{iid}}{\sim}p_{\theta_{x}}$ and
+$\vec Y \overset{\mathrm{iid}}{\sim} p_{\theta_{y}}$. Recall that we said
+$X_{1}, \cdots , X_{n}, Y_{1}, \cdots Y_{m}$ were the \textit{labels}, and the
+values of those random variables were \textit{values}. If we are testing that
+the two distributions $p_{\theta_{x}}$ and $p_{\theta_{y}}$ are the same (this
+is $H_{0}$), then we should be able to shuffle the labels and values and
+the distributions shouldn't change. That is, if the labels don't matter, then
+the summaries (e.g. the mean) of all $X$ and $Y$ values should be the same.
+
+The general framework for permutation testing is
+\begin{enumerate}
+    \item Generate all permutations, of which there are $(n+m)!$.
+    \item Calculate the value of a test statistic $T$.
+    \item Compare observed value to this distribution.
+\end{enumerate}
+
+This process gives rise to a $p$-value. Then, $\mathbb{P}( \text{permutation})
+= 1/(n+m)!$. Say we have a graph, on which the $x$-axis represents the
+number of the permutation (1 through $(n+m)!$). Somewhere on this graph, the
+observed value is uniformly distributed among the values of $T$. Because we 
+are working under the null, and $T$ is uniformly distributed under the null, 
+then $\mathbb{P}(T>t_{obs})$ is a $p$-value. Thus,
+\[
+\mathbb{P}(T>t_{obs}) = \frac{1}{(n+m)!}\sum_{i=1}^{(n+m)!}\mathbbm{1}_{
+T_{i} > t_{obs}}.
+\]
+This can also be approximated (since $(n+m)!$ is a massive number) by sampling
+from the $(n+m)!$ possible permutations.
+
+\pagebreak
+\section{Causal Inference}
+To do causal inference, we assign $n$ individuals to different treatments
+$\mathcal{Z} = (Z_{1}, \cdots ,Z_{n})$. We then observe outcomes
+$Y_{i}(\vec Z)$ from each treatment $Y_{i}$. Ideally, we would be able to
+see the difference between how an individual responds to both treatments, but
+this is impossible. We can make some assumptions that make it possible, however.
+
+Rubin says that \textbf{randomization} "has a prophylactic effect, guarding
+against data unbalanced with respect to recorded covariates." If we had a
+population, and instead of randomizing it, we organized by gender (for example),
+then we would not be able to accurately see if the treatment or the gender of
+each group caused an effect. Randomizing combats this phenomenon. Randomization
+chemes can be very difference, but they generally guarantee this effect.
+
+Fisher was interested in the \textit{sharp null hypothesis:}
+\[
+    Y_{i}(1) = Y_{i}(0) \; \forall \; i \in  \{1, \cdots ,n\}.
+\]
+Why is this null sharp? Because we can choose any test statistic that depends on
+the observed vector of outcomes and construct its exact distribution under the
+null. This is a randomization distribution and we can find an exact $p$-value.
+
+Neyman disagrees with the sharp null. He cares about average treatment effects
+in general so theory should target those. Thus, our goal 
+
+\begin{note}
+    More details are available on the PowerPoint slides on Canvas.
+\end{note}
+
+\end{document}

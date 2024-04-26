@@ -1,0 +1,210 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Multiple Hypothesis Testing cont'd}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Multiple Testing}
+
+We have data $\vec X_{1} \overset{\mathrm{iid}}{\sim} p_{\theta_{1}}$, 
+$\vec X_{2} \overset{\mathrm{iid}}{\sim}p_{\theta_{2}}$, ... , 
+$\vec X_{n} \overset{\mathrm{iid}}{\sim}p_{\theta_{n}}$. We also have tests
+$(H_{01}, H_{11})$, ... , $(H_{0n}, H_{1n})$. Let $H_{0} : \theta_{i}=0$ and
+$H_{1}:\theta_{i} \ne 1$. normally we look for a test statistic $T_{i}$ for
+some test $H_{0i}$ vs $H_{1i}$ with rejection region $\mathbb{P}(T_{i}>c |
+H_{0i}) = \alpha$ for some $\alpha$-level test. In this case, our probability
+of type-I error is $\alpha$, and our probability of not making a type-I error
+is $1-\alpha$. But what are our odds of making \textit{no} type-I errors among
+all of our tests? Given independence, 
+\[
+\mathbb{P}( \text{making no type-I errors}) = (1-\alpha)^{m}.
+\]
+This means that, as $m$ grows, we asymptote to a probability of 1 that we make
+a type-I error. \textbf{Bonferroni} help us correct this. Using Bonferroni,
+instead of rejecting for $\alpha$, we reject at level $\frac{\alpha}{m}$, 
+where $m$ is the number of tests. That is, $p_{i} = \frac{\alpha}{m}$.
+
+Let \textbf{family-wise error} occur when we make at least 1 type-I error.
+In this case, our family-wise error is $(1-\frac{\alpha}{m})^{2}$. Then, the
+probability of \textit{not} making any errors becomes
+\begin{align*}
+    1 - \left(1 - \frac{\alpha}{m}\right)^{m}
+    &\approx 1 - e^{-\alpha}
+    & \text{for large $m$}\\
+    e^{-\alpha} &\rightarrow 1 - \alpha \\
+    \alpha &\rightarrow 1 - e^{-\alpha} 
+    & \text{then,} \\
+    1 - \left(1 - \frac{\alpha}{m}\right)^{m} &\approx \alpha
+\end{align*}
+
+\subsection{Controlling false discovery rate}
+We define \textbf{false discovery rate} as
+\[
+    \frac{ \text{\# of $H_{0}$ rejected when we shouldnt}}{
+    \text{total \# of rejections}}.
+\]
+\textbf{Benjamini-Hochberg} (BH) offers a way of controlling false discovery rate
+(minimizing it):
+\begin{enumerate}
+    \item Order $p$-value in increasing order.
+    \item Find the test with the highest rank $j$ for which the $p$-value
+        $p_{j} \le q\left(\frac{j}{m}\right)$.
+    \item Declare tests corresponding to $p$-values $p_{1}, \cdots , p_{j}$ as
+        discoveries.
+\end{enumerate}
+Here, the value of $q$ is the fraction of false discoveries that we are willing
+to tolerate. This is set by the person/organization doing the tests. Commonly,
+(and confusingly) it is also set to $q=0.05$, but not as often as $\alpha$.
+
+If we say that $D_{j}=1$ when a discovery is made, minimizing false discovery
+means solving for
+\[
+    \mathbb{E}\left[\frac{\sum (D_{i}(1-H_{j}))}{\sum D_{i}}\right] \le q.
+\]
+\subsection{Proof of BH correction}
+Let $H_{1}, \cdots H_{n} \overset{\mathrm{iid}}{\sim}Bern(\gamma)$. Then, the
+distribution of the $p$-values must be
+\begin{align*}
+    p_{j}|H_{0} &\sim \text{Uniform}(0,1) \\
+    p_{j}|H_{1} &\sim p_{1}.
+\end{align*}
+Crucially, we don't know what $p_{1}$ is (this is the marginal distribution of
+$p$). This could make things more challenging. We will try to calculate the
+expectation above.
+\begin{align*}
+    \mathbb{E}\left[\frac{\sum (D_{i}(1-H_{j}))}{\sum D_{i}}\right] 
+    &\le q \\
+    \mathbb{E}\left[\mathbb{E}\left[\frac{\sum (D_{i}(1-H_{j}))}{\sum D_{i}}
+        \middle|D_{1}, \cdots ,D_{n} \right]\right] 
+    &\le q \\
+    \mathbb{E}\left[\frac{\sum (D_{i}\mathbb{E}(1-H_j|\vec D))}{\sum D_{i}}
+    \right]
+    &\le q \\
+    \mathbb{E}\left[\frac{\sum (D_{i}\mathbb{E}(1 - H_{j}|D_{j}))}{\sum D_{i}}
+    \right]
+    &\le q & \text{since all $D$ have the same $\mathbb{E}$} \\
+    \mathbb{E}\left[\frac{ \text{\# of $D_{j} = 1$}}{ \text{\# of $D_{j}-1$}}
+    \mathbb{E}(1 - H_{j}|D=1)\right]
+    &\le q \\
+    \mathbb{E}[1-H_{j}|D=1]
+    &\le q \\
+    \mathbb{E}[1-H|p<\alpha_{E}]
+    &\le q & \text{ $\alpha_{E}$ is experimental $\alpha$}\\
+    \frac{\mathbb{P}_{E}(p<\alpha_{E}|H=0)\mathbb{P}(H=0)}{\mathbb{P}(p<
+    \alpha_{E})} 
+    &\le q & \text{ Bayes' rule} \\
+    \frac{\alpha_{E}(1 - \gamma)}{F(\alpha_{E})} 
+    &\le \frac{\alpha_{E}}{F(\alpha_{E})} \le q
+\end{align*}
+So, we need to find an $\alpha_{E}$ such that the final line holds true. 
+Crucially, we can't know $F(\alpha_{E})$, but we can estimate $\hat F(\alpha_{E}$
+via the \textbf{method of moments}. We can now think of all of the $p$-values
+that we have as a sample from $\hat F(\alpha_{E})$. 
+
+If we order our $p$-values in ascending order, since $q$ is a proportion, we
+are going to reject whenever 
+\[
+\frac{p_{(k)}}{k/m} \le q \rightarrow p_{(k)} \le q \cdot \frac{k}{m},
+\]
+which is the BH formula. BH tells us to find the largest $k$ for which this
+formulation holds.
+
+\pagebreak
+\section{Permutation Tests}
+Imagine that we have $X_{1}, \cdots ,X_{n} \overset{\mathrm{iid}}{\sim}f(x|
+\theta_{x})$ and $Y_{1}, \cdots ,Y_{m} \overset{\mathrm{iid}}{\sim}f(y|
+\theta_{y})$. We are interested in $H_{0}:f(x) = f(y)$ vs $H_{1}:f(x)\ne f(y)$.
+This is similar to ask if $\theta_{x} = \theta_{y}$, but in this case, even if
+the two parameters are the same, the distributions themselves may not be.
+
+Say we build a two-column table. The left column has all $X$ and all $Y$
+labels. We will call this the \texttt{label} column. The values that these
+random variables take will be listed in the second column. Call these values
+$u_{1}, \cdots ,u_{n+m}$. Under the null, if we shift the values around at 
+random, we would make no difference to the value of a test statistic we define
+as
+\[
+T(\vec X,\vec y) = |\bar X - \bar Y|.
+\]
+Specifically, even if we shift all labels/values around, we expect $T \approx0$
+under $H_{0}$. These shifts are \textbf{permutations}. There are $(n+m)!$
+possible permutations of the labels. Under the null, the distribution of the
+test statistic $T$ is uniform over the permutations/re-labellings. So,
+\begin{enumerate}
+    \item for each permutation $1, \cdots (n+m)!$, compute $T$ which gives
+        $T_{1}, \cdots ,T_{(n+m)!}$
+    \item Find a $p$-value 
+        \[
+            \mathbb{P}(T>t_{obs}|H_{0}) = \frac{1}{(n+m)!}\sum_{j=1}^{(n+m)!}
+            \mathbbm{1}(T^{j}>t_{obs})
+        \]
+\end{enumerate}
+
+\end{document}

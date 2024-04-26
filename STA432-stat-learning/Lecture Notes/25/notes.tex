@@ -1,0 +1,172 @@
+\documentclass[titlepage, 12pt, leqno]{article}
+
+% -------------------------------------------------- %
+% -------------------- PACKAGES -------------------- %
+% -------------------------------------------------- %
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{mathtools}
+\usepackage{transparent}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{parskip}
+\usepackage{bbm}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algpseudocodex}
+\usepackage[margin = 1in]{geometry}
+\tcbuselibrary{breakable}
+\tcbset{breakable = true}
+
+
+% -------------------------------------------------- %
+% -------------- CUSTOM ENVIRONMENTS --------------- %
+% -------------------------------------------------- %
+\newtcolorbox{note}{colback=black!5!white,
+                          colframe=black!55!white,
+                          fonttitle=\bfseries,title=Note}
+
+\newtcolorbox{ex}{colback=blue!5!white,
+                          colframe=blue!55!white,
+                          fonttitle=\bfseries,title=Example}
+
+\newtcolorbox{definition}{colback=red!5!white,
+                          colframe=red!55!white,
+                          fonttitle=\bfseries,title=Definition}
+
+
+% -------------------------------------------------- %
+% ------------------- COMMANDS --------------------- %
+% -------------------------------------------------- %
+% Brackets, braces, etc. 
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\bigabs}[1]{\Bigl \lvert #1 \Bigr \rvert}
+\newcommand{\bigbracket}[1]{\Bigl [ #1 \Bigr ]}
+\newcommand{\bigparen}[1]{\Bigl ( #1 \Bigr )}
+\newcommand{\ceil}[1]{\lceil #1 \rceil}
+\newcommand{\floor}[1]{\lfloor #1 \rfloor}
+\newcommand{\norm}[1]{\| #1 \|}
+\newcommand{\bignorm}[1]{\Bigl \| #1 \Bigr \| #1}
+\newcommand{\inner}[1]{\langle #1 \rangle}
+\newcommand{\set}[1]{{ #1 }}
+
+
+% -------------------------------------------------- %
+% -------------------- SETUP ----------------------- %
+% -------------------------------------------------- %
+\title{\Huge{Final Exam Review}}
+\author{\large{Mitch Harrison}}
+\date{\today}   
+\begin{document}
+\setlength{\parskip}{1\baselineskip}
+\setlength{\parindent}{15pt}
+\maketitle
+\tableofcontents
+\newpage
+
+
+% -------------------------------------------------- %
+% --------------------- BODY ----------------------- %
+% -------------------------------------------------- %
+\section{Review}
+
+First, recall that for any random variable $\hat \mu$,
+\[
+    Var(\hat \mu) = \mathbb{E}(\hat \mu)^{2} = [\mathbb{E}(\hat \mu)]^{2}.
+\]
+If this variance is zero or constant, it is no longer a function of the data
+since there is no randomness from the data.
+
+\subsection{Exam 2, Problem 3}
+
+This question mainly tasked us with concepts backed by a limited number of 
+algebraic manipulations. We have $X_{i} \overset{\mathrm{iid}}{\sim}
+Pois(\lambda_{i})$.
+
+\subsubsection{Find MLE for $\lambda_{i}$}
+The nature of the question means that there must be $n$ answers, one for each
+$\lambda_{i}$. Because the MLE of a Poisson is $\bar X$ and the fact that each
+$X$ has its own $\lambda$, then each $\hat \lambda_{i} = X_{i}$.
+
+\subsubsection{Find $\Lambda(X)$}
+He leaves the algebra to us and didn't give us the answer. Sick.
+
+\subsubsection{Conditioning to get to a Binomial}
+\begin{align*}
+    \mathbb{P}(X_{i}|X_{1} + X_{2} = t)
+    &= \frac{\mathbb{P}(X_{1} = k, X_{1} + X_{2}=t)}{
+    \mathbb{P}(X_{1} + X_{2} = t)} \\
+    &= \frac{\mathbb{P}(X_{1} = k)\mathbb{P}(X_{2}=t-k)}{
+    \mathbb{P}(X_{1} +X_{2}=t)}
+\end{align*}
+Observe that $X \sim Poisson$, we know that $\mathbb{P}(X_{1} + X_{2})
+\sim Poisson(\lambda_{1} + \lambda_{2})$ because the summations of a
+Poisson is another Poisson with the sum of the parameters. Plugging in these
+Poissons will give us some hellish formula that will have some cancelling,
+resulting in the PMF of a binomial as requested in the problem statement.
+
+\pagebreak
+\section{General Prep Guidance}
+A good way to practice would be to go through common distributions and
+perform common calculations. For example, there is a table online somewhere
+of all distributions that have an MLE, and it is worth finding those. Recall
+that sometimes, the derivative cannot be found due to some constraint placed
+on the distribution in our specific problem (we have seen this before).
+Things that we are \textbf{likely to see on the exam} are:
+\begin{enumerate}
+    \item Likelihood
+    \item Log-likelihood
+    \item Derivative of log-likelihood
+    \item MLE
+    \item Second derivative
+    \item Take expectation of second derivative for $\mathcal{I}(\theta)$
+    \item $\sqrt{n}(\hat \theta - \theta) \rightarrow Normal(0, 1/\mathcal{I}
+        (\theta)$
+    \item Construct an asymptotic or approximate interval using
+        \[
+        \hat \theta \pm Z_{1-\alpha/2} \sqrt{\frac{1}{\mathcal{I}(\theta)}},
+        \]
+        and recall that this is only a valid interval if $\mathcal{I}$ does
+        not depend on $\theta_{0}$, the true parameter value.
+    \item Calculate $J_{n}(\theta)$ by finding
+        \[
+        J_{n}(\theta) = -\sum_{i=1}^{n}\ell''(\theta|X_{i}),
+        \]
+        and recall that $\mathcal{J}_{n}/n \rightarrow \mathcal{I}$ and 
+        $J_{n}\approx \mathcal{I}$. 
+    \item Use this to find an interval of the form
+        \[
+            \hat \theta \pm Z_{1-\alpha/2}\sqrt{\frac{1}{J_{n}(\theta|\theta=
+            \hat \theta)}}.
+        \]
+\end{enumerate}
+
+We will need to know \textbf{consistency}, how to find if we have consistency,
+and how $\bar X$ is consistent and that we can use it to find MoM estimators.
+
+We will also be asked about Bonferroni's correction, what it is, and how we use
+it. But we will probably not be asked to do any proofs using multiple hypothesis
+testing (although concepts are fair game).
+
+There may also be questions surrounding the method of moments, both in concept
+and finding them.
+
+Some basic understanding how how distributions interact will be helpful. For
+example, sums of Poissons are Poisson and sums of Normals are Normal, etc.
+
+It would be helpful to recall Chebychev's inequality as well.
+
+\pagebreak
+\section{Conclusion}
+The goal of this course was to (hopefully) explore the mathematical backing 
+behind most of the statistical techniques that we have been using throughout
+our academic career. With hypothesis testing, because most of Duke is Bayesian,
+we covered the frequentist methods because that is how most people in industry
+are thinking, as well as how things are usually reported in the press, etc.
+Hypothesis tests become a little bit more nightmarish in multiple dimensions
+(beyond the scope of this course), but is an active area of research.
+
+\end{document}
